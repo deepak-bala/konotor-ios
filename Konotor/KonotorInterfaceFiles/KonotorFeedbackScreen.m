@@ -1,0 +1,72 @@
+//
+//  KonotorFeedbackScreen.m
+//  KonotorSampleApp
+//
+//  Created by Srikrishnan Ganesan on 09/07/13.
+//  Copyright (c) 2013 Demach. All rights reserved.
+//
+
+#import "KonotorFeedbackScreen.h"
+
+static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
+
+@implementation KonotorFeedbackScreen
+
+@synthesize conversationViewController,window;
+
++ (KonotorFeedbackScreen*) sharedInstance
+{
+    if(konotorFeedbackScreen==nil){
+        konotorFeedbackScreen=[[KonotorFeedbackScreen alloc] init];
+    }
+    return konotorFeedbackScreen;
+}
+
+
++ (BOOL) showFeedbackScreen
+{
+    KonotorFeedbackScreen* fbScreen=[KonotorFeedbackScreen sharedInstance];
+    if(fbScreen.conversationViewController!=nil)
+        return NO;
+    else{
+        konotorFeedbackScreen.conversationViewController=[[KonotorFeedbackScreenViewController alloc] initWithNibName:@"KonotorFeedbackScreenViewController" bundle:nil];
+        [konotorFeedbackScreen.conversationViewController setModalPresentationStyle:UIModalPresentationFullScreen];
+        [konotorFeedbackScreen.conversationViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
+        
+        if(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation])){
+        konotorFeedbackScreen.window=[[UIWindow alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+        }
+        else{
+            konotorFeedbackScreen.window=[[UIWindow alloc] initWithFrame:[[[UIApplication sharedApplication] delegate] window].bounds];
+        }
+
+        [konotorFeedbackScreen.window setBackgroundColor:[UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:0.7]];
+        [konotorFeedbackScreen.window setRootViewController:konotorFeedbackScreen.conversationViewController];
+        
+        [[[[[UIApplication sharedApplication] delegate] window] rootViewController] presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
+         //   konotorFeedbackScreen.conversationViewController.view.layer.shouldRasterize = NO;
+         //   [KonotorFeedbackScreen refreshMessages];
+        }];
+    }
+    return YES;
+}
+
++ (void) refreshMessages
+{
+    [konotorFeedbackScreen.conversationViewController refreshView];
+}
+
++ (void) dismissScreen
+{
+    [konotorFeedbackScreen.conversationViewController dismissViewControllerAnimated:YES completion:^{
+        konotorFeedbackScreen.conversationViewController=nil;
+        konotorFeedbackScreen.window=nil;
+        konotorFeedbackScreen=nil;
+        [Konotor setDelegate:[KonotorEventHandler sharedInstance]];
+
+    }];
+ 
+}
+
+
+@end
