@@ -180,7 +180,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [userNameField setEditable:NO];
         [userNameField setScrollEnabled:NO];
      //   [userNameField setContentOffset:CGPointMake(0,-4)];
-       // [userNameField setContentSize:CGSizeMake(messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
+     // [userNameField setContentSize:CGSizeMake(messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
         userNameField.tag=KONOTOR_USERNAMEFIELD_TAG;
         [cell.contentView addSubview:userNameField];
         
@@ -314,10 +314,8 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
             [timeField setContentOffset:CGPointMake(0, 4)];
         
         [messageText setText:currentMessage.text];
-     //   [messageText setText:@"This is exactly what we are going to be facing the next time you do this to us"];
         
         CGRect txtMsgFrame=messageText.frame;
-        txtMsgFrame.size.height=[[currentMessage text] sizeWithFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14] constrainedToSize:CGSizeMake(messageTextBoxWidth-16, 1000)].height+16;
        
         txtMsgFrame.origin.x=messageTextBoxX;
         txtMsgFrame.origin.y=messageTextBoxY+KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_TIMEFIELD_HEIGHT;
@@ -390,7 +388,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         return 40;
     KonotorMessageData* currentMessage=(KonotorMessageData*)[messages objectAtIndex:indexPath.row];
     float width=(KONOTOR_SHOWPROFILEIMAGE)?(self.view.frame.size.width-KONOTOR_PROFILEIMAGE_DIMENSION-3*KONOTOR_HORIZONTAL_PADDING-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING):(self.view.frame.size.width-8*KONOTOR_HORIZONTAL_PADDING-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING);
-  //  currentMessage.text=@"This is exactly what we are going to be facing the next time you do this to us";
 
     if([currentMessage messageType].integerValue==KonotorMessageTypeText){
         UITextView* txtView=[[UITextView alloc] init];
@@ -465,7 +462,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     [self.tableView reloadData];
     [Konotor MarkAllMessagesAsRead];
 
-  //  [self.tableView scrollRectToVisible:CGRectMake(0,self.tableView.contentSize.height-50, 2, 50) animated:YES];
     int lastSpot=loading?messageCount:(messageCount-1);
     if(lastSpot<0) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
@@ -474,10 +470,12 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
 - (void) didFinishDownloadingMessages
 {
-  /*  int count=[[Konotor getAllMessagesForDefaultConversation] count];
+  /*  Commented section to test if downloading messages was successful and message counts have been updated
+    int count=[[Konotor getAllMessagesForDefaultConversation] count];
     NSString* messagesDownloadedAlertText=[NSString stringWithFormat:@"%d messages in this conversation", count];
     UIAlertView* konotorAlert=[[UIAlertView alloc] initWithTitle:@"Finished loading messages" message:messagesDownloadedAlertText delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
-    [konotorAlert show];*/
+    [konotorAlert show];
+   */
     loading=NO;
     [self refreshView];
 }
