@@ -27,6 +27,8 @@
 #define KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING_IMESSAGE 8
 /* END OF DEFAULT SECTION */
 
+#define KONOTOR_MESSAGETEXT_FONT ([UIFont fontWithName:@"HelveticaNeue-Light" size:16.0])
+
 
 #define TRANSPARENT_COLOR ([UIColor clearColor])
 #define WHITE_COLOR ([UIColor whiteColor])

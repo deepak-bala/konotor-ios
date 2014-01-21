@@ -185,7 +185,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [cell.contentView addSubview:userNameField];
         
         UITextView *timeField=[[UITextView alloc] initWithFrame:CGRectMake(messageTextBoxX, messageTextBoxY+KONOTOR_USERNAMEFIELD_HEIGHT, messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
-        [timeField setFont:[UIFont fontWithName:@"HelveticaNeue" size:10]];
+        [timeField setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
         [timeField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [timeField setTextAlignment:NSTextAlignmentLeft];
         [timeField setTextColor:[UIColor darkGrayColor]];
@@ -196,7 +196,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
         
         UITextView* messageText=[[UITextView alloc] initWithFrame:CGRectMake((KONOTOR_SHOWPROFILEIMAGE?1:0)*(KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_HORIZONTAL_PADDING)+KONOTOR_HORIZONTAL_PADDING, KONOTOR_VERTICAL_PADDING+KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING, self.view.frame.size.width-(KONOTOR_SHOWPROFILEIMAGE?1:0)*(KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_HORIZONTAL_PADDING)-30, 10)];
-        [messageText setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:15]];
+        [messageText setFont:KONOTOR_MESSAGETEXT_FONT];
         [messageText setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [messageText setDataDetectorTypes:UIDataDetectorTypeAll];
         [messageText setTextAlignment:NSTextAlignmentLeft];
@@ -335,7 +335,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
 
     }
-    else{
+    else if([currentMessage messageType].integerValue==KonotorMessageTypeAudio){
         [messageText setText:@""];
         
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_AUDIOMESSAGE_HEIGHT, messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
@@ -373,6 +373,42 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
             [playButton startAnimating];
 
     }
+    else{
+        
+        [playButton.mediaProgressBar setHidden:YES];
+        [playButton setHidden:YES];
+        
+        [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+KONOTOR_USERNAMEFIELD_HEIGHT, messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT+4)];
+        // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
+        
+        if([timeField respondsToSelector:@selector(textContainerInset)])
+            timeField.textContainerInset=UIEdgeInsetsMake(4, 0, 0, 0);
+        else
+#endif
+            [timeField setContentOffset:CGPointMake(0, 4)];
+        
+        [messageText setText:@"Message cannot be displayed. Please upgrade your app to view this message."];
+        
+        CGRect txtMsgFrame=messageText.frame;
+        
+        txtMsgFrame.origin.x=messageTextBoxX;
+        txtMsgFrame.origin.y=messageTextBoxY+KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_TIMEFIELD_HEIGHT;
+        txtMsgFrame.size.width=messageTextBoxWidth;
+        CGSize sizer=[messageText sizeThatFits:CGSizeMake(messageTextBoxWidth, 1000)];
+        txtMsgFrame.size.height=sizer.height;
+        
+        messageText.frame=txtMsgFrame;
+        
+        txtMsgFrame.size.height=sizer.height+KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING+KONOTOR_MESSAGE_BACKGROUND_IMAGE_BOTTOM_PADDING;
+        txtMsgFrame.origin.y=messageText.frame.origin.y-KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING;
+        txtMsgFrame.origin.y=messageContentViewY;
+        txtMsgFrame.origin.x=messageContentViewX;
+        txtMsgFrame.size.width=messageContentViewWidth;
+        if(KONOTOR_USESCALLOUTIMAGE)
+            messageBackground.frame=txtMsgFrame;
+
+    }
     
     [cell.contentView setClipsToBounds:YES];
     cell.tag=[currentMessage.messageId hash];
@@ -391,7 +427,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
     if([currentMessage messageType].integerValue==KonotorMessageTypeText){
         UITextView* txtView=[[UITextView alloc] init];
-        [txtView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:15.0]];
+        [txtView setFont:KONOTOR_MESSAGETEXT_FONT];
         [txtView setText:[currentMessage text]];
         float height=0.0;//[[currentMessage text] sizeWithFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14] constrainedToSize:CGSizeMake(width-16, 1000)].height;
         height=[txtView sizeThatFits:CGSizeMake(width, 1000)].height-16;
@@ -400,8 +436,22 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         else
             return height+KONOTOR_VERTICAL_PADDING+16+KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_TIMEFIELD_HEIGHT;
     }
-    else
+    else if([currentMessage messageType].integerValue==KonotorMessageTypeAudio)
+    {
         return KONOTOR_AUDIOMESSAGE_HEIGHT+(KONOTOR_MESSAGE_BACKGROUND_BOTTOM_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)+KONOTOR_VERTICAL_PADDING+KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_TIMEFIELD_HEIGHT+KONOTOR_VERTICAL_PADDING;
+    }
+    else{
+        UITextView* txtView=[[UITextView alloc] init];
+        [txtView setFont:KONOTOR_MESSAGETEXT_FONT];
+        [txtView setText:@"Message cannot be displayed. Please upgrade your app to view this message."];
+        float height=0.0;//[[currentMessage text] sizeWithFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14] constrainedToSize:CGSizeMake(width-16, 1000)].height;
+        height=[txtView sizeThatFits:CGSizeMake(width, 1000)].height-16;
+        if(KONOTOR_SHOWPROFILEIMAGE)
+            return MAX(height+KONOTOR_VERTICAL_PADDING+16+KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_TIMEFIELD_HEIGHT,KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING;
+        else
+            return height+KONOTOR_VERTICAL_PADDING+16+KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_TIMEFIELD_HEIGHT;
+
+    }
 }
 
 /*
