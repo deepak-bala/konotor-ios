@@ -15,6 +15,7 @@
 #ifndef KONOTORFEEDBACKSCREEN_H
 #define KONOTORFEEDBACKSCREEN_H
 
+#define KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER NO
 
 @class KonotorFeedbackScreenViewController;
 

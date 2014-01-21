@@ -30,6 +30,14 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         return NO;
     else{
         konotorFeedbackScreen.conversationViewController=[[KonotorFeedbackScreenViewController alloc] initWithNibName:@"KonotorFeedbackScreenViewController" bundle:nil];
+        if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
+            if([[[[[UIApplication sharedApplication] delegate] window] rootViewController] isMemberOfClass:[UINavigationController class]]){
+                [(UINavigationController*)[[[[UIApplication sharedApplication] delegate] window] rootViewController] pushViewController:konotorFeedbackScreen.conversationViewController animated:YES];
+                
+                konotorFeedbackScreen.conversationViewController=nil;
+                return YES;
+            }
+        }
         [konotorFeedbackScreen.conversationViewController setModalPresentationStyle:UIModalPresentationFullScreen];
         [konotorFeedbackScreen.conversationViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         

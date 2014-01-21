@@ -50,7 +50,12 @@
         topPaddingIOS7=20;
     }
 #endif
-    
+    if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
+        float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+        if (systemVersion >= 7.0) {
+            self.edgesForExtendedLayout = UIRectEdgeNone;
+        }
+    }
 
     [headerView setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
     [headerView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:26.0]];
@@ -63,8 +68,10 @@
     UIButton* closeButton=[UIButton buttonWithType:UIButtonTypeCustom];
     [closeButton setBackgroundColor:[UIColor clearColor]];
     [closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [closeButton setTitle:@"X" forState:UIControlStateNormal];
-    [closeButton setFrame:CGRectMake(6,6,32,32)];
+   // [closeButton setBackgroundImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
+    [closeButton setImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
+   // [closeButton setTitle:@"X" forState:UIControlStateNormal];
+    [closeButton setFrame:CGRectMake(8,8,28,28)];
     [closeButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
     
     [headerView addSubview:closeButton];
@@ -101,6 +108,46 @@
 
     // Do any additional setup after loading the view from its nib.
 }
+
+- (void) viewDidAppear:(BOOL)animated
+{
+    //
+    if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
+        [[self.navigationController navigationBar] setBarTintColor:[UIColor colorWithRed:43.0/255.0 green:42.0/255.0 blue:42.0/255.0 alpha:1.0]];
+        [[self.navigationController navigationBar] setTintColor:[UIColor whiteColor]];
+        [self.navigationItem setTitle:@"Feedback"];
+        self.navigationController.navigationBar.titleTextAttributes=[NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor], UITextAttributeTextColor, [UIColor clearColor], UITextAttributeTextShadowColor,[NSValue valueWithUIOffset:UIOffsetMake(1, 1)], UITextAttributeTextShadowOffset,[UIFont fontWithName:@"HelveticaNeue-UltraLight" size:28.0],UITextAttributeFont,nil];
+        
+        
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        [button setBackgroundImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
+        button.frame=CGRectMake(0,0, 36, 36);
+        [button addTarget:self action:@selector(cancel:) forControlEvents:UIControlEventTouchUpInside];
+        
+        UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithCustomView:button];
+        
+        
+
+        self.navigationItem.leftBarButtonItem=backButton;
+
+    }
+    
+    
+    
+
+}
+
+
+
+-(IBAction)cancel:(id)sender{
+    
+    dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, 0);
+    dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+        [self.navigationController popViewControllerAnimated:YES];
+    });
+  
+}
+
 
 
 - (void) viewDidLayoutSubviews
