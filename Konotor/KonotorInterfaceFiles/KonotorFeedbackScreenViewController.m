@@ -61,9 +61,17 @@
     [headerView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:26.0]];
     [headerView setText:@"Feedback"];
     [headerView setEditable:NO];
+    if([headerView respondsToSelector:@selector(setSelectable:)])
+        [headerView setSelectable:NO];
     [headerView setScrollEnabled:NO];
     [headerView setTextColor:[UIColor whiteColor]];
     [headerView setTextAlignment:NSTextAlignmentCenter];
+    
+    if(!KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
+        CGRect headerRect=headerView.frame;
+        headerRect.origin.y=headerRect.origin.y+topPaddingIOS7;
+        [headerView setFrame:headerRect];
+    }
     
     UIButton* closeButton=[UIButton buttonWithType:UIButtonTypeCustom];
     [closeButton setBackgroundColor:[UIColor clearColor]];
@@ -101,6 +109,13 @@
     messagesView.view=messageTableView;
     [messageTableView setDelegate:messagesView];
     [messageTableView setDataSource:messagesView];
+    
+    if(!KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
+        CGRect messageRect=messagesView.view.frame;
+        messageRect.origin.y=messageRect.origin.y+topPaddingIOS7;
+        messageRect.size.height=messageRect.size.height-topPaddingIOS7;
+        [messagesView.view setFrame:messageRect];
+    }
 
     [Konotor setDelegate:messagesView];
 
