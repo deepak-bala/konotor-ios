@@ -185,8 +185,10 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
             [userNameField setTextColor:KONOTOR_UIBUTTON_COLOR];
         [userNameField setEditable:NO];
         [userNameField setScrollEnabled:NO];
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
         if([userNameField respondsToSelector:@selector(setSelectable:)])
             [userNameField setSelectable:NO];
+#endif
      //   [userNameField setContentOffset:CGPointMake(0,-4)];
      // [userNameField setContentSize:CGSizeMake(messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
         userNameField.tag=KONOTOR_USERNAMEFIELD_TAG;
@@ -199,8 +201,10 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [timeField setTextAlignment:NSTextAlignmentLeft];
         [timeField setTextColor:[UIColor darkGrayColor]];
         [timeField setEditable:NO];
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
         if([timeField respondsToSelector:@selector(setSelectable:)])
             [timeField setSelectable:NO];
+#endif
         [timeField setScrollEnabled:NO];
         timeField.tag=KONOTOR_TIMEFIELD_TAG;
         if(KONOTOR_SHOW_TIMESTAMP)

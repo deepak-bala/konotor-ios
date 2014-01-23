@@ -50,19 +50,25 @@
         topPaddingIOS7=20;
     }
 #endif
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
+
     if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
         float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
         if (systemVersion >= 7.0) {
             self.edgesForExtendedLayout = UIRectEdgeNone;
         }
     }
+#endif
 
     [headerView setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
     [headerView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:26.0]];
     [headerView setText:@"Feedback"];
     [headerView setEditable:NO];
+    
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
     if([headerView respondsToSelector:@selector(setSelectable:)])
         [headerView setSelectable:NO];
+#endif
     [headerView setScrollEnabled:NO];
     [headerView setTextColor:[UIColor whiteColor]];
     [headerView setTextAlignment:NSTextAlignmentCenter];
@@ -128,8 +134,6 @@
 {
     //
     if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
-        [[self.navigationController navigationBar] setBarTintColor:[UIColor colorWithRed:43.0/255.0 green:42.0/255.0 blue:42.0/255.0 alpha:1.0]];
-        [[self.navigationController navigationBar] setTintColor:[UIColor whiteColor]];
         [self.navigationItem setTitle:@"Feedback"];
         self.navigationController.navigationBar.titleTextAttributes=[NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor], UITextAttributeTextColor, [UIColor clearColor], UITextAttributeTextShadowColor,[NSValue valueWithUIOffset:UIOffsetMake(1, 1)], UITextAttributeTextShadowOffset,[UIFont fontWithName:@"HelveticaNeue-UltraLight" size:28.0],UITextAttributeFont,nil];
         
@@ -140,9 +144,6 @@
         [button addTarget:self action:@selector(cancel:) forControlEvents:UIControlEventTouchUpInside];
         
         UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithCustomView:button];
-        
-        
-
         self.navigationItem.leftBarButtonItem=backButton;
 
     }
