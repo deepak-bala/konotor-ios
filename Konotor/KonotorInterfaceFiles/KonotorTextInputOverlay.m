@@ -7,6 +7,7 @@
 //
 
 #import "KonotorTextInputOverlay.h"
+#import "KonotorFeedbackScreen.h"
 
 static KonotorTextInputOverlay* konotorTextInputBox=nil;
 
@@ -38,7 +39,7 @@ static KonotorTextInputOverlay* konotorTextInputBox=nil;
     [textInputBox setBackgroundColor:[UIColor whiteColor]];
     
    // transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.width, window.frame.size.height-15-20-44)];
-    if(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation]))
+    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
     {
         transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.height, window.frame.size.width)];
     }
@@ -109,9 +110,9 @@ static KonotorTextInputOverlay* konotorTextInputBox=nil;
     if (CGRectIntersectsRect(keyboardFrame, window.frame)) {
         
         // Keyboard is visible
-        float y=(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation]))?(window.frame.size.width-keyboardEndFrame.size.width):(window.frame.size.height-keyboardEndFrame.size.height);
-        y=(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation]))?keyboardFrame.origin.y:keyboardFrame.origin.y;
-        float width=(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation]))?keyboardEndFrame.size.height:keyboardEndFrame.size.width;
+        float y=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?(window.frame.size.width-keyboardEndFrame.size.width):(window.frame.size.height-keyboardEndFrame.size.height);
+        y=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?keyboardFrame.origin.y:keyboardFrame.origin.y;
+        float width=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?keyboardEndFrame.size.height:keyboardEndFrame.size.width;
         
         [textInputBox setFrame:CGRectMake(0, y-textInputBox.frame.size.height, width, textInputBox.frame.size.height)];
         [transparentView setFrame:CGRectMake(0, 0, width, window.frame.size.height)];
@@ -127,8 +128,8 @@ static KonotorTextInputOverlay* konotorTextInputBox=nil;
     CGRect newFrame;
     [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] getValue:&newFrame];
     
-    float y=(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation]))?(window.frame.size.width-newFrame.size.width):(window.frame.size.height-newFrame.size.height);
-    float width=(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation]))?newFrame.size.height:newFrame.size.width;
+    float y=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?(window.frame.size.width-newFrame.size.width):(window.frame.size.height-newFrame.size.height);
+    float width=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?newFrame.size.height:newFrame.size.width;
     
     [textInputBox setFrame:CGRectMake(0, y-textInputBox.frame.size.height, width, textInputBox.frame.size.height)];
     [transparentView setFrame:CGRectMake(0, 0, width, textInputBox.frame.origin.y)];
@@ -176,6 +177,8 @@ static KonotorTextInputOverlay* konotorTextInputBox=nil;
     if((txt==nil)||([txt isEqualToString:@""]))
         txt=@"1";
     CGSize txtSize = [textView sizeThatFits:CGSizeMake(textView.frame.size.width, 140)];
+    if(txtSize.height>100)
+        txtSize.height=100;
     
     textInputBox.frame=CGRectMake(textInputBox.frame.origin.x, textInputBox.frame.origin.y-(txtSize.height-textBox.frame.size.height), textInputBox.frame.size.width, textInputBox.frame.size.height+(txtSize.height-textBox.frame.size.height));
     

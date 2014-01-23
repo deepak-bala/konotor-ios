@@ -41,7 +41,7 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         [konotorFeedbackScreen.conversationViewController setModalPresentationStyle:UIModalPresentationFullScreen];
         [konotorFeedbackScreen.conversationViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         
-        if(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation])){
+        if(UIInterfaceOrientationIsLandscape(konotorFeedbackScreen.conversationViewController.interfaceOrientation)){
         konotorFeedbackScreen.window=[[UIWindow alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
         }
         else{

@@ -167,7 +167,7 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
 {
     //Add a transparent Overlay on top of the current view
     transparentView=[[UIView alloc] initWithFrame:CGRectMake(0, 0, window.frame.size.width, window.frame.size.height)];
-    if(UIInterfaceOrientationIsLandscape([[UIDevice currentDevice] orientation]))
+    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.messagesView.interfaceOrientation))
     {
         [transparentView setFrame:CGRectMake(0, 0, window.frame.size.height, window.frame.size.width)];
         
