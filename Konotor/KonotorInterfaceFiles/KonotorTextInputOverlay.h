@@ -10,6 +10,7 @@
 #import "KonotorUI.h"
 
 #define KONOTOR_TEXTINPUT_TEXTVIEW_TAG 201
+#define KONOTOR_TEXTINPUT_SENDBUTTON_TAG 202
 
 @interface KonotorTextInputOverlay : NSObject <UITextViewDelegate>
 

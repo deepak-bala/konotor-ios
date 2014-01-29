@@ -13,6 +13,7 @@
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>IBProxyObject</string>
 			<string>IBUIButton</string>
+			<string>IBUILabel</string>
 			<string>IBUITableView</string>
 			<string>IBUITextView</string>
 			<string>IBUIView</string>
@@ -40,7 +41,7 @@
 					<object class="IBUITableView" id="342067837">
 						<reference key="NSNextResponder" ref="151136140"/>
 						<int key="NSvFlags">274</int>
-						<string key="NSFrame">{{6, 51}, {308, 357}}</string>
+						<string key="NSFrame">{{6, 50}, {308, 342}}</string>
 						<reference key="NSSuperview" ref="151136140"/>
 						<reference key="NSWindow"/>
 						<object class="NSColor" key="IBUIBackgroundColor">
@@ -64,7 +65,7 @@
 					<object class="IBUITextView" id="784934016">
 						<reference key="NSNextResponder" ref="151136140"/>
 						<int key="NSvFlags">290</int>
-						<string key="NSFrame">{{6, 7}, {308, 44}}</string>
+						<string key="NSFrame">{{6, 6}, {308, 44}}</string>
 						<reference key="NSSuperview" ref="151136140"/>
 						<reference key="NSWindow"/>
 						<object class="NSColor" key="IBUIBackgroundColor">
@@ -153,7 +154,7 @@
 								</object>
 							</object>
 						</array>
-						<string key="NSFrame">{{6, 408}, {308, 44}}</string>
+						<string key="NSFrame">{{6, 392}, {308, 44}}</string>
 						<reference key="NSSuperview" ref="151136140"/>
 						<reference key="NSWindow"/>
 						<object class="NSColor" key="IBUIBackgroundColor">
@@ -164,6 +165,42 @@
 							</object>
 						</object>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+					</object>
+					<object class="IBUILabel" id="950124619">
+						<reference key="NSNextResponder" ref="151136140"/>
+						<int key="NSvFlags">266</int>
+						<string key="NSFrame">{{6, 436}, {308, 18}}</string>
+						<reference key="NSSuperview" ref="151136140"/>
+						<reference key="NSWindow"/>
+						<string key="NSReuseIdentifierKey">_NS:9</string>
+						<string key="NSHuggingPriority">{251, 251}</string>
+						<object class="NSColor" key="IBUIBackgroundColor">
+							<int key="NSColorSpace">3</int>
+							<bytes key="NSWhite">MC4zMzMzMzMzMzMzAA</bytes>
+						</object>
+						<bool key="IBUIOpaque">NO</bool>
+						<bool key="IBUIClipsSubviews">YES</bool>
+						<int key="IBUIContentMode">7</int>
+						<bool key="IBUIUserInteractionEnabled">NO</bool>
+						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+						<string key="IBUIText">Powered By Konotor</string>
+						<object class="NSColor" key="IBUITextColor">
+							<int key="NSColorSpace">1</int>
+							<bytes key="NSRGB">MC45ODc1MzQwNDI3IDEgMC45NTMxNDY1MjcAA</bytes>
+						</object>
+						<nil key="IBUIHighlightedColor"/>
+						<int key="IBUIBaselineAdjustment">0</int>
+						<int key="IBUITextAlignment">1</int>
+						<object class="IBUIFontDescription" key="IBUIFontDescription">
+							<int key="type">1</int>
+							<double key="pointSize">13</double>
+						</object>
+						<object class="NSFont" key="IBUIFont">
+							<string key="NSName">HelveticaNeue</string>
+							<double key="NSSize">13</double>
+							<int key="NSfFlags">16</int>
+						</object>
+						<bool key="IBUIAdjustsFontSizeToFit">NO</bool>
 					</object>
 				</array>
 				<string key="NSFrame">{{0, 20}, {320, 460}}</string>
@@ -258,6 +295,7 @@
 						<array class="NSMutableArray" key="children">
 							<reference ref="342067837"/>
 							<reference ref="784934016"/>
+							<reference ref="950124619"/>
 							<reference ref="89136296"/>
 						</array>
 						<reference key="parent" ref="0"/>
@@ -291,6 +329,11 @@
 						<reference key="object" ref="513948379"/>
 						<reference key="parent" ref="89136296"/>
 					</object>
+					<object class="IBObjectRecord">
+						<string key="id">Q6a-1F-xzV</string>
+						<reference key="object" ref="950124619"/>
+						<reference key="parent" ref="151136140"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -309,6 +352,7 @@
 				<string key="Akc-NS-26t.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<reference key="Akc-NS-26t.IBUserGuides" ref="0"/>
 				<boolean value="NO" key="Akc-NS-26t.showNotes"/>
+				<string key="Q6a-1F-xzV.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="bxI-lr-jb1.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<reference key="bxI-lr-jb1.IBUserGuides" ref="0"/>
 				<boolean value="NO" key="bxI-lr-jb1.showNotes"/>

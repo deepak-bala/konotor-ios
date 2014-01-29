@@ -53,7 +53,12 @@ static KonotorTextInputOverlay* konotorTextInputBox=nil;
     [window addSubview:transparentView];
 
     
-    KonotorUITextView* input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.width-30-10-50-35+10, 44-5-5)];
+    KonotorUITextView* input;
+    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.height-30-10-50-35+10, 44-5-5)];
+    else
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.width-30-10-50-35+10, 44-5-5)];
+
     [input setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14.0]];
     input.tag=KONOTOR_TEXTINPUT_TEXTVIEW_TAG;
     [input setReturnKeyType:UIReturnKeyDefault];
@@ -84,10 +89,15 @@ static KonotorTextInputOverlay* konotorTextInputBox=nil;
     
     
     UIButton *sendButton=[UIButton buttonWithType:UIButtonTypeCustom];
-    [sendButton setFrame:CGRectMake(5+35+window.frame.size.width-30-10-50-35+5+10, 5, 65, 34)];
+    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+        [sendButton setFrame:CGRectMake(5+35+window.frame.size.height-30-10-50-35+5+10, 5, 65, 34)];
+    else
+        [sendButton setFrame:CGRectMake(5+35+window.frame.size.width-30-10-50-35+5+10, 5, 65, 34)];
+
     
     [sendButton setTitleColor:KONOTOR_UIBUTTON_COLOR forState:UIControlStateNormal];
     [sendButton setTitle:@"SEND" forState:UIControlStateNormal];
+    [sendButton setTag:KONOTOR_TEXTINPUT_SENDBUTTON_TAG];
 
     [sendButton addTarget:self action:@selector(sendText) forControlEvents:UIControlEventTouchUpInside];
     [textInputBox addSubview:sendButton];
@@ -131,8 +141,35 @@ static KonotorTextInputOverlay* konotorTextInputBox=nil;
     float y=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?(window.frame.size.width-newFrame.size.width):(window.frame.size.height-newFrame.size.height);
     float width=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?newFrame.size.height:newFrame.size.width;
     
-    [textInputBox setFrame:CGRectMake(0, y-textInputBox.frame.size.height, width, textInputBox.frame.size.height)];
+    KonotorUITextView* input=(KonotorUITextView*)[self.textInputBox viewWithTag:KONOTOR_TEXTINPUT_TEXTVIEW_TAG];
+    
+    UIButton* sendButton = (UIButton*)[self.textInputBox viewWithTag:KONOTOR_TEXTINPUT_SENDBUTTON_TAG];
+    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+        [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.height-30-10-50-35+5+10, 5, 65, 34)];
+    else
+        [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.width-30-10-50-35+5+10, 5, 65, 34)];
+    
+    float txtWidth;
+     if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.messagesView.interfaceOrientation))
+        txtWidth=self.window.frame.size.height-30-10-50-35+10;
+    else
+        txtWidth=self.window.frame.size.width-30-10-50-35+10;
+    
+    
+    CGSize txtSize;
+    
+    txtSize = [input sizeThatFits:CGSizeMake(txtWidth, 140)];
+    
+    if(txtSize.height>100)
+        txtSize.height=100;
+    
+    [textInputBox setFrame:CGRectMake(0, y-txtSize.height-10, width, txtSize.height+10)];
+    
+    input.frame=CGRectMake(5+35,5,txtWidth,txtSize.height);
+
     [transparentView setFrame:CGRectMake(0, 0, width, textInputBox.frame.origin.y)];
+    
+    
     
 }
 

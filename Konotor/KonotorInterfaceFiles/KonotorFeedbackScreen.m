@@ -22,6 +22,10 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
     return konotorFeedbackScreen;
 }
 
++(BOOL) isShowingFeedbackScreen
+{
+    return ((konotorFeedbackScreen==nil)?YES:NO);
+}
 
 + (BOOL) showFeedbackScreen
 {
@@ -51,7 +55,14 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         [konotorFeedbackScreen.window setBackgroundColor:[UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:0.7]];
         [konotorFeedbackScreen.window setRootViewController:konotorFeedbackScreen.conversationViewController];
         
-        [[[[[UIApplication sharedApplication] delegate] window] rootViewController] presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
+        UIViewController *rootViewController=[[[[UIApplication sharedApplication] delegate] window] rootViewController];
+        if([rootViewController isKindOfClass:[UINavigationController class]])
+            rootViewController=[((UINavigationController*)rootViewController) topViewController];
+        UIViewController *presentedViewController=[rootViewController presentedViewController];
+        if(presentedViewController==nil)
+            presentedViewController=rootViewController;
+        
+        [presentedViewController presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
          //   konotorFeedbackScreen.conversationViewController.view.layer.shouldRasterize = NO;
          //   [KonotorFeedbackScreen refreshMessages];
         }];

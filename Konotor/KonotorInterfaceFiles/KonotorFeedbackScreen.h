@@ -28,6 +28,7 @@
 + (void) dismissScreen;
 + (KonotorFeedbackScreen*) sharedInstance;
 + (void) refreshMessages;
++ (BOOL) isShowingFeedbackScreen;
 
 @end
 

@@ -17,6 +17,8 @@
 #define MAXIMUM_RADIUS 70.0
 #define BUTTON_RADIUS 25.0
 
+#define KONOTOR_BOTTOM_EXTRAPADDING 16
+
 
 @interface KonotorVoiceInputOverlay : NSObject
 
