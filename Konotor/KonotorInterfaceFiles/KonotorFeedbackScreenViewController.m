@@ -8,6 +8,8 @@
 
 #import "KonotorFeedbackScreenViewController.h"
 
+static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
+
 @interface KonotorFeedbackScreenViewController ()
 
 @end
@@ -15,14 +17,14 @@
 @implementation KonotorFeedbackScreenViewController
 
 @synthesize textInputBox,transparentView,messagesView;
-@synthesize headerView,footerView,messageTableView,voiceInput,input;
+@synthesize headerContainerView,headerView,closeButton,footerView,messageTableView,voiceInput,input;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
-        [self.view setBackgroundColor:[UIColor colorWithRed:0.3 green:0.3 blue:0.3 alpha:0.6]];
+        [self.view setBackgroundColor:[UIColor colorWithRed:0.3 green:0.3 blue:0.3 alpha:0.8]];
     }
     return self;
 }
@@ -42,7 +44,6 @@
     [super viewDidLoad];
  
     [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait];
-    //[[UIApplication sharedApplication] setStatusBarHidden:YES];
     
     float topPaddingIOS7=0;
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
@@ -60,7 +61,7 @@
     }
 #endif
 
-    [headerView setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
+ /*   [headerView setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
     [headerView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:26.0]];
     [headerView setText:@"Feedback"];
     [headerView setEditable:NO];
@@ -71,26 +72,30 @@
 #endif
     [headerView setScrollEnabled:NO];
     [headerView setTextColor:[UIColor whiteColor]];
-    [headerView setTextAlignment:NSTextAlignmentCenter];
+    [headerView setTextAlignment:NSTextAlignmentCenter]; */
     
     if(!KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
-        CGRect headerRect=headerView.frame;
+    /*    CGRect headerRect=headerView.frame;
         headerRect.origin.y=headerRect.origin.y+topPaddingIOS7;
         [headerView setFrame:headerRect];
+        CGRect closeButtonRect=closeButton.frame;
+        closeButtonRect.origin.y=closeButtonRect.origin.y+topPaddingIOS7;
+        [closeButton setFrame:closeButtonRect];*/
+        CGRect headerRect=headerContainerView.frame;
+        headerRect.origin.y=headerRect.origin.y+topPaddingIOS7;
+        [headerContainerView setFrame:headerRect];
     }
     
-    UIButton* closeButton=[UIButton buttonWithType:UIButtonTypeCustom];
-    [closeButton setBackgroundColor:[UIColor clearColor]];
+    //UIButton* closeButton=[UIButton buttonWithType:UIButtonTypeCustom];
+  /*  [closeButton setBackgroundColor:[UIColor clearColor]];
     [closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-   // [closeButton setBackgroundImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
     [closeButton setImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
-   // [closeButton setTitle:@"X" forState:UIControlStateNormal];
-    [closeButton setFrame:CGRectMake(8,8,28,28)];
+    [closeButton setFrame:CGRectMake(8,8,28,28)];*/
     [closeButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
     
-    [headerView addSubview:closeButton];
+  //  [headerView addSubview:closeButton];
     
-    [footerView setBackgroundColor:[UIColor whiteColor]];
+  //  [footerView setBackgroundColor:[UIColor whiteColor]];
     footerView.layer.shadowOffset=CGSizeMake(1,1);
     footerView.layer.shadowColor=[[UIColor grayColor] CGColor];
     footerView.layer.shadowRadius=2.0;
@@ -108,7 +113,7 @@
     
     [voiceInput addTarget:self action:@selector(showVoiceInput) forControlEvents:UIControlEventTouchDown];
     
-
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(switchToTextOnlyInput) name:microphoneAccessDenied object:nil];
     
     
     messagesView=[[KonotorConversationViewController alloc] init];
@@ -125,6 +130,8 @@
 
     [Konotor setDelegate:messagesView];
 
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showVoiceInputOverlay) name:@"KonotorRecordingStarted" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showRecordingFailed) name:@"KonotorRecordingFailed" object:nil];
 
 
     // Do any additional setup after loading the view from its nib.
@@ -159,6 +166,7 @@
     
     dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, 0);
     dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+        [Konotor StopPlayback];
         [self.navigationController popViewControllerAnimated:YES];
     });
   
@@ -184,9 +192,34 @@
 
 - (void) showVoiceInput
 {
-    BOOL recording=[Konotor startRecording];
-    if(recording)
-        [KonotorVoiceInputOverlay showInputLinearForView:self.view];
+    [Konotor startRecording];
+}
+
+- (void) showRecordingFailed
+{
+    [KonotorUtility showToastWithString:@"Voice recording failed. Try again." forMessageID:nil];
+}
+
+- (void) showVoiceInputOverlay
+{
+    [KonotorVoiceInputOverlay showInputLinearForView:self.view];
+}
+
+- (void) switchToTextOnlyInput
+{
+    [KonotorUtility showToastWithString:@"Change Mic Permissions in Settings" forMessageID:nil];
+    [voiceInput setImage:nil forState:UIControlStateNormal];
+    [voiceInput setTitle:@"SEND" forState:UIControlStateNormal];
+    [voiceInput setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [voiceInput setFrame:CGRectMake(voiceInput.frame.origin.x-15, voiceInput.frame.origin.y, voiceInput.frame.size.width+20, voiceInput.frame.size.height)];
+    [voiceInput setBackgroundColor:[UIColor whiteColor]];
+    [voiceInput removeTarget:self action:@selector(showVoiceInput) forControlEvents:UIControlEventTouchDown];
+    [voiceInput setUserInteractionEnabled:NO];
+}
+
+-(void) dismissVoiceInputOverlay
+{
+    [KonotorVoiceInputOverlay dismissVoiceInputOverlay];
 }
 
 - (void) refreshView

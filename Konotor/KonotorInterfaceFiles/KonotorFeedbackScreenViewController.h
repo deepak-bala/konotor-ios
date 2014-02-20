@@ -10,7 +10,7 @@
 #import "KonotorFeedbackScreen.h"
 #import "KonotorUI.h"
 
-#define KONOTOR_FEEDBACKSCREEN_MARGIN 6
+#define KONOTOR_FEEDBACKSCREEN_MARGIN 0
 
 @class KonotorFeedbackScreen,KonotorTextInputOverlay,KonotorConversationViewController;
 
@@ -23,7 +23,10 @@
 
 @property (weak, nonatomic) IBOutlet UITableView *messageTableView;
 
+@property (weak, nonatomic) IBOutlet UIView *headerContainerView;
+
 @property (weak, nonatomic) IBOutlet UITextView *headerView;
+@property (weak, nonatomic) IBOutlet UIButton* closeButton;
 
 @property (weak, nonatomic) IBOutlet UIView *footerView;
 @property (weak, nonatomic) IBOutlet UIButton *voiceInput;

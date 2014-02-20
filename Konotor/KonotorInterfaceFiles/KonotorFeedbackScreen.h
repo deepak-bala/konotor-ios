@@ -29,7 +29,7 @@
 + (KonotorFeedbackScreen*) sharedInstance;
 + (void) refreshMessages;
 + (BOOL) isShowingFeedbackScreen;
-
++ (BOOL) showFeedbackScreenWithViewController:(UIViewController*) viewController;
 @end
 
 

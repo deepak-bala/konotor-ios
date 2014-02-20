@@ -24,7 +24,25 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
 
 +(BOOL) isShowingFeedbackScreen
 {
-    return ((konotorFeedbackScreen==nil)?YES:NO);
+    return ((konotorFeedbackScreen==nil)?NO:YES);
+}
+
++ (BOOL) showFeedbackScreenWithViewController:(UIViewController*) viewController
+{
+    KonotorFeedbackScreen* fbScreen=[KonotorFeedbackScreen sharedInstance];
+    if(fbScreen.conversationViewController!=nil)
+        return NO;
+    else{
+        konotorFeedbackScreen.conversationViewController=[[KonotorFeedbackScreenViewController alloc] initWithNibName:@"KonotorFeedbackScreenViewController" bundle:nil];
+        
+        [konotorFeedbackScreen.conversationViewController setModalPresentationStyle:UIModalPresentationFullScreen];
+        [konotorFeedbackScreen.conversationViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
+        
+        
+        [viewController presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
+        }];
+    }
+    return YES;
 }
 
 + (BOOL) showFeedbackScreen
@@ -59,10 +77,12 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         if([rootViewController isKindOfClass:[UINavigationController class]])
             rootViewController=[((UINavigationController*)rootViewController) topViewController];
         UIViewController *presentedViewController=[rootViewController presentedViewController];
-        if(presentedViewController==nil)
-            presentedViewController=rootViewController;
+        while(presentedViewController!=nil){
+            rootViewController=presentedViewController;
+            presentedViewController=[rootViewController presentedViewController];
+        }
         
-        [presentedViewController presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
+        [rootViewController presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
          //   konotorFeedbackScreen.conversationViewController.view.layer.shouldRasterize = NO;
          //   [KonotorFeedbackScreen refreshMessages];
         }];
@@ -82,6 +102,7 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         konotorFeedbackScreen.window=nil;
         konotorFeedbackScreen=nil;
         [Konotor setDelegate:[KonotorEventHandler sharedInstance]];
+        [Konotor StopPlayback];
 
     }];
  

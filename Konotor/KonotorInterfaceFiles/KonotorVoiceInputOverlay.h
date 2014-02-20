@@ -41,6 +41,8 @@
 +(BOOL) showInputForView:(UIView*) view;
 +(BOOL) showInputLinearForView:(UIView*) view;
 +(void) rotateToOrientation:(UIInterfaceOrientation) orientation duration:(NSTimeInterval) duration;
++(void) dismissVoiceInputOverlay;
+
 
 
 @end
