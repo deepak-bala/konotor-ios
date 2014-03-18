@@ -23,6 +23,7 @@ static KonotorEventHandler* eventHandler=nil;
 {
     if(!([(NSString*)[userInfo valueForKey:@"source"] isEqualToString:@"konotor"]))
         return NO;
+    
     [Konotor DownloadAllMessages];
     
     [KonotorUtility showToastWithString:@"New message received" forMessageID:@"all"];
@@ -35,6 +36,10 @@ static KonotorEventHandler* eventHandler=nil;
     if(!([(NSString*)[userInfo valueForKey:@"source"] isEqualToString:@"konotor"]))
         return NO;
     [Konotor DownloadAllMessages];
+    
+    NSString* marketingId=((NSString*)[userInfo objectForKey:@"kon_message_marketingid"]);
+    if(marketingId&&([marketingId longLongValue]!=0))
+        [Konotor MarkMarketingMessageAsClicked:[NSNumber numberWithLongLong:[marketingId longLongValue]]];
     
     if(showScreen){
         [KonotorFeedbackScreen showFeedbackScreen];

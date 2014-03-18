@@ -20,7 +20,7 @@
 
 #define KONOTOR_UIBUTTON_COLOR_DEFAULT ([UIColor colorWithRed:0.39216 green:0.78824 blue:1.0 alpha:1.0])
 
-#define KONOTOR_UIBUTTON_COLOR ([UIColor blackColor])//KONOTOR_UIBUTTON_COLOR_DEFAULT
+#define KONOTOR_UIBUTTON_COLOR ([UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0]) //blackColor])//KONOTOR_UIBUTTON_COLOR_DEFAULT
 
 #define KONOTOR_IMESSAGE_LAYOUT 1
 

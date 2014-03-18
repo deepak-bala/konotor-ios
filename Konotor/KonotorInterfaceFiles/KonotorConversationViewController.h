@@ -43,6 +43,7 @@
 #define KONOTOR_USERNAMEFIELD_TAG 85
 #define KONOTOR_TIMEFIELD_TAG 86
 #define KONOTOR_UPLOADSTATUS_TAG 87
+#define KONOTOR_DURATION_TAG 88
 
 #define KONOTOR_AUDIOMESSAGE_HEIGHT 42
 #define KONOTOR_PROFILEIMAGE_DIMENSION 40
@@ -55,6 +56,7 @@
 
 #define KONOTOR_SHOW_TIMESTAMP YES
 #define KONOTOR_SHOW_SENDERNAME NO
+#define KONOTOR_SHOW_DURATION NO
 #define KONOTOR_SHOW_UPLOADSTATUS (KONOTOR_SHOW_TIMESTAMP||KONOTOR_SHOW_SENDERNAME)
 #define KONOTOR_TEXTMESSAGE_MAXWIDTH 260.0
 
@@ -109,7 +111,7 @@
 #define KONOTOR_MESSAGE_BACKGROUND_BOTTOM_PADDING_OTHER NO
 
 
-@interface KonotorConversationViewController : UITableViewController <KonotorDelegate>
+@interface KonotorConversationViewController : UITableViewController <KonotorDelegate,UIAlertViewDelegate>
 
 - (void) refreshView;
 

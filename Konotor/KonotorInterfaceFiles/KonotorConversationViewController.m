@@ -15,6 +15,7 @@
 static int messageCount=0;
 static NSArray* messages=nil;
 static BOOL loading=NO;
+static BOOL showingAlert=NO;
 
 UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
@@ -56,7 +57,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
   //   [self.tableView scrollRectToVisible:CGRectMake(0,self.tableView.contentSize.height-50, 2, 50) animated:YES];
     [Konotor MarkAllMessagesAsRead];
-
 }
 
 - (void) animateAndDisplayView
@@ -210,6 +210,23 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         if(KONOTOR_SHOW_TIMESTAMP)
             [cell.contentView addSubview:timeField];
         
+        if(KONOTOR_SHOW_DURATION&&KONOTOR_SHOW_SENDERNAME&&KONOTOR_SHOW_TIMESTAMP)
+        {
+            UITextView *durationField=[[UITextView alloc] initWithFrame:CGRectMake(messageTextBoxX, messageTextBoxY+((KONOTOR_SHOW_SENDERNAME)?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
+            [durationField setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
+            [durationField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
+            [durationField setTextAlignment:NSTextAlignmentRight];
+            [durationField setTextColor:[UIColor darkGrayColor]];
+            [durationField setEditable:NO];
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
+            if([durationField respondsToSelector:@selector(setSelectable:)])
+            [durationField setSelectable:NO];
+#endif
+            [durationField setScrollEnabled:NO];
+            durationField.tag=KONOTOR_DURATION_TAG;
+            [cell.contentView addSubview:durationField];
+        }
+
         
         UITextView* messageText=[[UITextView alloc] initWithFrame:CGRectMake((KONOTOR_SHOWPROFILEIMAGE?1:0)*(KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_HORIZONTAL_PADDING)+KONOTOR_HORIZONTAL_PADDING, KONOTOR_VERTICAL_PADDING+KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING, self.view.frame.size.width-(KONOTOR_SHOWPROFILEIMAGE?1:0)*(KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_HORIZONTAL_PADDING)-30, 10)];
         [messageText setFont:KONOTOR_MESSAGETEXT_FONT];
@@ -273,6 +290,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     
     UITextView* userNameField=(UITextView*)[cell.contentView viewWithTag:KONOTOR_USERNAMEFIELD_TAG];
     UITextView* timeField=(UITextView*)[cell.contentView viewWithTag:KONOTOR_TIMEFIELD_TAG];
+    UITextView* durationField=(UITextView*)[cell.contentView viewWithTag:KONOTOR_DURATION_TAG];
     
     [userNameField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY, messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
     
@@ -305,10 +323,14 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [userNameField setTextColor:KONOTOR_USERNAME_TEXT_COLOR];
         [messageText setTextColor:KONOTOR_USERMESSAGE_TEXT_COLOR];
         [timeField setTextColor:KONOTOR_USERTIMESTAMP_COLOR];
+        [durationField setHidden:NO];
+        [durationField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
+        [durationField setTextColor:KONOTOR_USERTIMESTAMP_COLOR];
     }
     
     NSDate* date=[NSDate dateWithTimeIntervalSince1970:currentMessage.createdMillis.longLongValue/1000];
     [timeField setText:[KonotorConversationViewController stringRepresentationForDate:date]];
+    
     
     if(showsProfile){
         UIImageView* profileImage=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_PROFILEIMAGE_TAG];
@@ -334,6 +356,8 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         else
 #endif
             [timeField setContentOffset:CGPointMake(0, 4)];
+        
+        [durationField setHidden:YES];
         
         [messageText setText:currentMessage.text];
         
@@ -382,6 +406,37 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
                 [timeField setContentOffset:CGPointMake(0, 4)];
         }
         
+        if(KONOTOR_SHOW_DURATION){
+            [durationField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?(KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_AUDIOMESSAGE_HEIGHT):KONOTOR_VERTICAL_PADDING), messageTextBoxWidth-KONOTOR_HORIZONTAL_PADDING, KONOTOR_TIMEFIELD_HEIGHT)];
+            if((KONOTOR_SHOW_TIMESTAMP)&&(KONOTOR_SHOW_SENDERNAME))
+            {
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
+                
+                if([durationField respondsToSelector:@selector(textContainerInset)])
+                [durationField setTextContainerInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+                else
+#endif
+                [durationField setContentOffset:CGPointMake(0, 10)];
+            }
+            else{
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
+                
+                if([durationField respondsToSelector:@selector(textContainerInset)])
+                [durationField setTextContainerInset:UIEdgeInsetsMake(4, 0, 0, 0)];
+                else
+#endif
+                [durationField setContentOffset:CGPointMake(0, 4)];
+
+            }
+            
+            if(isSenderOther)
+                [durationField setHidden:YES];
+            else{
+                [durationField setHidden:NO];
+                [durationField setText:[NSString stringWithFormat:@"%@ secs",[currentMessage durationInSecs]]];
+            }
+        }
+        
         CGRect txtMsgFrame=messageText.frame;
         txtMsgFrame.size.height=KONOTOR_AUDIOMESSAGE_HEIGHT;
         txtMsgFrame.origin.x=messageTextBoxX;
@@ -421,6 +476,8 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         else
 #endif
             [timeField setContentOffset:CGPointMake(0, 4)];
+        
+        [durationField setHidden:YES];
         
         if(([currentMessage text]!=nil)&&(![[currentMessage text] isEqualToString:@""]))
             [messageText setText:currentMessage.text];
@@ -599,10 +656,20 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 {
     //Show Toast
 }
+    
 - (void) didEncounterErrorWhileUploading:(NSString *)messageID
 {
-    UIAlertView* konotorAlert=[[UIAlertView alloc] initWithTitle:@"Message not sent" message:@"We could not send your message at this time. Check your internet or try later." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
-    [konotorAlert show];
+    if(!showingAlert){
+        UIAlertView* konotorAlert=[[UIAlertView alloc] initWithTitle:@"Message not sent" message:@"We could not send your message(s) at this time. Check your internet or try later." delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [konotorAlert show];
+        showingAlert=YES;
+    }
+}
+    
+- (void) alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    showingAlert=NO;
+        
 }
 
 - (void) didStartPlaying:(NSString *)messageID
