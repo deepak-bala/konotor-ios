@@ -12,6 +12,7 @@
 #import "KonotorVoiceInputOverlay.h"
 #import "KonotorConversationViewController.h"
 #import "KonotorMediaUIButton.h"
+#import "KonotorImageInput.h"
 #import <Availability.h>
 
 
@@ -23,6 +24,8 @@
 #define KONOTOR_UIBUTTON_COLOR ([UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0]) //blackColor])//KONOTOR_UIBUTTON_COLOR_DEFAULT
 
 #define KONOTOR_IMESSAGE_LAYOUT 1
+
+#define KONOTOR_BUTTONFORSEND 0
 
 #if KONOTOR_IMESSAGE_LAYOUT
 #define KONOTOR_IOS7_BUTTONSTYLE 1

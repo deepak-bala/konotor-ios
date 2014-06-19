@@ -10,6 +10,11 @@
 #import <QuartzCore/QuartzCore.h>
 #import "Konotor.h"
 #import "KonotorUI.h"
+#import "KonotorImageView.h"
+
+#define KONOTOR_VOICE_INPUT_SUPPORT 1
+#define KONOTOR_IMAGE_INPUT_SUPPORT 1
+
 
 /* DO NOT ALTER - THESE ARE FOR REFERENCE OF DEFAULT VALUES FOR CALLOUT PROVIDED */
 #define KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_INSET_DEFAULTCALLOUT 25
@@ -29,6 +34,7 @@
 
 #define KONOTOR_MESSAGETEXT_FONT ([UIFont fontWithName:@"HelveticaNeue-Light" size:16.0])
 
+#define KONOTOR_IMAGE_SUPPORT 1
 
 #define TRANSPARENT_COLOR ([UIColor clearColor])
 #define WHITE_COLOR ([UIColor whiteColor])
@@ -44,6 +50,7 @@
 #define KONOTOR_TIMEFIELD_TAG 86
 #define KONOTOR_UPLOADSTATUS_TAG 87
 #define KONOTOR_DURATION_TAG 88
+#define KONOTOR_PICTURE_TAG 89
 
 #define KONOTOR_AUDIOMESSAGE_HEIGHT 42
 #define KONOTOR_PROFILEIMAGE_DIMENSION 40
@@ -85,6 +92,9 @@
 #define KONOTOR_SUPPORTMESSAGE_BACKGROUND_COLOR KONOTOR_CREAM_COLOR
 #endif
 
+#define KONOTOR_IMAGE_MAXHEIGHT 240
+#define KONOTOR_IMAGE_MAXWIDTH KONOTOR_TEXTMESSAGE_MAXWIDTH-16
+
 #if KONOTOR_IMESSAGE_LAYOUT
 #define KONOTOR_SMART_TIMESTAMP 1
 #else
@@ -114,5 +124,14 @@
 @interface KonotorConversationViewController : UITableViewController <KonotorDelegate,UIAlertViewDelegate>
 
 - (void) refreshView;
+- (void) dismissImageView;
+@property (strong,nonatomic) KonotorImageView* fullImageView;
+
+@end
+
+@interface TapOnPictureRecognizer : UITapGestureRecognizer
+@property (strong, nonatomic) UIImage* image;
+@property (strong, nonatomic) NSURL* imageURL;
+@property (nonatomic) float height,width;
 
 @end

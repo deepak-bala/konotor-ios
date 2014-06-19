@@ -40,6 +40,8 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         
         
         [viewController presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
+            if([[KonotorUIParameters sharedInstance] autoShowTextInput])
+                [konotorFeedbackScreen.conversationViewController performSelector:@selector(showTextInput) withObject:nil afterDelay:0.0];
         }];
     }
     return YES;
@@ -85,6 +87,8 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         [rootViewController presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
          //   konotorFeedbackScreen.conversationViewController.view.layer.shouldRasterize = NO;
          //   [KonotorFeedbackScreen refreshMessages];
+            if([[KonotorUIParameters sharedInstance] autoShowTextInput])
+                [konotorFeedbackScreen.conversationViewController performSelector:@selector(showTextInput) withObject:nil afterDelay:0.0];
         }];
     }
     return YES;

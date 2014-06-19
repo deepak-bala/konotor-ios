@@ -10,6 +10,8 @@
 
 static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
 
+static KonotorUIParameters* konotorUIParameters=nil;
+
 @interface KonotorFeedbackScreenViewController ()
 
 @end
@@ -17,14 +19,17 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
 @implementation KonotorFeedbackScreenViewController
 
 @synthesize textInputBox,transparentView,messagesView;
-@synthesize headerContainerView,headerView,closeButton,footerView,messageTableView,voiceInput,input;
+@synthesize headerContainerView,headerView,closeButton,footerView,messageTableView,voiceInput,input,picInput,poweredByLabel;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
-        [self.view setBackgroundColor:[UIColor colorWithRed:0.3 green:0.3 blue:0.3 alpha:0.8]];
+        if([konotorUIParameters backgroundViewColor])
+            [self.view setBackgroundColor:[konotorUIParameters backgroundViewColor]];
+        else
+            [self.view setBackgroundColor:[UIColor clearColor]];
     }
     return self;
 }
@@ -60,7 +65,19 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
         }
     }
 #endif
-
+    
+#if KONOTOR_VOICE_INPUT_SUPPORT==0
+    [[KonotorUIParameters sharedInstance] setVoiceInputEnabled:NO];
+#endif
+#if KONOTOR_IMAGE_INPUT_SUPPORT==0
+    [[KonotorUIParameters sharedInstance] setImageInputEnabled:NO];
+#endif
+        
+    if([konotorUIParameters headerViewColor])
+        [headerView setBackgroundColor:[konotorUIParameters headerViewColor]];
+    if([konotorUIParameters titleText])
+       [headerView setText:[konotorUIParameters titleText]];
+ 
  /*   [headerView setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
     [headerView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:26.0]];
     [headerView setText:@"Feedback"];
@@ -91,6 +108,9 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
     [closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [closeButton setImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
     [closeButton setFrame:CGRectMake(8,8,28,28)];*/
+    
+    if([konotorUIParameters closeButtonImage])
+       [closeButton setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
     [closeButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
     
   //  [headerView addSubview:closeButton];
@@ -105,16 +125,40 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
     
     [input addTarget:self action:@selector(showTextInput) forControlEvents:UIControlEventTouchDown];
     
+    [voiceInput setFrame:CGRectMake(footerView.frame.size.width-5-40, 2, 40, 40)];
+
+    if([[KonotorUIParameters sharedInstance] voiceInputEnabled]){
     
     [voiceInput setFrame:CGRectMake(footerView.frame.size.width-5-40, 2, 40, 40)];
-    [voiceInput setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
+   // [voiceInput setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
     voiceInput.layer.cornerRadius=20.0;
     [voiceInput setImage:[UIImage imageNamed:@"konotor_mic.png"] forState:UIControlStateNormal];
     
     [voiceInput addTarget:self action:@selector(showVoiceInput) forControlEvents:UIControlEventTouchDown];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(switchToTextOnlyInput) name:microphoneAccessDenied object:nil];
+    }
+    else{
+    [voiceInput setTitle:@"SEND" forState:UIControlStateNormal];
+    [voiceInput setImage:nil forState:UIControlStateNormal];
+    [voiceInput setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [voiceInput setFrame:CGRectMake(voiceInput.frame.origin.x-15, voiceInput.frame.origin.y, voiceInput.frame.size.width+20, voiceInput.frame.size.height)];
+    [voiceInput setBackgroundColor:[UIColor whiteColor]];
+    [voiceInput setUserInteractionEnabled:NO];
+    }
     
+    if([[KonotorUIParameters sharedInstance] imageInputEnabled])
+    [picInput addTarget:self action:@selector(showImageInput) forControlEvents:UIControlEventTouchDown];
+    else{
+    [picInput setHidden:YES];
+    [input setFrame:CGRectMake(input.frame.origin.x-40, input.frame.origin.y, input.frame.size.width+40, input.frame.size.height)];
+    }
+
+#if (KONOTOR_DONTSHOWPOWEREDBY==1)
+    [messageTableView setFrame:CGRectMake(messageTableView.frame.origin.x, messageTableView.frame.origin.y, messageTableView.frame.size.width, messageTableView.frame.size.height+18)];
+    [footerView setFrame:CGRectMake(footerView.frame.origin.x, footerView.frame.origin.y+18, footerView.frame.size.width, footerView.frame.size.height)];
+    [poweredByLabel setHidden:YES];
+#endif
     
     messagesView=[[KonotorConversationViewController alloc] init];
     messagesView.view=messageTableView;
@@ -135,18 +179,28 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
 
 
     // Do any additional setup after loading the view from its nib.
+
 }
+
 
 - (void) viewDidAppear:(BOOL)animated
 {
     //
     if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
-        [self.navigationItem setTitle:@"Feedback"];
+        if([konotorUIParameters titleText])
+            [self.navigationItem setTitle:[konotorUIParameters titleText]];
+        else
+            [self.navigationItem setTitle:@"Feedback"];
+
+
         self.navigationController.navigationBar.titleTextAttributes=[NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor], UITextAttributeTextColor, [UIColor clearColor], UITextAttributeTextShadowColor,[NSValue valueWithUIOffset:UIOffsetMake(1, 1)], UITextAttributeTextShadowOffset,[UIFont fontWithName:@"HelveticaNeue-UltraLight" size:28.0],UITextAttributeFont,nil];
         
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [button setBackgroundImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
+        if([konotorUIParameters closeButtonImage])
+            [button setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
+        else
+            [button setBackgroundImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
         button.frame=CGRectMake(0,0, 36, 36);
         [button addTarget:self action:@selector(cancel:) forControlEvents:UIControlEventTouchUpInside];
         
@@ -154,9 +208,6 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
         self.navigationItem.leftBarButtonItem=backButton;
 
     }
-    
-    
-    
 
 }
 
@@ -173,7 +224,6 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
 }
 
 
-
 - (void) viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
@@ -183,16 +233,27 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
 - (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [KonotorVoiceInputOverlay rotateToOrientation:toInterfaceOrientation duration:duration];
+    [KonotorImageInput rotateToOrientation:toInterfaceOrientation duration:duration];
+    if(self.messagesView.fullImageView)
+        [self.messagesView.fullImageView rotateToOrientation:toInterfaceOrientation duration:duration];
 }
 
 - (void) showTextInput
 {
-    [KonotorTextInputOverlay showInputForView:self.view];
+    [self.footerView setHidden:YES];
+    [KonotorTextInputOverlay showInputForViewController:self];
 }
 
 - (void) showVoiceInput
 {
     [Konotor startRecording];
+}
+
+
+- (void) showImageInput
+{
+    [KonotorImageInput showInputOptions:self];
+
 }
 
 - (void) showRecordingFailed
@@ -231,6 +292,32 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+@end
+
+@implementation KonotorUIParameters
+
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor;
+
++ (KonotorUIParameters*) sharedInstance
+{
+    if(konotorUIParameters==nil){
+        konotorUIParameters=[[KonotorUIParameters alloc] init];
+        konotorUIParameters.voiceInputEnabled=YES;
+        konotorUIParameters.imageInputEnabled=YES;
+        konotorUIParameters.toastStyle=KonotorToastStyleDefault;
+        konotorUIParameters.toastBGColor=[UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+        konotorUIParameters.toastTextColor=[UIColor whiteColor];
+    }
+    return konotorUIParameters;
+}
+
+- (void) setToastStyle:(enum KonotorToastStyle) style backgroundColor:(UIColor*) bgColor textColor: (UIColor*) textColor
+{
+    self.toastStyle=style;
+    self.toastTextColor=textColor;
+    self.toastBGColor=bgColor;
 }
 
 @end

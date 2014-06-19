@@ -10,6 +10,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import "KonotorUI.h"
 
+#define konotorToastAnimationDuration 0.3
+
 @interface KonotorUtility : NSObject
 
 + (void) showToastWithString:(NSString*) message forMessageID:(NSString*)messageID;

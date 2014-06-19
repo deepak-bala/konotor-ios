@@ -7,6 +7,7 @@
 //
 
 #import "KonotorUITextView.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation KonotorUITextView
 

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import <UIKit/UIImage.h>
 
 @protocol KonotorDelegate <NSObject>
 
@@ -30,7 +31,8 @@
 
 enum KonotorMessageType {
     KonotorMessageTypeText = 1,
-    KonotorMessageTypeAudio = 2
+    KonotorMessageTypeAudio = 2,
+    KonotorMessageTypePicture = 3
     };
 
 enum KonotorMessageUploadStatus
@@ -61,6 +63,9 @@ enum KonotorMessageUploadStatus
 +(void) setWelcomeMessage:(NSString *) text;
 +(void) setUnreadWelcomeMessage:(NSString *) text;
 
++(BOOL) setBinaryImage:(NSData *)imageData forMessageId:(NSString *)messageId;
++(BOOL) setBinaryImageThumbnail:(NSData *)imageData forMessageId:(NSString *)messageId;
+
 +(BOOL) isUserMe:(NSString *) userId;
 +(BOOL) startRecording;
 +(NSString*) stopRecording;
@@ -77,6 +82,7 @@ enum KonotorMessageUploadStatus
 
 +(void) uploadVoiceRecordingWithMessageID: (NSString *)messageID;
 +(void) uploadTextFeedback:(NSString *)textFeedback;
++(void) uploadImage:(UIImage *) image;
 
 +(void) DownloadAllMessages;
 
@@ -113,6 +119,11 @@ enum KonotorMessageUploadStatus
 @property (nonatomic, retain) NSNumber * read;
 @property (nonatomic, retain) NSNumber * uploadStatus;
 @property (nonatomic, retain) NSString * text;
+@property (nonatomic, retain) NSNumber * picHeight,*picWidth, *picThumbHeight, *picThumbWidth;
+@property (nonatomic, retain) NSData *picData, *picThumbData;
+@property (nonatomic, retain) NSString * picUrl, *picThumbUrl;
+
+
 @property (nonatomic) BOOL  messageRead;
 
 

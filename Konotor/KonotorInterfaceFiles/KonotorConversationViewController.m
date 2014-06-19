@@ -19,7 +19,14 @@ static BOOL showingAlert=NO;
 
 UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
+@implementation TapOnPictureRecognizer
+
+@synthesize height,width,image,imageURL;
+
+@end
+
 @implementation KonotorConversationViewController
+@synthesize fullImageView;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -35,14 +42,14 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-        
+
     messages=[Konotor getAllMessagesForDefaultConversation];
     
     loading=YES;
     if(![Konotor areConversationsDownloading])
         [Konotor DownloadAllMessages];
     
-    if(KONOTOR_SHOWPROFILEIMAGE){
+    if(YES){
         meImage=[UIImage imageNamed:@"konotor_profile.png"];
         otherImage=[UIImage imageNamed:@"konotor_supportprofile.png"];
     }
@@ -52,11 +59,13 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
- 
+
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-  //   [self.tableView scrollRectToVisible:CGRectMake(0,self.tableView.contentSize.height-50, 2, 50) animated:YES];
+    // [self.tableView scrollRectToVisible:CGRectMake(0,self.tableView.contentSize.height-50, 2, 50) animated:YES];
     [Konotor MarkAllMessagesAsRead];
+    [self registerForKeyboardNotifications];
+
 }
 
 - (void) animateAndDisplayView
@@ -83,7 +92,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     // Return the number of rows in the section.
     NSSortDescriptor* desc=[[NSSortDescriptor alloc] initWithKey:@"createdMillis" ascending:YES];
     messages=[[Konotor getAllMessagesForDefaultConversation] sortedArrayUsingDescriptors:[NSArray arrayWithObject:desc]];
-    messageCount=[messages count];
+    messageCount=(int)[messages count];
     if(!loading)
         return messageCount;
     else
@@ -106,13 +115,13 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         refreshIndicator.tag=KONOTOR_REFRESHINDICATOR_TAG;
         [cell.contentView addSubview:refreshIndicator];
         [refreshIndicator startAnimating];
-
+        
         return cell;
         
     }
     else if(indexPath.row==messageCount){
         static NSString *CellIdentifier = @"KonotorBlankCell";
-
+        
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
         if(cell==nil){
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
@@ -122,8 +131,8 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     }
     KonotorMessageData* currentMessage=(KonotorMessageData*)[messages objectAtIndex:indexPath.row];
     
-    BOOL showsProfile=KONOTOR_SHOWPROFILEIMAGE;
     BOOL isSenderOther=([Konotor isUserMe:currentMessage.messageUserId])?NO:YES;
+    BOOL showsProfile=KONOTOR_SHOWPROFILEIMAGE;
     float profileX=0.0, profileY=0.0, messageContentViewX=0.0, messageContentViewY=0.0, messageTextBoxX=0.0, messageTextBoxY=0.0,messageContentViewWidth=0.0,messageTextBoxWidth=0.0;
     float messageDisplayWidth=self.view.frame.size.width;
     
@@ -134,10 +143,10 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         messageContentViewY=KONOTOR_VERTICAL_PADDING;
         messageContentViewWidth=MIN(messageDisplayWidth-KONOTOR_PROFILEIMAGE_DIMENSION-3*KONOTOR_HORIZONTAL_PADDING,KONOTOR_TEXTMESSAGE_MAXWIDTH);
         messageContentViewX=isSenderOther?(profileX+KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_HORIZONTAL_PADDING):(messageDisplayWidth-KONOTOR_HORIZONTAL_PADDING-KONOTOR_PROFILEIMAGE_DIMENSION-KONOTOR_HORIZONTAL_PADDING-messageContentViewWidth);
-
+        
         messageTextBoxWidth=messageContentViewWidth-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING;
         messageTextBoxX=isSenderOther?(messageContentViewX+KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING):(messageContentViewX+KONOTOR_HORIZONTAL_PADDING);
-
+        
         messageTextBoxY=isSenderOther?(messageContentViewY+(KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?(KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING):0)):(messageContentViewY+(KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?(KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING):0));
     }
     else{
@@ -169,15 +178,15 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
         UITextView *userNameField=[[UITextView alloc] initWithFrame:CGRectMake(messageTextBoxX, messageTextBoxY, messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
-
+        
         if([userNameField respondsToSelector:@selector(textContainerInset)])
-           [userNameField setTextContainerInset:UIEdgeInsetsMake(4, 0, 0, 0)];
+            [userNameField setTextContainerInset:UIEdgeInsetsMake(4, 0, 0, 0)];
         else
 #endif
             userNameField.contentInset=UIEdgeInsetsMake(-4, 0,-4,0);
         [userNameField setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
         [userNameField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
-
+        
         [userNameField setTextAlignment:NSTextAlignmentLeft];
         if(isSenderOther)
             [userNameField setTextColor:[UIColor darkGrayColor]];
@@ -189,8 +198,8 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         if([userNameField respondsToSelector:@selector(setSelectable:)])
             [userNameField setSelectable:NO];
 #endif
-     //   [userNameField setContentOffset:CGPointMake(0,-4)];
-     // [userNameField setContentSize:CGSizeMake(messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
+        //   [userNameField setContentOffset:CGPointMake(0,-4)];
+        // [userNameField setContentSize:CGSizeMake(messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
         userNameField.tag=KONOTOR_USERNAMEFIELD_TAG;
         if(KONOTOR_SHOW_SENDERNAME)
             [cell.contentView addSubview:userNameField];
@@ -220,18 +229,18 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
             [durationField setEditable:NO];
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
             if([durationField respondsToSelector:@selector(setSelectable:)])
-            [durationField setSelectable:NO];
+                [durationField setSelectable:NO];
 #endif
             [durationField setScrollEnabled:NO];
             durationField.tag=KONOTOR_DURATION_TAG;
             [cell.contentView addSubview:durationField];
         }
-
+        
         
         UITextView* messageText=[[UITextView alloc] initWithFrame:CGRectMake((KONOTOR_SHOWPROFILEIMAGE?1:0)*(KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_HORIZONTAL_PADDING)+KONOTOR_HORIZONTAL_PADDING, KONOTOR_VERTICAL_PADDING+KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING, self.view.frame.size.width-(KONOTOR_SHOWPROFILEIMAGE?1:0)*(KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_HORIZONTAL_PADDING)-30, 10)];
         [messageText setFont:KONOTOR_MESSAGETEXT_FONT];
         [messageText setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
-        [messageText setDataDetectorTypes:UIDataDetectorTypeAll];
+        [messageText setDataDetectorTypes:UIDataDetectorTypeLink];
         [messageText setTextAlignment:NSTextAlignmentLeft];
         [messageText setTextColor:[UIColor blackColor]];
         [messageText setEditable:NO];
@@ -239,7 +248,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         messageText.scrollsToTop=NO;
         messageText.tag=KONOTOR_MESSAGETEXTVIEW_TAG;
         
-
+        
         
         KonotorMediaUIButton *playButton=[[KonotorMediaUIButton alloc] initWithFrame:CGRectMake(messageTextBoxWidth-KONOTOR_HORIZONTAL_PADDING-KONOTOR_PLAYBUTTON_DIMENSION,KONOTOR_AUDIOMESSAGE_HEIGHT/2-KONOTOR_PLAYBUTTON_DIMENSION/2,KONOTOR_PLAYBUTTON_DIMENSION,KONOTOR_PLAYBUTTON_DIMENSION)];
         [playButton setImage:[UIImage imageNamed:@"konotor_play.png"] forState:UIControlStateNormal];
@@ -256,9 +265,9 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         playButton.mediaProgressBar.frame=CGRectMake(KONOTOR_HORIZONTAL_PADDING, KONOTOR_AUDIOMESSAGE_HEIGHT/2-playButton.mediaProgressBar.bounds.size.height/2, messageTextBoxWidth-KONOTOR_PLAYBUTTON_DIMENSION-3*KONOTOR_HORIZONTAL_PADDING, playButton.mediaProgressBar.bounds.size.height);
         [playButton.mediaProgressBar setMinimumTrackImage:[UIImage imageNamed:@"konotor_progress_blue.png"] forState:UIControlStateNormal];
         [playButton.mediaProgressBar setMaximumTrackImage:[UIImage imageNamed:@"konotor_progress_black.png"] forState:UIControlStateNormal];
-
+        
         [messageText addSubview:playButton.mediaProgressBar];
-
+        
         
         [cell.contentView addSubview:messageText];
         
@@ -266,11 +275,16 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         profileImage.tag=KONOTOR_PROFILEIMAGE_TAG;
         [cell.contentView addSubview:profileImage];
         
-        UIImageView* uploadStatus=[[UIImageView alloc] initWithFrame:CGRectMake(messageTextBoxX+messageTextBoxWidth-15-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING, KONOTOR_VERTICAL_PADDING+6, 15, 15)];
+        UIImageView* uploadStatus=[[UIImageView alloc] initWithFrame:CGRectMake(messageTextBoxX+messageTextBoxWidth-15-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING, KONOTOR_VERTICAL_PADDING+6+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0))), 15, 15)];
         [uploadStatus setImage:sentImage];
         uploadStatus.tag=KONOTOR_UPLOADSTATUS_TAG;
         if(KONOTOR_SHOW_UPLOADSTATUS)
             [cell.contentView addSubview:uploadStatus];
+#if KONOTOR_IMAGE_SUPPORT
+        UIImageView* picView=[[UIImageView alloc] initWithFrame:CGRectMake(0, 0, KONOTOR_TEXTMESSAGE_MAXWIDTH, 0)];
+        picView.tag=KONOTOR_PICTURE_TAG;
+        [messageText addSubview:picView];
+#endif
         
     }
     else{
@@ -280,7 +294,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         playButton.mediaProgressBar.frame=CGRectMake(KONOTOR_HORIZONTAL_PADDING, KONOTOR_AUDIOMESSAGE_HEIGHT/2-playButton.mediaProgressBar.bounds.size.height/2, messageTextBoxWidth-KONOTOR_PLAYBUTTON_DIMENSION-3*KONOTOR_HORIZONTAL_PADDING, playButton.mediaProgressBar.bounds.size.height);
         
     }
-
+    
     // Configure the cell...
     
     UITextView* messageText=(UITextView*)[cell.contentView viewWithTag:KONOTOR_MESSAGETEXTVIEW_TAG];
@@ -295,14 +309,17 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     [userNameField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY, messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
     
     UIImageView* uploadStatus=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_UPLOADSTATUS_TAG];
-    [uploadStatus setFrame:CGRectMake(messageTextBoxX+messageTextBoxWidth-15-6, KONOTOR_VERTICAL_PADDING+6, 15, 15)];
+    [uploadStatus setFrame:CGRectMake(messageTextBoxX+messageTextBoxWidth-15-6, KONOTOR_VERTICAL_PADDING+6+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0))), 15, 15)];
     if([currentMessage uploadStatus].integerValue==MessageUploaded)
-       [uploadStatus setImage:sentImage];
+        [uploadStatus setImage:sentImage];
     else
-       [uploadStatus setImage:sendingImage];
+        [uploadStatus setImage:sendingImage];
+#if KONOTOR_IMAGE_SUPPORT
+    UIImageView* picView=(UIImageView*)[messageText viewWithTag:KONOTOR_PICTURE_TAG];
+#endif
     
-     UIEdgeInsets insets=UIEdgeInsetsMake(KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_BOTTOM_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_RIGHT_INSET);
-        
+    UIEdgeInsets insets=UIEdgeInsetsMake(KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_BOTTOM_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_RIGHT_INSET);
+    
     if(isSenderOther){
         [userNameField setText:@"Support"];
         [uploadStatus setImage:nil];
@@ -335,7 +352,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     if(showsProfile){
         UIImageView* profileImage=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_PROFILEIMAGE_TAG];
         if(isSenderOther)
-           [profileImage setImage:otherImage];
+            [profileImage setImage:otherImage];
         else
             [profileImage setImage:meImage];
         [profileImage setFrame:CGRectMake(profileX, profileY, KONOTOR_PROFILEIMAGE_DIMENSION, KONOTOR_PROFILEIMAGE_DIMENSION)];
@@ -348,9 +365,9 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [playButton setHidden:YES];
         
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT+4)];
-       // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
+        // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
-
+        
         if([timeField respondsToSelector:@selector(textContainerInset)])
             timeField.textContainerInset=UIEdgeInsetsMake(4, 0, 0, 0);
         else
@@ -362,7 +379,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [messageText setText:currentMessage.text];
         
         CGRect txtMsgFrame=messageText.frame;
-       
+        
         txtMsgFrame.origin.x=messageTextBoxX;
         txtMsgFrame.origin.y=messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
         txtMsgFrame.size.width=messageTextBoxWidth;
@@ -371,30 +388,32 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
         messageText.frame=txtMsgFrame;
 
-        txtMsgFrame.size.height=sizer.height+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
+        txtMsgFrame.size.height=sizer.height+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0)+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)));
         txtMsgFrame.origin.y=messageText.frame.origin.y-KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING;
         txtMsgFrame.origin.y=messageContentViewY;
         txtMsgFrame.origin.x=messageContentViewX;
         txtMsgFrame.size.width=messageContentViewWidth;
         if(KONOTOR_USESCALLOUTIMAGE)
             messageBackground.frame=txtMsgFrame;
+#if KONOTOR_IMAGE_SUPPORT
+        [picView setHidden:YES];
+#endif
         
-
     }
     else if([currentMessage messageType].integerValue==KonotorMessageTypeAudio){
         [messageText setText:@""];
         
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?(KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_AUDIOMESSAGE_HEIGHT):KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
-       // timeField.contentInset=UIEdgeInsetsMake(-10, 0, 0,0);
+        // timeField.contentInset=UIEdgeInsetsMake(-10, 0, 0,0);
         if((KONOTOR_SHOW_TIMESTAMP)&&(KONOTOR_SHOW_SENDERNAME))
         {
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
-
-        if([timeField respondsToSelector:@selector(textContainerInset)])
-            [timeField setTextContainerInset:UIEdgeInsetsMake(0, 0, 0, 0)];
-        else
+            
+            if([timeField respondsToSelector:@selector(textContainerInset)])
+                [timeField setTextContainerInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+            else
 #endif
-            [timeField setContentOffset:CGPointMake(0, 10)];
+                [timeField setContentOffset:CGPointMake(0, 10)];
         }
         else{
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
@@ -413,20 +432,20 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
                 
                 if([durationField respondsToSelector:@selector(textContainerInset)])
-                [durationField setTextContainerInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+                    [durationField setTextContainerInset:UIEdgeInsetsMake(0, 0, 0, 0)];
                 else
 #endif
-                [durationField setContentOffset:CGPointMake(0, 10)];
+                    [durationField setContentOffset:CGPointMake(0, 10)];
             }
             else{
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
                 
                 if([durationField respondsToSelector:@selector(textContainerInset)])
-                [durationField setTextContainerInset:UIEdgeInsetsMake(4, 0, 0, 0)];
+                    [durationField setTextContainerInset:UIEdgeInsetsMake(4, 0, 0, 0)];
                 else
 #endif
-                [durationField setContentOffset:CGPointMake(0, 4)];
-
+                    [durationField setContentOffset:CGPointMake(0, 4)];
+                
             }
             
             if(isSenderOther)
@@ -460,13 +479,124 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [playButton.mediaProgressBar setMaximumValue:currentMessage.durationInSecs.floatValue];
         if([[Konotor getCurrentPlayingMessageID] isEqualToString:[currentMessage messageId]])
             [playButton startAnimating];
+#if KONOTOR_IMAGE_SUPPORT
+        [picView setHidden:YES];
+#endif
+        
+    }
+    else if([currentMessage messageType].integerValue==KonotorMessageTypePicture){
+        if((![currentMessage picData])&&(([[currentMessage picUrl] isEqualToString:@""])|| ([currentMessage picUrl]==nil)))
+            [messageText setText:@"Image Not Found"];
+        else
+            [messageText setText:@""];
+        
+        float height=MIN([[currentMessage picThumbHeight] floatValue],KONOTOR_IMAGE_MAXHEIGHT);
+        float width=[[currentMessage picThumbWidth] floatValue];
+        if(height!=[[currentMessage picThumbHeight] floatValue]){
+            width=[[currentMessage picThumbWidth] floatValue]*(height/[[currentMessage picThumbHeight] floatValue]);
+            if(width>KONOTOR_IMAGE_MAXWIDTH)
+            {
+                width=KONOTOR_IMAGE_MAXWIDTH;
+                height=[[currentMessage picThumbHeight] floatValue]*(width/[[currentMessage picThumbWidth] floatValue]);
+            }
+        }
+        [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?(KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_AUDIOMESSAGE_HEIGHT):KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
+        // timeField.contentInset=UIEdgeInsetsMake(-10, 0, 0,0);
+        if((KONOTOR_SHOW_TIMESTAMP)&&(KONOTOR_SHOW_SENDERNAME))
+        {
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
+            
+            if([timeField respondsToSelector:@selector(textContainerInset)])
+                [timeField setTextContainerInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+            else
+#endif
+                [timeField setContentOffset:CGPointMake(0, 10)];
+        }
+        else{
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
+            
+            if([timeField respondsToSelector:@selector(textContainerInset)])
+                [timeField setTextContainerInset:UIEdgeInsetsMake(4, 0, 0, 0)];
+            else
+#endif
+                [timeField setContentOffset:CGPointMake(0, 4)];
+        }
+        
+        
+        CGRect txtMsgFrame=messageText.frame;
+        txtMsgFrame.size.height=16+height;
+        txtMsgFrame.origin.x=messageTextBoxX;
+        txtMsgFrame.origin.y=messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:(KONOTOR_SHOW_TIMESTAMP?(KONOTOR_TIMEFIELD_HEIGHT+KONOTOR_VERTICAL_PADDING):KONOTOR_VERTICAL_PADDING));
+        txtMsgFrame.size.width=messageTextBoxWidth;
+        messageText.frame=txtMsgFrame;
+        
+        txtMsgFrame.size.height=16+height+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?KONOTOR_VERTICAL_PADDING:0));
+        txtMsgFrame.origin.y=messageContentViewY;
+        txtMsgFrame.origin.x=messageContentViewX;
+        txtMsgFrame.size.width=messageContentViewWidth;
+        if(KONOTOR_USESCALLOUTIMAGE)
+            messageBackground.frame=txtMsgFrame;
+        
+        [playButton.mediaProgressBar setHidden:YES];
+        [playButton setHidden:YES];
+#if KONOTOR_IMAGE_SUPPORT
+        [picView setHidden:NO];
+        if([currentMessage picThumbData]){
+            UIImage *picture=[UIImage imageWithData:[currentMessage picThumbData]];
+            [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-width)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8, width, height)];
+            [picView setImage:picture];
+        }
+        else{
+            if(height>100)
+                [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-110)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, (height-100)/2, 110, 100)];
+            else{
+                [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-height*110/100)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8, height*110/100, height)];
+            }
+            [picView setImage:[UIImage imageNamed:@"konotor_placeholder"]];
 
+            dispatch_queue_t q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+            dispatch_async(q, ^{
+                /* Fetch the image from the server... */
+                NSData *thumbData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[currentMessage picThumbUrl]]];
+                [Konotor setBinaryImageThumbnail:thumbData forMessageId:[currentMessage messageId]];
+                UIImage *img = [[UIImage alloc] initWithData:thumbData];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    /* This is the main thread again, where we set the image to
+                     be what we just fetched. */
+                    [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-width)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8, width, height)];
+                    [picView setImage:img];
+                });
+                NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:[currentMessage picUrl]]];
+                [Konotor setBinaryImage:data forMessageId:[currentMessage messageId]];
+                
+            });
+        }
+        picView.layer.cornerRadius=10.0;
+        picView.layer.masksToBounds=YES;
+        picView.tag=KONOTOR_PICTURE_TAG;
+        TapOnPictureRecognizer* tapGesture=[[TapOnPictureRecognizer alloc] initWithTarget:self action:@selector(tappedOnPicture:)];
+        tapGesture.numberOfTapsRequired=1;
+        if([currentMessage picData])
+            tapGesture.image=picView.image;
+        else{
+            tapGesture.imageURL=[NSURL URLWithString:[currentMessage picUrl]];
+            tapGesture.image=nil;
+        }
+        tapGesture.height=[[currentMessage picHeight] floatValue];
+        tapGesture.width=[[currentMessage picWidth] floatValue];
+        picView.userInteractionEnabled=YES;
+        [picView addGestureRecognizer:tapGesture];
+#endif
+        
+        
     }
     else
     {
         [playButton.mediaProgressBar setHidden:YES];
         [playButton setHidden:YES];
-        
+#if KONOTOR_IMAGE_SUPPORT
+        [picView setHidden:YES];
+#endif
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT+4)];
         // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
@@ -494,32 +624,124 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
         messageText.frame=txtMsgFrame;
         
-        txtMsgFrame.size.height=sizer.height+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
+        txtMsgFrame.size.height=sizer.height+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0)+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)));
         txtMsgFrame.origin.y=messageText.frame.origin.y-KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING;
         txtMsgFrame.origin.y=messageContentViewY;
         txtMsgFrame.origin.x=messageContentViewX;
         txtMsgFrame.size.width=messageContentViewWidth;
         if(KONOTOR_USESCALLOUTIMAGE)
             messageBackground.frame=txtMsgFrame;
-
+        
     }
-    
+    [cell setBackgroundColor:[UIColor clearColor]];
     [cell.contentView setClipsToBounds:YES];
     cell.tag=[currentMessage.messageId hash];
     
     return cell;
-
+    
 }
 
+- (void) tappedOnPicture:(id) sender
+{
+    TapOnPictureRecognizer* picView=(TapOnPictureRecognizer*)sender;
+    fullImageView=[[KonotorImageView alloc] init];
+    fullImageView.img=picView.image;
+    fullImageView.imgHeight=picView.height;
+    fullImageView.imgWidth=picView.width;
+    fullImageView.imgURL=picView.imageURL;
+    fullImageView.sourceViewController=self;
+    [fullImageView showImageView];
+    
+}
+
+- (void) dismissImageView{
+    [fullImageView removeFromSuperview];
+    fullImageView=nil;
+}
+
+
+ - (void) viewWillAppear:(BOOL)animated
+{
+    
+}
+
+// Call this method somewhere in your view controller setup code.
+- (void)registerForKeyboardNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWasShown:)
+                                                 name:UIKeyboardDidShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillBeHidden:)
+                                                 name:UIKeyboardWillHideNotification object:nil];
+    
+}
+
+// Called when the UIKeyboardDidShowNotification is sent.
+- (void)keyboardWasShown:(NSNotification*)aNotification
+{
+    NSDictionary* info = [aNotification userInfo];
+    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    UIEdgeInsets contentInsets;
+    if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
+        contentInsets = UIEdgeInsetsMake(0.0, 0.0, (keyboardSize.height-20), 0.0);
+    } else {
+        contentInsets = UIEdgeInsetsMake(0.0, 0.0, (keyboardSize.width-20), 0.0);
+    }
+    
+    self.tableView.contentInset = contentInsets;
+    self.tableView.scrollIndicatorInsets = contentInsets;
+    
+    int lastSpot=loading?messageCount:(messageCount-1);
+    if(lastSpot<0) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
+    
+    @try {
+    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+    }
+    @catch (NSException *exception ) {
+        indexPath=[NSIndexPath indexPathForRow:(lastSpot-1) inSection:0];
+        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+    }
+    // If active text field is hidden by keyboard, scroll it so it's visible
+    // Your app might not need or want this behavior.
+    /*   CGRect aRect = self.view.frame;
+     aRect.size.height -= kbSize.height;
+     if (!CGRectContainsPoint(aRect, activeField.frame.origin) ) {
+     [self.messagesView.tableView scrollRectToVisible:activeField.frame animated:YES];
+     }*/
+}
+
+// Called when the UIKeyboardWillHideNotification is sent
+- (void)keyboardWillBeHidden:(NSNotification*)aNotification
+{
+    UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+    self.tableView.contentInset = contentInsets;
+    self.tableView.scrollIndicatorInsets = contentInsets;
+    int lastSpot=loading?messageCount:(messageCount-1);
+    if(lastSpot<0) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
+    @try {
+        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+    }
+    @catch (NSException *exception ) {
+        indexPath=[NSIndexPath indexPathForRow:(lastSpot-1) inSection:0];
+        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+    }
+}
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if(indexPath.row==messageCount)
         return 40;
     KonotorMessageData* currentMessage=(KonotorMessageData*)[messages objectAtIndex:indexPath.row];
+    BOOL isSenderOther;
+    isSenderOther=[Konotor isUserMe:[currentMessage messageUserId]];
     
     float width=MIN((KONOTOR_SHOWPROFILEIMAGE)?(self.view.frame.size.width-KONOTOR_PROFILEIMAGE_DIMENSION-3*KONOTOR_HORIZONTAL_PADDING-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING):(self.view.frame.size.width-8*KONOTOR_HORIZONTAL_PADDING-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING),KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING);
-
+    
     if([currentMessage messageType].integerValue==KonotorMessageTypeText){
         UITextView* txtView=[[UITextView alloc] init];
         [txtView setFont:KONOTOR_MESSAGETEXT_FONT];
@@ -527,68 +749,81 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         float height=0.0;
         height=[txtView sizeThatFits:CGSizeMake(width, 1000)].height-16;
         if(KONOTOR_SHOWPROFILEIMAGE)
-            return MAX(height+KONOTOR_VERTICAL_PADDING+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0),KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2;
+            return MAX(height+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)))+KONOTOR_VERTICAL_PADDING+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0),KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2;
         else
-            return height+KONOTOR_VERTICAL_PADDING*2+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
+            return height+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)))+KONOTOR_VERTICAL_PADDING*2+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
     }
     else if([currentMessage messageType].integerValue==KonotorMessageTypeAudio){
         return KONOTOR_AUDIOMESSAGE_HEIGHT+(KONOTOR_MESSAGE_BACKGROUND_BOTTOM_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)+KONOTOR_VERTICAL_PADDING+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?0:KONOTOR_VERTICAL_PADDING))+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?KONOTOR_VERTICAL_PADDING:0));
+    }
+    else if([currentMessage messageType].integerValue==KonotorMessageTypePicture){
+        float height=MIN([[currentMessage picThumbHeight] floatValue], KONOTOR_IMAGE_MAXHEIGHT);
+        float width=[[currentMessage picThumbWidth] floatValue];
+        if(height!=[[currentMessage picThumbHeight] floatValue]){
+            width=[[currentMessage picThumbWidth] floatValue]*(height/[[currentMessage picThumbHeight] floatValue]);
+            if(width>KONOTOR_IMAGE_MAXWIDTH)
+            {
+                width=KONOTOR_IMAGE_MAXWIDTH;
+                height=[[currentMessage picThumbHeight] floatValue]*(width/[[currentMessage picThumbWidth] floatValue]);
+            }
+        }        return 16+height+(KONOTOR_MESSAGE_BACKGROUND_BOTTOM_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)+KONOTOR_VERTICAL_PADDING+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?0:KONOTOR_VERTICAL_PADDING))+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?KONOTOR_VERTICAL_PADDING:0));
+        
     }
     else
     {
         UITextView* txtView=[[UITextView alloc] init];
         [txtView setFont:KONOTOR_MESSAGETEXT_FONT];
         if(([currentMessage text]!=nil)&&(![[currentMessage text] isEqualToString:@""]))
-           [txtView setText:[currentMessage text]];
+            [txtView setText:[currentMessage text]];
         else
-           [txtView setText:@"Message cannot be displayed. Please upgrade your app to view this message."];
+            [txtView setText:@"Message cannot be displayed. Please upgrade your app to view this message."];
         float height=0.0;//[[currentMessage text] sizeWithFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14] constrainedToSize:CGSizeMake(width-16, 1000)].height;
         height=[txtView sizeThatFits:CGSizeMake(width, 1000)].height-16;
         if(KONOTOR_SHOWPROFILEIMAGE)
-            return MAX(height+KONOTOR_VERTICAL_PADDING+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0),KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2;
+            return MAX(height+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)))+KONOTOR_VERTICAL_PADDING+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0),KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2;
         else
-            return height+KONOTOR_VERTICAL_PADDING*2+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
+            return height+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)))+KONOTOR_VERTICAL_PADDING*2+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
     }
 }
 
 /*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
+ // Override to support conditional editing of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ // Return NO if you do not want the specified item to be editable.
+ return YES;
+ }
+ */
 
 /*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
+ // Override to support editing the table view.
+ - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ if (editingStyle == UITableViewCellEditingStyleDelete) {
+ // Delete the row from the data source
+ [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+ }
+ else if (editingStyle == UITableViewCellEditingStyleInsert) {
+ // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+ }
+ }
+ */
 
 /*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
+ // Override to support rearranging the table view.
+ - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+ {
+ }
+ */
 
 /*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
+ // Override to support conditional rearranging of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ // Return NO if you do not want the item to be re-orderable.
+ return YES;
+ }
+ */
 
 #pragma mark - Table view delegate
 
@@ -608,21 +843,27 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 {
     [self.tableView reloadData];
     [Konotor MarkAllMessagesAsRead];
-
+    
     int lastSpot=loading?messageCount:(messageCount-1);
     if(lastSpot<0) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
-    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+    @try {
+        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+    }
+    @catch (NSException *exception ) {
+        indexPath=[NSIndexPath indexPathForRow:(lastSpot-1) inSection:0];
+        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+    }
 }
 
 - (void) didFinishDownloadingMessages
 {
-  /*  Commented section to test if downloading messages was successful and message counts have been updated
-    int count=[[Konotor getAllMessagesForDefaultConversation] count];
-    NSString* messagesDownloadedAlertText=[NSString stringWithFormat:@"%d messages in this conversation", count];
-    UIAlertView* konotorAlert=[[UIAlertView alloc] initWithTitle:@"Finished loading messages" message:messagesDownloadedAlertText delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
-    [konotorAlert show];
-   */
+    /*  Commented section to test if downloading messages was successful and message counts have been updated
+     int count=[[Konotor getAllMessagesForDefaultConversation] count];
+     NSString* messagesDownloadedAlertText=[NSString stringWithFormat:@"%d messages in this conversation", count];
+     UIAlertView* konotorAlert=[[UIAlertView alloc] initWithTitle:@"Finished loading messages" message:messagesDownloadedAlertText delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
+     [konotorAlert show];
+     */
     loading=NO;
     [self refreshView];
 }
@@ -656,7 +897,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 {
     //Show Toast
 }
-    
+
 - (void) didEncounterErrorWhileUploading:(NSString *)messageID
 {
     if(!showingAlert){
@@ -665,11 +906,11 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         showingAlert=YES;
     }
 }
-    
+
 - (void) alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     showingAlert=NO;
-        
+    
 }
 
 - (void) didStartPlaying:(NSString *)messageID
@@ -692,7 +933,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
             [button stopAnimating];
         }
     }
-
+    
 }
 
 -(BOOL) handleRemoteNotification:(NSDictionary*)userInfo
@@ -725,6 +966,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 }
 
 
+
 + (NSString*) stringRepresentationForDate:(NSDate*) date
 {
     NSString* timeString;
@@ -736,12 +978,12 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     NSCalendar* calendar=[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDateComponents* comp=[calendar components:(NSWeekdayCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:date];
     NSDateComponents* comp2=[calendar components:(NSWeekdayCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:today];
-
+    
     NSDate* date2=[calendar dateFromComponents:comp];
     NSDate* today2=[calendar dateFromComponents:comp2];
-
+    
     NSDateComponents* comp3=[calendar components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:date2 toDate:today2 options:0];
-    int days=comp3.year*36+comp3.month*30+comp3.day;
+    int days=(int)comp3.year*36+(int)comp3.month*30+(int)comp3.day;
     if([comp isEqual:comp2]){
         timeString=[NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:NSDateFormatterShortStyle];
     }
