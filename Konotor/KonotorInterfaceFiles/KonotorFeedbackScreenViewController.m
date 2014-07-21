@@ -75,8 +75,12 @@ static KonotorUIParameters* konotorUIParameters=nil;
         
     if([konotorUIParameters headerViewColor])
         [headerView setBackgroundColor:[konotorUIParameters headerViewColor]];
-    if([konotorUIParameters titleText])
-       [headerView setText:[konotorUIParameters titleText]];
+    if([konotorUIParameters titleText]){
+        [headerView setText:[konotorUIParameters titleText]];
+        [headerView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:22.0]];
+        [headerView setTextColor:[UIColor whiteColor]];
+        [headerView setTextAlignment:NSTextAlignmentCenter];
+    }
  
  /*   [headerView setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
     [headerView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:26.0]];

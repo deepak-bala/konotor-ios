@@ -32,7 +32,8 @@
 enum KonotorMessageType {
     KonotorMessageTypeText = 1,
     KonotorMessageTypeAudio = 2,
-    KonotorMessageTypePicture = 3
+    KonotorMessageTypePicture = 3,
+    KonotorMessageTypeHTML = 4
     };
 
 enum KonotorMessageUploadStatus
@@ -98,6 +99,7 @@ enum KonotorMessageUploadStatus
 +(int) getUnreadMessagesCount;
 
 +(void) newSession;
++(BOOL) isPushEnabled;
 
 @end
 

@@ -10,6 +10,7 @@
 #import "KonotorFeedbackScreen.h"
 
 static KonotorTextInputOverlay* konotorTextInputBox=nil;
+static BOOL promptForPush=YES;
 
 @implementation KonotorTextInputOverlay
 
@@ -239,6 +240,22 @@ static KonotorTextInputOverlay* konotorTextInputBox=nil;
     }
     else{
         [Konotor uploadTextFeedback:toSend];
+        UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+        
+        if (types == UIRemoteNotificationTypeNone) {
+            if(promptForPush){
+                UIAlertView* pushDisabledAlert=[[UIAlertView alloc] initWithTitle:@"Modify Push Setting" message:@"To get real-time response to your message, please enable push notifications for this app via the Settings->Notification Center" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
+                [pushDisabledAlert show];
+                promptForPush=NO;
+            }
+        }
+      /*  if(![Konotor isPushEnabled]){
+            if(promptForPush){
+                UIAlertView* pushDisabledAlert=[[UIAlertView alloc] initWithTitle:@"Modify Push Setting" message:@"To get real-time response to your message, please enable push notifications for this app via the Settings->Notification Center" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
+                [pushDisabledAlert show];
+                promptForPush=NO;
+            }
+        }*/
     }
     [KonotorTextInputOverlay performSelector:@selector(dismissInput) withObject:nil afterDelay:0.0];
 }

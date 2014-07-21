@@ -590,6 +590,58 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
         
     }
+    else if([currentMessage messageType].integerValue==KonotorMessageTypeHTML)
+    {
+        [playButton.mediaProgressBar setHidden:YES];
+        [playButton setHidden:YES];
+        
+        [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT+4)];
+        // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
+        
+        if([timeField respondsToSelector:@selector(textContainerInset)])
+            timeField.textContainerInset=UIEdgeInsetsMake(4, 0, 0, 0);
+        else
+#endif
+            [timeField setContentOffset:CGPointMake(0, 4)];
+        
+        [durationField setHidden:YES];
+        
+        NSString *htmlString = currentMessage.text;
+        NSDictionary* fontDict=[[NSDictionary alloc] initWithObjectsAndKeys:messageText.font,NSFontAttributeName,nil];
+        NSMutableAttributedString* attributedString=[[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } documentAttributes:nil error:nil];
+        [attributedString addAttributes:fontDict range:NSMakeRange(0, [attributedString length])];
+        
+        if([messageText respondsToSelector:@selector(setAttributedText:)])
+            messageText.attributedText = attributedString;
+        else
+            [messageText setText:[attributedString string]];
+    
+     //   [messageText setText:currentMessage.text];
+        
+        CGRect txtMsgFrame=messageText.frame;
+        
+        txtMsgFrame.origin.x=messageTextBoxX;
+        txtMsgFrame.origin.y=messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
+        txtMsgFrame.size.width=messageTextBoxWidth;
+        CGSize sizer=[messageText sizeThatFits:CGSizeMake(messageTextBoxWidth, 1000)];
+        txtMsgFrame.size.height=sizer.height;
+        
+        messageText.frame=txtMsgFrame;
+        
+        txtMsgFrame.size.height=sizer.height+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0)+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)));
+        txtMsgFrame.origin.y=messageText.frame.origin.y-KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING;
+        txtMsgFrame.origin.y=messageContentViewY;
+        txtMsgFrame.origin.x=messageContentViewX;
+        txtMsgFrame.size.width=messageContentViewWidth;
+        if(KONOTOR_USESCALLOUTIMAGE)
+            messageBackground.frame=txtMsgFrame;
+#if KONOTOR_IMAGE_SUPPORT
+        [picView setHidden:YES];
+#endif
+        
+    }
+
     else
     {
         [playButton.mediaProgressBar setHidden:YES];
@@ -768,6 +820,26 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
             }
         }        return 16+height+(KONOTOR_MESSAGE_BACKGROUND_BOTTOM_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)+KONOTOR_VERTICAL_PADDING+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?0:KONOTOR_VERTICAL_PADDING))+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?KONOTOR_VERTICAL_PADDING:0));
         
+    }
+    else if([currentMessage messageType].integerValue==KonotorMessageTypeHTML){
+        UITextView* txtView=[[UITextView alloc] init];
+        [txtView setFont:KONOTOR_MESSAGETEXT_FONT];
+        NSString *htmlString = currentMessage.text;
+        NSDictionary* fontDict=[[NSDictionary alloc] initWithObjectsAndKeys:txtView.font,NSFontAttributeName,nil];
+        NSMutableAttributedString* attributedString=[[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } documentAttributes:nil error:nil];
+        [attributedString addAttributes:fontDict range:NSMakeRange(0, [attributedString length])];
+        
+        if([txtView respondsToSelector:@selector(setAttributedText:)])
+            txtView.attributedText = attributedString;
+        else
+            [txtView setText:[attributedString string]];
+        
+        float height=0.0;
+        height=[txtView sizeThatFits:CGSizeMake(width, 1000)].height-16;
+        if(KONOTOR_SHOWPROFILEIMAGE)
+            return MAX(height+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)))+KONOTOR_VERTICAL_PADDING+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0),KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2;
+        else
+            return height+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)))+KONOTOR_VERTICAL_PADDING*2+16+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
     }
     else
     {
