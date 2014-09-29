@@ -7,8 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "KonotorUtility.h"
 
-@interface KonotorImageInput : NSObject <UIAlertViewDelegate,UIImagePickerControllerDelegate,UIActionSheetDelegate,UINavigationControllerDelegate>
+#define KONOTOR_IMAGEINPUT_CAPTIONTEXT 4243
+#define KONOTOR_IMAGEINPUT_CAPTIONENTRY 4242
+
+@interface KonotorImageInput : NSObject <UIAlertViewDelegate,UIImagePickerControllerDelegate,UIActionSheetDelegate,UINavigationControllerDelegate,UITextViewDelegate>
 
 @property (strong, nonatomic) UIView* sourceView;
 @property (strong, nonatomic) UIView* alertOptions;

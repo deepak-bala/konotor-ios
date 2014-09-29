@@ -50,7 +50,7 @@ static BOOL promptForPush=YES;
     textInputBox.layer.borderWidth=1.0;
     
    // transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.width, window.frame.size.height-15-20-44)];
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
     {
         transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.height, window.frame.size.width)];
     }
@@ -67,13 +67,13 @@ static BOOL promptForPush=YES;
     
     KonotorUITextView* input;
 #if    (KONOTOR_BUTTONFORSEND==1)
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
         input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.height-30-10-50-35+10+29, 44-5-5)];
     else
         input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.width-30-10-50-35+10+29, 44-5-5)];
 
 #else
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
         input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.height-30-10-50-35+10, 44-5-5)];
     else
         input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.width-30-10-50-35+10, 44-5-5)];
@@ -114,7 +114,7 @@ static BOOL promptForPush=YES;
     
     UIButton *sendButton=[UIButton buttonWithType:UIButtonTypeCustom];
 #if (KONOTOR_BUTTONFORSEND==1)
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
         [sendButton setFrame:CGRectMake(5+35+window.frame.size.height-30-10-50-35+5+10+29, 4, 36, 36)];
     else
         [sendButton setFrame:CGRectMake(5+35+window.frame.size.width-30-10-50-35+5+10+29, 4, 36, 36)];
@@ -123,7 +123,7 @@ static BOOL promptForPush=YES;
     [sendButton setImage:[UIImage imageNamed:@"konotor_send.png"] forState:UIControlStateNormal];
 #else
     
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
         [sendButton setFrame:CGRectMake(5+35+window.frame.size.height-30-10-50-35+5+10, 5, 65, 34)];
     else
         [sendButton setFrame:CGRectMake(5+35+window.frame.size.width-30-10-50-35+5+10, 5, 65, 34)];
@@ -157,9 +157,9 @@ static BOOL promptForPush=YES;
     if (CGRectIntersectsRect(keyboardFrame, window.frame)) {
         
         // Keyboard is visible
-        float y=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?(window.frame.size.width-keyboardEndFrame.size.width):(window.frame.size.height-keyboardEndFrame.size.height);
-        y=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?keyboardFrame.origin.y:keyboardFrame.origin.y;
-        float width=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?keyboardEndFrame.size.height:keyboardEndFrame.size.width;
+        float y=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?(window.frame.size.width-keyboardEndFrame.size.width):(window.frame.size.height-keyboardEndFrame.size.height);
+        y=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?keyboardFrame.origin.y:keyboardFrame.origin.y;
+        float width=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?keyboardEndFrame.size.height:keyboardEndFrame.size.width;
         
         [textInputBox setFrame:CGRectMake(0, y-textInputBox.frame.size.height, width, textInputBox.frame.size.height)];
         [transparentView setFrame:CGRectMake(0, 0, width, window.frame.size.height)];
@@ -168,7 +168,7 @@ static BOOL promptForPush=YES;
         
     } else {
         // Keyboard is hidden
-        [KonotorTextInputOverlay performSelector:@selector(dismissInput) withObject:nil afterDelay:0.0];
+  //      [KonotorTextInputOverlay performSelector:@selector(dismissInput) withObject:nil afterDelay:0.0];
 
     }
 }
@@ -177,32 +177,32 @@ static BOOL promptForPush=YES;
     CGRect newFrame;
     [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] getValue:&newFrame];
     
-    float y=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?(window.frame.size.width-newFrame.size.width):(window.frame.size.height-newFrame.size.height);
-    float width=(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))?newFrame.size.height:newFrame.size.width;
+    float y=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?(window.frame.size.width-newFrame.size.width):(window.frame.size.height-newFrame.size.height);
+    float width=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?newFrame.size.height:newFrame.size.width;
     
     KonotorUITextView* input=(KonotorUITextView*)[self.textInputBox viewWithTag:KONOTOR_TEXTINPUT_TEXTVIEW_TAG];
     
     UIButton* sendButton = (UIButton*)[self.textInputBox viewWithTag:KONOTOR_TEXTINPUT_SENDBUTTON_TAG];
     
 #if (KONOTOR_BUTTONFORSEND==1)
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
         [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.height-30-10-50-35+5+10+29, 5, 36, 36)];
     else
         [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.width-30-10-50-35+5+10+29, 5, 36, 36)];
     
     float txtWidth;
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.messagesView.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.messagesView)])
         txtWidth=self.window.frame.size.height-30-10-50-35+10+29;
     else
         txtWidth=self.window.frame.size.width-30-10-50-35+10+29;
 #else
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
         [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.height-30-10-50-35+5+10, 5, 65, 34)];
     else
         [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.width-30-10-50-35+5+10, 5, 65, 34)];
     
     float txtWidth;
-     if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.messagesView.interfaceOrientation))
+     if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.messagesView)])
         txtWidth=self.window.frame.size.height-30-10-50-35+10;
     else
         txtWidth=self.window.frame.size.width-30-10-50-35+10;
@@ -240,9 +240,20 @@ static BOOL promptForPush=YES;
     }
     else{
         [Konotor uploadTextFeedback:toSend];
-        UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
         
-        if (types == UIRemoteNotificationTypeNone) {
+        BOOL notificationEnabled=NO;
+        
+        if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED >=80000)
+            notificationEnabled=[[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+#endif
+        }
+        else{
+            UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+            if(types != UIRemoteNotificationTypeNone) notificationEnabled=YES;
+        }
+        
+        if (!notificationEnabled) {
             if(promptForPush){
                 UIAlertView* pushDisabledAlert=[[UIAlertView alloc] initWithTitle:@"Modify Push Setting" message:@"To get real-time response to your message, please enable push notifications for this app via the Settings->Notification Center" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
                 [pushDisabledAlert show];
@@ -296,6 +307,7 @@ static BOOL promptForPush=YES;
     txt=nil;
     
 }
+
 
 
 @end

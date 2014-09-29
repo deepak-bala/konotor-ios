@@ -376,7 +376,10 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
         [durationField setHidden:YES];
         
+        [messageText setText:nil];
+        [messageText setDataDetectorTypes:UIDataDetectorTypeNone];
         [messageText setText:currentMessage.text];
+        [messageText setDataDetectorTypes:UIDataDetectorTypeLink];
         
         CGRect txtMsgFrame=messageText.frame;
         

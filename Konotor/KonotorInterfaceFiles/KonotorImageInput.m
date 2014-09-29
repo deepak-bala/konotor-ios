@@ -26,17 +26,30 @@ static KonotorImageInput* konotorImageInput=nil;
 
 + (void) showInputOptions:(UIViewController*) viewController
 {
-    UIActionSheet* inputOptions=[[UIActionSheet alloc] initWithTitle:@"Message Type" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Select Existing Image",@"New Image via Camera",
-                                 nil];
+ //   if(!SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
+    UIActionSheet* inputOptions=[[UIActionSheet alloc] initWithTitle:@"Message Type" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Select Existing Image",@"New Image via Camera",nil];
     inputOptions.delegate=[KonotorImageInput sharedInstance];
     konotorImageInput.sourceViewController=viewController;
     konotorImageInput.sourceView=viewController.view;
     [inputOptions showInView:konotorImageInput.sourceView];
+   // }
+  /*  else{
+    
+    UIAlertController* inputOptions2=[UIAlertController alertControllerWithTitle:@"Message Type" message:@"Hi" preferredStyle:UIAlertControllerStyleActionSheet];
+
+    UIAlertAction* action1=[UIAlertAction actionWithTitle:@"Select Existing Image" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [[KonotorImageInput sharedInstance] actionSheet:nil clickedButtonAtIndex:0];
+    }];
+    [inputOptions2 addAction:action1];
+        inputOptions2.popoverPresentationController.sourceView=konotorImageInput.sourceView;
+    [konotorImageInput.sourceViewController presentViewController:inputOptions2 animated:NO completion:nil];
+    }
+   */
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    //  [actionSheet dismissWithClickedButtonIndex:buttonIndex animated:YES];
+  //  [actionSheet dismissWithClickedButtonIndex:buttonIndex animated:NO];
     
     switch (buttonIndex) {
         case 0:
@@ -59,7 +72,9 @@ static KonotorImageInput* konotorImageInput=nil;
     imagePicker.delegate=self;
     if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]){
         [imagePicker setSourceType:UIImagePickerControllerSourceTypeCamera];
-        [self.sourceViewController presentViewController:imagePicker animated:YES completion:NULL];
+        dispatch_async(dispatch_get_main_queue(), ^ {
+            [self.sourceViewController presentViewController:imagePicker animated:YES completion:NULL];
+        });
     }
     else{
         UIAlertView *alertview=[[UIAlertView alloc] initWithTitle:@"Camera Unavailable" message:@"Sorry! Your device doesn't have a camera, or the camera is not available for use." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
@@ -76,7 +91,11 @@ static KonotorImageInput* konotorImageInput=nil;
     if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
     {
         popover=[[UIPopoverController alloc] initWithContentViewController:imagePicker];
-        [popover presentPopoverFromRect:CGRectMake(self.sourceViewController.view.frame.origin.x,self.sourceViewController.view.frame.origin.y+sourceViewController.view.frame.size.height-20,40,40) inView:self.sourceViewController.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        
+        dispatch_async(dispatch_get_main_queue(), ^ {
+            [popover presentPopoverFromRect:CGRectMake(self.sourceViewController.view.frame.origin.x,self.sourceViewController.view.frame.origin.y+sourceViewController.view.frame.size.height-20,40,40) inView:self.sourceViewController.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        });
+
     }
     else
         [self.sourceViewController presentViewController:imagePicker animated:YES completion:NULL];
@@ -109,19 +128,19 @@ static KonotorImageInput* konotorImageInput=nil;
         [picker dismissViewControllerAnimated:NO completion:NULL];
 
     UIImageView* selectedImageView=[[UIImageView alloc] initWithImage:selectedImage];
-    float height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.height-100-50-60)*2);
+    float height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.height-100-50)*2);
     float width=MIN(520,selectedImage.size.width*height/selectedImage.size.height);
     float screenHeight,screenWidth;
     
-    if(((!picker)&&(UIInterfaceOrientationIsPortrait(sourceViewController.interfaceOrientation)))||((picker)&&(UIInterfaceOrientationIsLandscape(sourceViewController.interfaceOrientation))))
+    if(((!picker)&&(![KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)]))||((picker)&&([KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)])))
     {
-        height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.width-100-50-60)*2);
+        height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.width-100-50)*2);
         width=MIN(520,selectedImage.size.width*height/selectedImage.size.height);
         screenHeight=[[UIScreen mainScreen] bounds].size.width;
         screenWidth=[[UIScreen mainScreen] bounds].size.height;
     }
     else{
-        height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.height-100-50-60)*2);
+        height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.height-100-50)*2);
         width=MIN(520,selectedImage.size.width*height/selectedImage.size.height);
         screenHeight=[[UIScreen mainScreen] bounds].size.height;
         screenWidth=[[UIScreen mainScreen] bounds].size.width;
@@ -129,31 +148,34 @@ static KonotorImageInput* konotorImageInput=nil;
     
     height=selectedImage.size.height*width/selectedImage.size.width;
     //float width=selectedImage.size.width*150/selectedImage.size.height;
-    [selectedImageView setFrame:CGRectMake((screenWidth-40-width/2)/2, 20+((screenHeight-100-50-50)-height/2)/2,width/2, height/2)];
+    [selectedImageView setFrame:CGRectMake((screenWidth-width/2)/2, 40+((screenHeight-40-40)-height/2)/2,width/2, height/2)];
     selectedImageView.layer.cornerRadius=15.0;
     
     UIView* alertOptionsBackground=[[UIView alloc] initWithFrame:CGRectMake(0,0,screenWidth,screenHeight)];
     [alertOptionsBackground setBackgroundColor:[UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:0.4]];
     
-    alertOptions=[[UIView alloc] initWithFrame:CGRectMake(20,50,screenWidth-40,screenHeight-100)];
-    [alertOptions setBackgroundColor:[UIColor whiteColor]];
-    alertOptions.layer.cornerRadius=15.0;
+    alertOptions=[[UIView alloc] initWithFrame:CGRectMake(0,0,screenWidth,screenHeight)];
+    [alertOptions setBackgroundColor:[UIColor blackColor]];
+    /*
+     alertOptions.layer.cornerRadius=0.0;
     alertOptions.layer.shadowColor=[[UIColor blackColor] CGColor];
     alertOptions.layer.shadowOffset=CGSizeMake(1.0, 1.0);
     alertOptions.layer.shadowRadius=3.0;
     alertOptions.layer.shadowOpacity=1.0;
+     */
     
     [alertOptionsBackground addSubview:alertOptions];
     
     
-    UIButton* buttonCancel=[[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+    UIButton* buttonCancel=[[UIButton alloc] initWithFrame:CGRectMake(0, 14, 36, 36)];
     
-   // [buttonCancel setImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
-    [buttonCancel setTitle:@"X" forState:UIControlStateNormal];
-    [buttonCancel setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    buttonCancel.layer.cornerRadius=15.0;
+    [buttonCancel setImage:[UIImage imageNamed:@"konotor_back.png"] forState:UIControlStateNormal];
+   // [buttonCancel setTitle:@"X" forState:UIControlStateNormal];
+   // [buttonCancel setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+/*    buttonCancel.layer.cornerRadius=15.0;
     buttonCancel.layer.borderWidth=3.5;
     buttonCancel.layer.borderColor=[[UIColor whiteColor] CGColor];
+  */
     
     if(picker.sourceType==UIImagePickerControllerSourceTypePhotoLibrary)
         [buttonCancel addTarget:self action:@selector(dismissImageSelection) forControlEvents:UIControlEventTouchUpInside];
@@ -164,20 +186,112 @@ static KonotorImageInput* konotorImageInput=nil;
     [alertOptions bringSubviewToFront:buttonCancel];
     [alertOptions addSubview:selectedImageView];
     
-    UIButton* send=[[UIButton alloc] initWithFrame:CGRectMake(screenWidth-16-80-20, screenHeight-180, 80, 45)];
+    
+    UIButton* send=[[UIButton alloc] initWithFrame:CGRectMake(screenWidth-16-80, screenHeight-45-(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")?0:20), 80, 45)];
     //[send setImage:[UIImage imageNamed:@"konotor_send.png"] forState:UIControlStateNormal];
-    [send setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [send setTitle:@"SEND" forState:UIControlStateNormal];
+    [send setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [send setTitle:@"Send" forState:UIControlStateNormal];
     [send addTarget:self action:@selector(dismissImageSelectionWithSelectedImage:) forControlEvents:UIControlEventTouchUpInside];
     
    
+
+    UITextField* caption=[[UITextField alloc] initWithFrame:CGRectMake(0, screenHeight-30-45-(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")?0:20), screenWidth, 30)];
+    [caption setBackgroundColor:[UIColor colorWithRed:0.3 green:0.3 blue:0.3 alpha:0.6]];
+    [caption setTextColor:[UIColor whiteColor]];
+    [caption setText:@"Tap to edit..."];
+    [caption setTextAlignment:NSTextAlignmentCenter];
+    [caption setTag:KONOTOR_IMAGEINPUT_CAPTIONTEXT];
     
+    UITextView* inputView=[[UITextView alloc] initWithFrame:CGRectMake(0, 0,screenWidth, 60)];
+    [inputView setBackgroundColor:[UIColor colorWithRed:0.3 green:0.3 blue:0.3 alpha:0.6]];
+    [inputView setTextColor:[UIColor whiteColor]];
+    [inputView setText:@""];
+    [inputView setHidden:YES];
+    [inputView setTag:KONOTOR_IMAGEINPUT_CAPTIONENTRY];
+    [inputView setReturnKeyType:UIReturnKeyDone];
+
+    [alertOptions addSubview:inputView];
+    
+    [self registerForKeyboardNotifications];
+    
+#if KONOTOR_ENABLECAPTIONS
+    [alertOptions addSubview:caption];
+#endif
     
     [alertOptions addSubview:send];
-  //  [alertOptions addSubview:sendLabel];
-    
     
     [sourceView addSubview:alertOptionsBackground];
+    
+}
+
+- (void)registerForKeyboardNotifications
+
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWasShown:)
+                                                 name:UIKeyboardDidShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillBeHidden:)
+                                                 name:UIKeyboardWillHideNotification object:nil];
+    
+}
+
+
+
+// Called when the UIKeyboardDidShowNotification is sent.
+
+- (void)keyboardWasShown:(NSNotification*)aNotification
+
+{
+    
+    NSDictionary* info = [aNotification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    float keyboardHeight=kbSize.height;
+    float screenHeight,screenWidth;
+    
+    if(![KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)])
+    {
+        screenWidth=[[UIScreen mainScreen] bounds].size.width;
+        screenHeight=[[UIScreen mainScreen] bounds].size.height;
+    }
+    else{
+        screenWidth=[[UIScreen mainScreen] bounds].size.height;
+        screenHeight=[[UIScreen mainScreen] bounds].size.width;
+        keyboardHeight=kbSize.width;
+    }
+    
+    UITextView* inputView=(UITextView*)[sourceView viewWithTag:KONOTOR_IMAGEINPUT_CAPTIONENTRY];
+    
+    [inputView setFrame:CGRectMake(0, (screenHeight-keyboardHeight)-60, screenWidth,60)];
+    [inputView setHidden:NO];
+    [inputView setEnablesReturnKeyAutomatically:YES];
+    [inputView becomeFirstResponder];
+    [inputView setDelegate:self];
+
+}
+
+- (BOOL) textView: (UITextView*) textView shouldChangeTextInRange: (NSRange) range replacementText: (NSString*) text
+{
+    if ([text isEqualToString:@"\n"]) {
+        [textView resignFirstResponder];
+        return NO;
+    }
+    return YES;
+}
+
+
+// Called when the UIKeyboardWillHideNotification is sent
+
+- (void)keyboardWillBeHidden:(NSNotification*)aNotification
+
+{
+    UITextView* inputView=(UITextView*)[sourceView viewWithTag:KONOTOR_IMAGEINPUT_CAPTIONENTRY];
+    [inputView setHidden:YES];
+    
+    UITextField* caption=(UITextField*) [sourceView viewWithTag:KONOTOR_IMAGEINPUT_CAPTIONTEXT];
+    caption.text=inputView.text;
     
 }
 
@@ -216,8 +330,18 @@ static KonotorImageInput* konotorImageInput=nil;
 {    
     
 //    [(AppDelegate*)[[UIApplication sharedApplication] delegate] sendImage:button.photo forConversation:self.conversation participants:self.participants withSubject:self.conversation.subject withMetrics:nil withPhotoURL:self.conversation.photoURL];
-    if(self.imagePicked)
-        [Konotor uploadImage:self.imagePicked];
+    if(self.imagePicked){
+#if KONOTOR_ENABLECAPTIONS
+        UITextField* caption=(UITextField*) [sourceView viewWithTag:KONOTOR_IMAGEINPUT_CAPTIONTEXT];
+        if( caption && [caption.text isEqualToString:@"Tap to edit..."])
+#endif
+            [Konotor uploadImage:self.imagePicked];
+        
+#if KONOTOR_ENABLECAPTIONS
+        else
+            [Konotor uploadImage:self.imagePicked withCaption:caption.text];
+#endif
+    }
     [self cleanUpImageSelection];
     [KonotorFeedbackScreen refreshMessages];
     self.imagePicked=nil;
@@ -227,7 +351,7 @@ static KonotorImageInput* konotorImageInput=nil;
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    if((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)&&popover){
+    if(popover){
         [popover dismissPopoverAnimated:YES];
         popover=nil;
     }

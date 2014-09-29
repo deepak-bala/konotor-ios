@@ -307,4 +307,13 @@ static BOOL _useiOS7Style;
     }
 }
 
++ (BOOL) KonotorIsInterfaceLandscape:(UIViewController*)viewController
+{
+    if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
+        return NO;
+    else
+        return (UIInterfaceOrientationIsLandscape(viewController.interfaceOrientation));
+}
+
+
 @end

@@ -16,4 +16,6 @@
 
 + (void) showToastWithString:(NSString*) message forMessageID:(NSString*)messageID;
 +(void) updateBadgeLabel:(UILabel*) badgeLabel;
++ (BOOL) KonotorIsInterfaceLandscape:(UIViewController*)viewController;
+
 @end

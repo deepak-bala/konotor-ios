@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "KonotorUI.h"
+#import "KonotorUtility.h"
 
 #define KONOTOR_TEXTINPUT_TEXTVIEW_TAG 201
 #define KONOTOR_TEXTINPUT_SENDBUTTON_TAG 202
