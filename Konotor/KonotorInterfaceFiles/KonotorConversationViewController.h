@@ -11,9 +11,12 @@
 #import "Konotor.h"
 #import "KonotorUI.h"
 #import "KonotorImageView.h"
+#import <MessageUI/MessageUI.h>
+
 
 #define KONOTOR_VOICE_INPUT_SUPPORT 1
 #define KONOTOR_IMAGE_INPUT_SUPPORT 1
+#define KONOTOR_MESSAGE_SHARE_SUPPORT 0
 #define KONOTOR_ENABLECAPTIONS 0
 
 
@@ -52,6 +55,9 @@
 #define KONOTOR_UPLOADSTATUS_TAG 87
 #define KONOTOR_DURATION_TAG 88
 #define KONOTOR_PICTURE_TAG 89
+#define KONOTOR_SHAREBUTTON_TAG 90
+#define KONOTOR_SHARE_ALERT_TAG 90
+
 
 #define KONOTOR_AUDIOMESSAGE_HEIGHT 42
 #define KONOTOR_PROFILEIMAGE_DIMENSION 40
@@ -122,7 +128,7 @@
 #define KONOTOR_MESSAGE_BACKGROUND_BOTTOM_PADDING_OTHER NO
 
 
-@interface KonotorConversationViewController : UITableViewController <KonotorDelegate,UIAlertViewDelegate>
+@interface KonotorConversationViewController : UITableViewController <KonotorDelegate,UIAlertViewDelegate,MFMailComposeViewControllerDelegate>
 
 - (void) refreshView;
 - (void) dismissImageView;

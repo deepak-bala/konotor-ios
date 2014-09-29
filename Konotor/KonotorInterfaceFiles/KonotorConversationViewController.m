@@ -16,6 +16,11 @@ static int messageCount=0;
 static NSArray* messages=nil;
 static BOOL loading=NO;
 static BOOL showingAlert=NO;
+static NSString* copiedText=@"";
+
+#if KONOTOR_MESSAGE_SHARE_SUPPORT
+MFMailComposeViewController* mailComposer=nil;
+#endif
 
 UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
@@ -42,6 +47,10 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+#if KONOTOR_MESSAGE_SHARE_SUPPORT
+    mailComposer=[[MFMailComposeViewController alloc] init];
+    [mailComposer setMailComposeDelegate:self];
+#endif
 
     messages=[Konotor getAllMessagesForDefaultConversation];
     
@@ -286,6 +295,16 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [messageText addSubview:picView];
 #endif
         
+#if KONOTOR_MESSAGE_SHARE_SUPPORT
+        UIButton* shareButton=[UIButton buttonWithType:UIButtonTypeCustom];
+        [shareButton setImage:[UIImage imageNamed:@"konotor_share.png"] forState:UIControlStateNormal];
+        [shareButton setFrame:CGRectMake(0, 0, 36, 36)];
+        [shareButton setHidden:YES];
+        shareButton.tag=KONOTOR_SHAREBUTTON_TAG;
+        [shareButton addTarget:self action:@selector(showMessageActions:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.contentView addSubview:shareButton];
+        
+#endif
     }
     else{
         KonotorMediaUIButton* playButton=(KonotorMediaUIButton*)[cell.contentView viewWithTag:KONOTOR_PLAYBUTTON_TAG];
@@ -330,6 +349,9 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [userNameField setTextColor:KONOTOR_OTHERNAME_TEXT_COLOR];
         [messageText setTextColor:KONOTOR_OTHERMESSAGE_TEXT_COLOR];
         [timeField setTextColor:KONOTOR_OTHERTIMESTAMP_COLOR];
+        if([messageText respondsToSelector:@selector(setLinkTextAttributes:)])
+            [messageText setLinkTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:NSForegroundColorAttributeName,KONOTOR_OTHERMESSAGE_TEXT_COLOR, nil]];
+
     }
     else{
         [userNameField setText:@"You"];
@@ -343,11 +365,22 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [durationField setHidden:NO];
         [durationField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [durationField setTextColor:KONOTOR_USERTIMESTAMP_COLOR];
+        if([messageText respondsToSelector:@selector(setLinkTextAttributes:)])
+            [messageText setLinkTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:NSForegroundColorAttributeName,KONOTOR_USERMESSAGE_TEXT_COLOR, nil]];
+
     }
     
     NSDate* date=[NSDate dateWithTimeIntervalSince1970:currentMessage.createdMillis.longLongValue/1000];
     [timeField setText:[KonotorConversationViewController stringRepresentationForDate:date]];
     
+#if KONOTOR_MESSAGE_SHARE_SUPPORT
+    UIButton* shareButton=(UIButton*)[cell.contentView viewWithTag:KONOTOR_SHAREBUTTON_TAG];
+    [shareButton setFrame:CGRectMake(isSenderOther?messageTextBoxWidth+4+messageTextBoxX:4,messageTextBoxY , 36, 36)];
+    if(isSenderOther)
+        [shareButton setHidden:NO];
+    else
+        [shareButton setHidden:YES];
+#endif
     
     if(showsProfile){
         UIImageView* profileImage=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_PROFILEIMAGE_TAG];
@@ -358,7 +391,9 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [profileImage setFrame:CGRectMake(profileX, profileY, KONOTOR_PROFILEIMAGE_DIMENSION, KONOTOR_PROFILEIMAGE_DIMENSION)];
     }
     
-    
+    if([messageText respondsToSelector:@selector(setTextContainerInset:)])
+        [messageText setTextContainerInset:UIEdgeInsetsMake(6, 0, 8, 0)];
+
     if([currentMessage messageType].integerValue==KonotorMessageTypeText)
     {
         [playButton.mediaProgressBar setHidden:YES];
@@ -525,15 +560,43 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
                 [timeField setContentOffset:CGPointMake(0, 4)];
         }
         
+        float txtheight=0.0;
+        
+#if KONOTOR_ENABLECAPTIONS
+        
+        if((currentMessage.picCaption)&&(![currentMessage.picCaption isEqualToString:@""])){
+            NSString *htmlString = currentMessage.picCaption;
+            NSDictionary* fontDict=[[NSDictionary alloc] initWithObjectsAndKeys:messageText.font,NSFontAttributeName,nil];
+            NSMutableAttributedString* attributedString=[[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } documentAttributes:nil error:nil];
+            [attributedString addAttributes:fontDict range:NSMakeRange(0, [attributedString length])];
+            if(isSenderOther){
+                [attributedString addAttribute:NSForegroundColorAttributeName value:KONOTOR_OTHERMESSAGE_TEXT_COLOR range:NSMakeRange(0, [attributedString length])];
+            }
+            else{
+                [attributedString addAttribute:NSForegroundColorAttributeName value:KONOTOR_USERMESSAGE_TEXT_COLOR range:NSMakeRange(0, [attributedString length])];
+            }
+
+            if([messageText respondsToSelector:@selector(setAttributedText:)])
+                messageText.attributedText = attributedString;
+            else
+                [messageText setText:[attributedString string]];
+            
+            txtheight=[messageText sizeThatFits:CGSizeMake(width, 1000)].height-16;
+            
+            [messageText setTextContainerInset:UIEdgeInsetsMake(height+10, 0, 0, 0)];
+            
+        }
+        
+#endif
         
         CGRect txtMsgFrame=messageText.frame;
-        txtMsgFrame.size.height=16+height;
+        txtMsgFrame.size.height=16+height+txtheight;
         txtMsgFrame.origin.x=messageTextBoxX;
         txtMsgFrame.origin.y=messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:(KONOTOR_SHOW_TIMESTAMP?(KONOTOR_TIMEFIELD_HEIGHT+KONOTOR_VERTICAL_PADDING):KONOTOR_VERTICAL_PADDING));
         txtMsgFrame.size.width=messageTextBoxWidth;
         messageText.frame=txtMsgFrame;
         
-        txtMsgFrame.size.height=16+height+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?KONOTOR_VERTICAL_PADDING:0));
+        txtMsgFrame.size.height=16+height+txtheight+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?KONOTOR_VERTICAL_PADDING:0));
         txtMsgFrame.origin.y=messageContentViewY;
         txtMsgFrame.origin.x=messageContentViewX;
         txtMsgFrame.size.width=messageContentViewWidth;
@@ -619,8 +682,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
             messageText.attributedText = attributedString;
         else
             [messageText setText:[attributedString string]];
-    
-     //   [messageText setText:currentMessage.text];
         
         CGRect txtMsgFrame=messageText.frame;
         
@@ -713,7 +774,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     [fullImageView removeFromSuperview];
     fullImageView=nil;
 }
-
 
  - (void) viewWillAppear:(BOOL)animated
 {
@@ -821,7 +881,33 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
                 width=KONOTOR_IMAGE_MAXWIDTH;
                 height=[[currentMessage picThumbHeight] floatValue]*(width/[[currentMessage picThumbWidth] floatValue]);
             }
-        }        return 16+height+(KONOTOR_MESSAGE_BACKGROUND_BOTTOM_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)+KONOTOR_VERTICAL_PADDING+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?0:KONOTOR_VERTICAL_PADDING))+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?KONOTOR_VERTICAL_PADDING:0));
+        }
+        
+        float txtheight=0.0;
+        
+#if KONOTOR_ENABLECAPTIONS
+        
+        if((currentMessage.picCaption)&&(![currentMessage.picCaption isEqualToString:@""])){
+                        NSString *htmlString = currentMessage.picCaption;
+            NSDictionary* fontDict=[[NSDictionary alloc] initWithObjectsAndKeys:KONOTOR_MESSAGETEXT_FONT,NSFontAttributeName,nil];
+            NSMutableAttributedString* attributedString=[[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType} documentAttributes:nil error:nil];
+            [attributedString addAttributes:fontDict range:NSMakeRange(0, [attributedString length])];
+            
+            UITextView* txtView=[[UITextView alloc] init];
+
+            if([txtView respondsToSelector:@selector(setAttributedText:)]){
+                txtheight=[attributedString boundingRectWithSize:CGSizeMake(width, 1000) options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading context:nil].size.height;
+                
+            }
+            else{
+                [txtView setFont:KONOTOR_MESSAGETEXT_FONT];
+                [txtView setText:[attributedString string]];
+                txtheight=[txtView sizeThatFits:CGSizeMake(width, 1000)].height-16;
+            }
+        }
+#endif
+        
+        return 16+txtheight+height+(KONOTOR_MESSAGE_BACKGROUND_BOTTOM_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)+KONOTOR_VERTICAL_PADDING+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING)+KONOTOR_VERTICAL_PADDING*2+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?0:KONOTOR_VERTICAL_PADDING))+(KONOTOR_SHOW_SENDERNAME?0:(KONOTOR_SHOW_TIMESTAMP?KONOTOR_VERTICAL_PADDING:0));
         
     }
     else if([currentMessage messageType].integerValue==KonotorMessageTypeHTML){
@@ -984,7 +1070,28 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
 - (void) alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    showingAlert=NO;
+#if KONOTOR_MESSAGE_SHARE_SUPPORT
+    if(alertView.tag==KONOTOR_SHARE_ALERT_TAG){
+        if(buttonIndex==1){
+            if([MFMailComposeViewController canSendMail]){
+                [mailComposer setSubject:@"Sharing message from RM team"];
+                [mailComposer setMessageBody:copiedText isHTML:NO];
+                
+                [[[KonotorFeedbackScreen sharedInstance] conversationViewController]
+                 presentViewController:mailComposer animated:NO completion:nil];
+            }
+            else{
+                UIAlertView *errorAlert=[[UIAlertView alloc] initWithTitle:@"Can't send email" message:@"Sorry! Your device is not configured to send email. Please speak to your IT administrator." delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+                [errorAlert show];
+            }
+        }
+    }
+    else{
+#endif
+        showingAlert=NO;
+#if KONOTOR_MESSAGE_SHARE_SUPPORT
+    }
+#endif
     
 }
 
@@ -1077,5 +1184,26 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     return timeString;
     
 }
+
+-(void) showMessageActions:(id) sender
+{
+    UIAlertView* alertdlg=[[UIAlertView alloc] initWithTitle:@"Share" message:@"Share this message via " delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Email", nil];
+    alertdlg.tag=KONOTOR_SHARE_ALERT_TAG;
+    copiedText=[(UITextView*)[[sender superview] viewWithTag:KONOTOR_MESSAGETEXTVIEW_TAG] text];
+    [alertdlg show];
+}
+
+#if KONOTOR_MESSAGE_SHARE_SUPPORT
+
+-(void) mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    [controller dismissViewControllerAnimated:YES completion:nil];
+    mailComposer=nil;
+    mailComposer=[[MFMailComposeViewController alloc] init];
+    [mailComposer setMailComposeDelegate:self];
+
+}
+#endif
+
 
 @end
