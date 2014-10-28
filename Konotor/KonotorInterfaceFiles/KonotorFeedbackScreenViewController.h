@@ -56,10 +56,13 @@ enum KonotorToastStyle{
 @property (nonatomic) BOOL disableTransparentOverlay;
 @property (nonatomic) enum KonotorToastStyle toastStyle;
 @property (strong, nonatomic) UIImage* closeButtonImage;
+@property (strong, nonatomic) UIImage* textInputButtonImage;
 @property (nonatomic) BOOL autoShowTextInput;
 @property (strong, nonatomic) NSString* titleText;
+@property (strong, nonatomic) UIColor* titleTextColor;
 @property (strong, nonatomic) UIColor* toastBGColor;
 @property (strong, nonatomic) UIColor* toastTextColor;
+@property (nonatomic) BOOL showInputOptions;
 
 + (KonotorUIParameters*) sharedInstance;
 - (void) setToastStyle:(enum KonotorToastStyle) toastStyle backgroundColor:(UIColor*) bgColor textColor: (UIColor*) textColor;
