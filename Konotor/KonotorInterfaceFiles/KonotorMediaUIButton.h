@@ -19,6 +19,7 @@ enum KonotorMediaUIButtonState {
 @property (strong, nonatomic) NSString* messageID;
 @property (strong, nonatomic) UISlider* mediaProgressBar;
 @property (strong, nonatomic) NSTimer* progressAnimationTimer;
+@property (strong, nonatomic) KonotorMessageData* message;
 @property (nonatomic) enum KonotorMediaUIButtonState buttonState;
 
 - (void) startAnimating;

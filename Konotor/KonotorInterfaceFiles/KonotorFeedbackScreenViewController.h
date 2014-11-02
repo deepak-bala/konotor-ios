@@ -63,8 +63,11 @@ enum KonotorToastStyle{
 @property (strong, nonatomic) UIColor* toastBGColor;
 @property (strong, nonatomic) UIColor* toastTextColor;
 @property (nonatomic) BOOL showInputOptions;
+@property (nonatomic) BOOL messageSharingEnabled;
 
 + (KonotorUIParameters*) sharedInstance;
 - (void) setToastStyle:(enum KonotorToastStyle) toastStyle backgroundColor:(UIColor*) bgColor textColor: (UIColor*) textColor;
+//- (void) disableMessageSharing;
+//- (void) enableMessageSharing;
 
 @end

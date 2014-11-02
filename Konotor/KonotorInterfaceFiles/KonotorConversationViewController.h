@@ -100,7 +100,7 @@
 #endif
 
 #define KONOTOR_IMAGE_MAXHEIGHT 240
-#define KONOTOR_IMAGE_MAXWIDTH KONOTOR_TEXTMESSAGE_MAXWIDTH-16
+#define KONOTOR_IMAGE_MAXWIDTH KONOTOR_TEXTMESSAGE_MAXWIDTH-20
 
 #if KONOTOR_IMESSAGE_LAYOUT
 #define KONOTOR_SMART_TIMESTAMP 1
@@ -140,5 +140,11 @@
 @property (strong, nonatomic) UIImage* image;
 @property (strong, nonatomic) NSURL* imageURL;
 @property (nonatomic) float height,width;
+
+@end
+
+@interface  KonotorShareButton: UIButton
+
+@property (strong, nonatomic) NSString* messageId;
 
 @end

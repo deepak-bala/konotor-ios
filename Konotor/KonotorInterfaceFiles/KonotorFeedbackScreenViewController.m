@@ -325,6 +325,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
         konotorUIParameters.titleTextColor=nil;
         konotorUIParameters.showInputOptions=YES;
         konotorUIParameters.textInputButtonImage=nil;
+        konotorUIParameters.messageSharingEnabled=NO;
 
     }
     return konotorUIParameters;
@@ -335,6 +336,13 @@ static KonotorUIParameters* konotorUIParameters=nil;
     self.toastStyle=style;
     self.toastTextColor=textColor;
     self.toastBGColor=bgColor;
+}
+
+- (void) disableMessageSharing{
+    self.messageSharingEnabled=NO;
+}
+- (void) enableMessageSharing{
+    self.messageSharingEnabled=YES;
 }
 
 @end
