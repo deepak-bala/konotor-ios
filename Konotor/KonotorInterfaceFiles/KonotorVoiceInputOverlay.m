@@ -52,7 +52,11 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
         UILabel* timerLabel=konotorVoiceInputOverlay.timerLabel;
         UIButton* cancelButton=konotorVoiceInputOverlay.cancelButton;
         UIButton* sendButton=konotorVoiceInputOverlay.sendButton;
-        if(UIInterfaceOrientationIsLandscape(orientation))
+#if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
+        if(UIInterfaceOrientationIsLandscape(orientation)&&(!(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))))
+#else
+        if(NO)
+#endif
         {
             [transparentView setFrame:CGRectMake(0, 0, konotorVoiceInputOverlay.window.frame.size.height+20, konotorVoiceInputOverlay.window.frame.size.width-20)];
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
@@ -167,7 +171,7 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
 {
     //Add a transparent Overlay on top of the current view
     transparentView=[[UIView alloc] initWithFrame:CGRectMake(0, 0, window.frame.size.width, window.frame.size.height)];
-    if(UIInterfaceOrientationIsLandscape(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.messagesView.interfaceOrientation))
+    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
     {
         [transparentView setFrame:CGRectMake(0, 0, window.frame.size.height, window.frame.size.width)];
         

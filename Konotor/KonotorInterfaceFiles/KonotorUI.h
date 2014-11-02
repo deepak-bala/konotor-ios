@@ -15,6 +15,9 @@
 #import "KonotorImageInput.h"
 #import <Availability.h>
 
+#ifndef __IPHONE_8_0
+#define __IPHONE_8_0 80000
+#endif
 
 #ifndef KonotorSampleApp_KonotorUI_h
 #define KonotorSampleApp_KonotorUI_h

@@ -132,7 +132,7 @@ static KonotorImageInput* konotorImageInput=nil;
     float width=MIN(520,selectedImage.size.width*height/selectedImage.size.height);
     float screenHeight,screenWidth;
     
-    if(((!picker)&&(![KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)]))||((picker)&&([KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)])))
+    if(((!picker)&&(![KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)])&&(!SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")))||((picker)&&([KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)])))
     {
         height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.width-100-50)*2);
         width=MIN(520,selectedImage.size.width*height/selectedImage.size.height);

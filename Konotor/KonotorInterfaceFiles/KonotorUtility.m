@@ -79,7 +79,7 @@ static BOOL _useiOS7Style;
         CGRect windowFrame=[[UIScreen mainScreen] bounds];
         float toastX,toastY, toastWidth, toastHeight;
         
-        if(UIInterfaceOrientationIsLandscape([currentViewController interfaceOrientation]))
+        if([KonotorUtility KonotorIsInterfaceLandscape:(currentViewController)])
         {
             toastX=0;
             toastY=0;
@@ -106,6 +106,7 @@ static BOOL _useiOS7Style;
         [toastView setClipsToBounds:NO];
         
         CGPoint centerpoint;
+#if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
         switch ([[[[UIApplication sharedApplication] keyWindow] rootViewController] interfaceOrientation]) {
             case UIInterfaceOrientationLandscapeLeft:
                 centerpoint=CGPointMake(20, windowFrame.size.height/2);
@@ -124,6 +125,10 @@ static BOOL _useiOS7Style;
                 centerpoint=toastView.center;
                 break;
         }
+#else
+        centerpoint=toastView.center;
+#endif
+        
         toastView.center=centerpoint;
         toastView.frame=CGRectIntegral(toastView.frame);
         
@@ -150,7 +155,7 @@ static BOOL _useiOS7Style;
         CGFloat verticalOffset = 0.0f;
         
         
-        if(UIInterfaceOrientationIsLandscape([currentViewController interfaceOrientation]))
+        if([KonotorUtility KonotorIsInterfaceLandscape:currentViewController])
         {
             toastX=0;
             toastY=-40;
@@ -311,8 +316,13 @@ static BOOL _useiOS7Style;
 {
     if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
         return NO;
-    else
+    else{
+#if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
         return (UIInterfaceOrientationIsLandscape(viewController.interfaceOrientation));
+#else
+        return NO;
+#endif
+    }
 }
 
 

@@ -16,8 +16,13 @@
 {
     float screenHeight,screenWidth,height,width;
     height=imgHeight;width=imgWidth;
-    
-    if(UIInterfaceOrientationIsPortrait(orientation)){
+
+#if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
+    if(UIInterfaceOrientationIsPortrait(orientation)||(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")))
+#else
+        if(YES)
+#endif
+        {
         screenHeight=[UIScreen mainScreen].bounds.size.height;
         screenWidth=[UIScreen mainScreen].bounds.size.width;
     }
@@ -61,7 +66,7 @@
     
     [KonotorTextInputOverlay dismissInput];
     
-    if(UIInterfaceOrientationIsPortrait(sourceViewController.interfaceOrientation)){
+    if([KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)]){
         screenHeight=[UIScreen mainScreen].bounds.size.height;
         screenWidth=[UIScreen mainScreen].bounds.size.width;
     }
@@ -125,7 +130,7 @@
             float screenHeight, screenWidth, height, width;
             height=imgHeight;width=imgWidth;
             
-            if(UIInterfaceOrientationIsPortrait(sourceViewController.interfaceOrientation)){
+            if([KonotorUtility KonotorIsInterfaceLandscape:sourceViewController]){
                 screenHeight=[UIScreen mainScreen].bounds.size.height;
                 screenWidth=[UIScreen mainScreen].bounds.size.width;
             }

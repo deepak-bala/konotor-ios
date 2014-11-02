@@ -243,15 +243,32 @@ static BOOL promptForPush=YES;
         
         BOOL notificationEnabled=NO;
         
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED >=80000)
         if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
+            notificationEnabled=[[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+        }
+        else
+#endif
+        {
+#if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
+            UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+            if(types != UIRemoteNotificationTypeNone) notificationEnabled=YES;
+#endif
+        }
+
+        
+ /*       if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED >=80000)
             notificationEnabled=[[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
 #endif
         }
         else{
+#if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
             UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
             if(types != UIRemoteNotificationTypeNone) notificationEnabled=YES;
-        }
+#endif
+        }*/
+
         
         if (!notificationEnabled) {
             if(promptForPush){
