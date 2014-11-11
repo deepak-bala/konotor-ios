@@ -86,7 +86,6 @@ enum KonotorMessageUploadStatus
 +(void) uploadImage:(UIImage *) image;
 +(void) uploadImage:(UIImage *) image withCaption:(NSString*) caption;
 
-
 +(void) DownloadAllMessages;
 
 +(void)MarkMessageAsRead:(NSString *) messageID;
@@ -127,6 +126,9 @@ enum KonotorMessageUploadStatus
 @property (nonatomic, retain) NSData *picData, *picThumbData;
 @property (nonatomic, retain) NSString * picUrl, *picThumbUrl;
 @property (nonatomic, retain) NSString *picCaption;
+
+@property (nonatomic, retain) NSData *audioData;
+
 
 @property (nonatomic) BOOL  messageRead;
 
