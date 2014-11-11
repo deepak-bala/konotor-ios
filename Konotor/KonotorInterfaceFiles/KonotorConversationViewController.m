@@ -19,7 +19,9 @@ static BOOL showingAlert=NO;
 static NSString* copiedText=@"";
 static NSData* copiedContent=nil;
 static NSString* copiedMessageId=@"";
+#if KONOTOR_MESSAGE_SHARE_SUPPORT
 static enum KonotorMessageType copiedMessageType=KonotorMessageTypeText;
+#endif
 static NSString* copiedMimeType=@"";
 
 NSMutableDictionary *messageHeights=nil;
