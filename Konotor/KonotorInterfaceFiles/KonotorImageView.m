@@ -66,7 +66,7 @@
     
     [KonotorTextInputOverlay dismissInput];
     
-    if([KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)]){
+    if(![KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)]){
         screenHeight=[UIScreen mainScreen].bounds.size.height;
         screenWidth=[UIScreen mainScreen].bounds.size.width;
     }
@@ -130,7 +130,7 @@
             float screenHeight, screenWidth, height, width;
             height=imgHeight;width=imgWidth;
             
-            if([KonotorUtility KonotorIsInterfaceLandscape:sourceViewController]){
+            if(![KonotorUtility KonotorIsInterfaceLandscape:sourceViewController]){
                 screenHeight=[UIScreen mainScreen].bounds.size.height;
                 screenWidth=[UIScreen mainScreen].bounds.size.width;
             }
