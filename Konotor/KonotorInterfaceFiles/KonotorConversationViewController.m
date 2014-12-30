@@ -23,6 +23,7 @@ static NSString* copiedMessageId=@"";
 static enum KonotorMessageType copiedMessageType=KonotorMessageTypeText;
 #endif
 static NSString* copiedMimeType=@"";
+static NSTimer* refreshMessagesTimer=nil;
 
 static int numberOfMessagesShown=KONOTOR_MESSAGESPERPAGE;
 static int loadMore=KONOTOR_MESSAGESPERPAGE;
@@ -94,6 +95,28 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     // [self.tableView scrollRectToVisible:CGRectMake(0,self.tableView.contentSize.height-50, 2, 50) animated:YES];
     [Konotor MarkAllMessagesAsRead];
     [self registerForKeyboardNotifications];
+    
+    BOOL notificationEnabled=NO;
+    
+#if(__IPHONE_OS_VERSION_MAX_ALLOWED >=80000)
+    if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
+        notificationEnabled=[[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+    }
+    else
+#endif
+    {
+#if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
+        UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+        if(types != UIRemoteNotificationTypeNone) notificationEnabled=YES;
+#endif
+    }
+    
+    
+    
+    if (!notificationEnabled) {
+        refreshMessagesTimer=[NSTimer scheduledTimerWithTimeInterval:10 target:[Konotor class] selector:@selector(DownloadAllMessages) userInfo:nil repeats:YES];
+        [refreshMessagesTimer fire];
+    }
 
 }
 
@@ -823,7 +846,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         if(([currentMessage text]!=nil)&&(![[currentMessage text] isEqualToString:@""]))
             [messageText setText:currentMessage.text];
         else
-            [messageText setText:@"Message cannot be displayed. Please upgrade your app to view this message."];
+            [messageText setText:@"Message cannot be displayed. Please upgrade your app to view new messages."];
         
         CGRect txtMsgFrame=messageText.frame;
         
@@ -873,6 +896,13 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
  - (void) viewWillAppear:(BOOL)animated
 {
     
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [refreshMessagesTimer invalidate];
+    refreshMessagesTimer=nil;
+    [super viewWillDisappear:animated];
 }
 
 // Call this method somewhere in your view controller setup code.

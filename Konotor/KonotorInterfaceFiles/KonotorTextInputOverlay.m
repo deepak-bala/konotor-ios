@@ -272,7 +272,7 @@ static BOOL promptForPush=YES;
         
         if (!notificationEnabled) {
             if(promptForPush){
-                UIAlertView* pushDisabledAlert=[[UIAlertView alloc] initWithTitle:@"Modify Push Setting" message:@"To get real-time response to your message, please enable push notifications for this app via the Settings->Notification Center" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
+                UIAlertView* pushDisabledAlert=[[UIAlertView alloc] initWithTitle:@"Modify Push Setting" message:@"To be notified of responses even when out of this chat, enable push notifications for this app via the Settings->Notification Center" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
                 [pushDisabledAlert show];
                 promptForPush=NO;
             }
