@@ -19,6 +19,7 @@ static BOOL showingAlert=NO;
 static NSString* copiedText=@"";
 static NSData* copiedContent=nil;
 static NSString* copiedMessageId=@"";
+static int messageCount_prev=0;
 #if KONOTOR_MESSAGE_SHARE_SUPPORT
 static enum KonotorMessageType copiedMessageType=KonotorMessageTypeText;
 #endif
@@ -225,16 +226,18 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         int numLines = sizer.height / ([self getTextViewLineHeight:KONOTOR_TEXTMESSAGE_MAXWIDTH text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT]);
         if (numLines == 1)
         {
-            CGSize txtSize =[currentMessage.text sizeWithAttributes:
-                             @{NSFontAttributeName:
-                                   KONOTOR_MESSAGETEXT_FONT}];
+            UITextView* tempView=[[UITextView alloc] initWithFrame:CGRectMake(0,0,messageContentViewWidth,1000)];
+            [tempView setText:currentMessage.text];
+            [tempView setFont:KONOTOR_MESSAGETEXT_FONT];
+            CGSize txtSize = [tempView sizeThatFits:CGSizeMake(messageContentViewWidth, 1000)];
             
             NSDate* date=[NSDate dateWithTimeIntervalSince1970:currentMessage.createdMillis.longLongValue/1000];
             NSString *strDate = [KonotorConversationViewController stringRepresentationForDate:date];
-            CGSize txtTimeSize =[strDate sizeWithAttributes:
-                                 @{NSFontAttributeName:
-                                       [UIFont fontWithName:@"HelveticaNeue" size:11]}];
-            
+
+            UITextView* tempView2=[[UITextView alloc] initWithFrame:CGRectMake(0,0,messageContentViewWidth,1000)];
+            [tempView2 setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
+            [tempView2 setText:strDate];
+            CGSize txtTimeSize = [tempView2 sizeThatFits:CGSizeMake(messageContentViewWidth, 50)];
             CGFloat msgWidth = txtSize.width + 16 + 3 * KONOTOR_HORIZONTAL_PADDING;
             CGFloat timeWidth = (txtTimeSize.width + 16 +  5 * KONOTOR_HORIZONTAL_PADDING);
             
@@ -505,12 +508,10 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [playButton.mediaProgressBar setHidden:YES];
         [playButton setHidden:YES];
         
-        CGSize txtSize =[timeField.text sizeWithAttributes:
-                         @{NSFontAttributeName:
-                               [UIFont fontWithName:@"HelveticaNeue" size:11]}];
-        
+        CGSize txtSize=[timeField sizeThatFits:CGSizeMake(messageContentViewWidth, 20)];
+
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), txtSize.width + 16, KONOTOR_TIMEFIELD_HEIGHT+4)];
-        // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
+
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
         
         if([timeField respondsToSelector:@selector(textContainerInset)])
@@ -531,7 +532,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         txtMsgFrame.origin.x=messageTextBoxX;
         txtMsgFrame.origin.y=messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:0)+(KONOTOR_SHOW_TIMESTAMP?KONOTOR_TIMEFIELD_HEIGHT:0);
         txtMsgFrame.size.width=messageTextBoxWidth;
-//        CGSize sizer=[messageText sizeThatFits:CGSizeMake(messageTextBoxWidth, 1000)];
+
         CGSize sizer = [self getSizeOfTextViewWidth:messageTextBoxWidth text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT];
         
         txtMsgFrame.size.height=sizer.height;
@@ -554,7 +555,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [messageText setText:@""];
         
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?(KONOTOR_USERNAMEFIELD_HEIGHT+KONOTOR_AUDIOMESSAGE_HEIGHT):KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
-        // timeField.contentInset=UIEdgeInsetsMake(-10, 0, 0,0);
+
         if((KONOTOR_SHOW_TIMESTAMP)&&(KONOTOR_SHOW_SENDERNAME))
         {
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED >=70000)
@@ -635,7 +636,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 #endif
         
     }
-    else if([currentMessage messageType].integerValue==KonotorMessageTypePicture){
+    else if(([currentMessage messageType].integerValue==KonotorMessageTypePicture)||([currentMessage messageType].integerValue==KonotorMessageTypePictureV2)){
         if((![currentMessage picData])&&(([[currentMessage picUrl] isEqualToString:@""])|| ([currentMessage picUrl]==nil)))
             [messageText setText:@"Image Not Found"];
         else
@@ -653,7 +654,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         }
 
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT+4)];
-        // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
         
         if([timeField respondsToSelector:@selector(textContainerInset)])
@@ -716,13 +716,73 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [playButton setHidden:YES];
 #if KONOTOR_IMAGE_SUPPORT
         [picView setHidden:NO];
+        
+        picView.layer.cornerRadius=10.0;
+        picView.layer.masksToBounds=YES;
+        picView.tag=KONOTOR_PICTURE_TAG;
+        TapOnPictureRecognizer* tapGesture=[[TapOnPictureRecognizer alloc] initWithTarget:self action:@selector(tappedOnPicture:)];
+        tapGesture.numberOfTapsRequired=1;
+        if([currentMessage picData]){
+            tapGesture.image=[UIImage imageWithData:[currentMessage picData]];
+        }
+        else{
+            tapGesture.imageURL=[NSURL URLWithString:[currentMessage picUrl]];
+            tapGesture.image=nil;
+        }
+        tapGesture.height=[[currentMessage picHeight] floatValue];
+        tapGesture.width=[[currentMessage picWidth] floatValue];
+        picView.userInteractionEnabled=YES;
+        NSArray* gestureRecognizers=[picView gestureRecognizers];
+        for(UIGestureRecognizer* gr in gestureRecognizers){
+            if([gr isKindOfClass:[TapOnPictureRecognizer class]])
+                [picView removeGestureRecognizer:gr];
+        }
+        [picView addGestureRecognizer:tapGesture];
+
+        
         if([currentMessage picThumbData]){
             UIImage *picture=[UIImage imageWithData:[currentMessage picThumbData]];
-        if(KONOTOR_ENABLECAPTIONS&&!SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
-            [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-imgwidth)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8+txtheight-2, imgwidth, height)];
-        else
-             [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-imgwidth)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8, imgwidth, height)];
+            if(KONOTOR_ENABLECAPTIONS&&!SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
+                [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-imgwidth)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8+txtheight-2, imgwidth, height)];
+            else
+                [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-imgwidth)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8, imgwidth, height)];
             [picView setImage:picture];
+            
+            if(![currentMessage picData]){
+                dispatch_queue_t q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+                dispatch_async(q, ^{
+                    /* Fetch the image from the server... */
+                    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[currentMessage picUrl] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if(data){
+                            [Konotor setBinaryImage:data forMessageId:[currentMessage messageId]];
+                            currentMessage.picData=data;
+                            picView.layer.cornerRadius=10.0;
+                            picView.layer.masksToBounds=YES;
+                            picView.tag=KONOTOR_PICTURE_TAG;
+                            TapOnPictureRecognizer* tapGesture=[[TapOnPictureRecognizer alloc] initWithTarget:self action:@selector(tappedOnPicture:)];
+                            tapGesture.numberOfTapsRequired=1;
+                            if(data)
+                                tapGesture.image=[UIImage imageWithData:data];
+                            else{
+                                tapGesture.imageURL=[NSURL URLWithString:[currentMessage picUrl]];
+                                tapGesture.image=nil;
+                            }
+                            tapGesture.height=[[currentMessage picHeight] floatValue];
+                            tapGesture.width=[[currentMessage picWidth] floatValue];
+                            picView.userInteractionEnabled=YES;
+                            NSArray* gestureRecognizers=[picView gestureRecognizers];
+                            for(UIGestureRecognizer* gr in gestureRecognizers){
+                                if([gr isKindOfClass:[TapOnPictureRecognizer class]])
+                                    [picView removeGestureRecognizer:gr];
+                            }
+                            [picView addGestureRecognizer:tapGesture];
+
+                        }
+                    });
+                });
+
+            }
         }
         else{
             if(height>100)
@@ -731,40 +791,55 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
                 [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-height*110/100)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8, height*110/100, height)];
             }
             [picView setImage:[UIImage imageNamed:@"konotor_placeholder"]];
-
+            
             dispatch_queue_t q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
             dispatch_async(q, ^{
                 /* Fetch the image from the server... */
-                NSData *thumbData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[currentMessage picThumbUrl]]];
-                [Konotor setBinaryImageThumbnail:thumbData forMessageId:[currentMessage messageId]];
-                UIImage *img = [[UIImage alloc] initWithData:thumbData];
+                NSData *thumbData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[currentMessage picThumbUrl] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    /* This is the main thread again, where we set the image to
-                     be what we just fetched. */
-                    [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-imgwidth)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8, imgwidth, height)];
-                    [picView setImage:img];
+                    if(thumbData){
+                        [Konotor setBinaryImageThumbnail:thumbData forMessageId:[currentMessage messageId]];
+                        currentMessage.picThumbData=thumbData;
+                        UIImage *img = [[UIImage alloc] initWithData:thumbData];
+                        
+                        /* This is the main thread again, where we set the image to
+                         be what we just fetched. */
+                        [picView setFrame:CGRectMake((KONOTOR_TEXTMESSAGE_MAXWIDTH-imgwidth)/2-KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET/2, 8, imgwidth, height)];
+                        [picView setImage:img];
+                    }
                 });
-                NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:[currentMessage picUrl]]];
-                [Konotor setBinaryImage:data forMessageId:[currentMessage messageId]];
                 
+                NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[currentMessage picUrl] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if(data){
+                        [Konotor setBinaryImage:data forMessageId:[currentMessage messageId]];
+                        currentMessage.picData=data;
+                        picView.layer.cornerRadius=10.0;
+                        picView.layer.masksToBounds=YES;
+                        picView.tag=KONOTOR_PICTURE_TAG;
+                        TapOnPictureRecognizer* tapGesture=[[TapOnPictureRecognizer alloc] initWithTarget:self action:@selector(tappedOnPicture:)];
+                        tapGesture.numberOfTapsRequired=1;
+                        if(data)
+                            tapGesture.image=[UIImage imageWithData:data];
+                        else{
+                            tapGesture.imageURL=[NSURL URLWithString:[currentMessage picUrl]];
+                            tapGesture.image=nil;
+                        }
+                        tapGesture.height=[[currentMessage picHeight] floatValue];
+                        tapGesture.width=[[currentMessage picWidth] floatValue];
+                        picView.userInteractionEnabled=YES;
+                        NSArray* gestureRecognizers=[picView gestureRecognizers];
+                        for(UIGestureRecognizer* gr in gestureRecognizers){
+                            if([gr isKindOfClass:[TapOnPictureRecognizer class]])
+                                [picView removeGestureRecognizer:gr];
+                        }
+                        [picView addGestureRecognizer:tapGesture];
+
+                    }
+                });
             });
         }
-        picView.layer.cornerRadius=10.0;
-        picView.layer.masksToBounds=YES;
-        picView.tag=KONOTOR_PICTURE_TAG;
-        TapOnPictureRecognizer* tapGesture=[[TapOnPictureRecognizer alloc] initWithTarget:self action:@selector(tappedOnPicture:)];
-        tapGesture.numberOfTapsRequired=1;
-        if([currentMessage picData])
-            tapGesture.image=picView.image;
-        else{
-            tapGesture.imageURL=[NSURL URLWithString:[currentMessage picUrl]];
-            tapGesture.image=nil;
-        }
-        tapGesture.height=[[currentMessage picHeight] floatValue];
-        tapGesture.width=[[currentMessage picWidth] floatValue];
-        picView.userInteractionEnabled=YES;
-        [picView addGestureRecognizer:tapGesture];
-#endif
+        #endif
         
         
     }
@@ -774,7 +849,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [playButton setHidden:YES];
         
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT+4)];
-        // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
         
         if([timeField respondsToSelector:@selector(textContainerInset)])
@@ -832,7 +906,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [picView setHidden:YES];
 #endif
         [timeField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY+(KONOTOR_SHOW_SENDERNAME?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT+4)];
-        // timeField.contentInset=UIEdgeInsetsMake(-4, 0,0,0);
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
         
         if([timeField respondsToSelector:@selector(textContainerInset)])
@@ -1023,7 +1096,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [messageHeights setValue:[NSNumber numberWithFloat:cellHeight]  forKey:currentMessage.messageId];
         return cellHeight;
     }
-    else if([currentMessage messageType].integerValue==KonotorMessageTypePicture){
+    else if(([currentMessage messageType].integerValue==KonotorMessageTypePicture)||([currentMessage messageType].integerValue==KonotorMessageTypePictureV2)){
         float height=MIN([[currentMessage picThumbHeight] floatValue], KONOTOR_IMAGE_MAXHEIGHT);
         float imgwidth=[[currentMessage picThumbWidth] floatValue];
         if(height!=[[currentMessage picThumbHeight] floatValue]){
@@ -1213,8 +1286,9 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         @catch(NSException *exception){
             
         }
-
+        
     }
+    messageCount_prev=(int)[[Konotor getAllMessagesForDefaultConversation] count];
 }
 
 - (void) refreshView:(id) spot
@@ -1250,8 +1324,11 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
      UIAlertView* konotorAlert=[[UIAlertView alloc] initWithTitle:@"Finished loading messages" message:messagesDownloadedAlertText delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
      [konotorAlert show];
      */
-    loading=NO;
-    [self refreshView];
+    if((loading)||([[Konotor getAllMessagesForDefaultConversation] count]>messageCount_prev)){
+        loading=NO;
+        [self refreshView];
+    }
+    
 }
 
 - (void) didFinishUploading:(NSString *)messageID
@@ -1302,7 +1379,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
                 [mailComposer setSubject:@"Sharing a message with you"];
                 [mailComposer setMessageBody:copiedText isHTML:NO];
                 if(copiedContent){
-                    if(copiedMessageType==KonotorMessageTypePicture)
+                    if((copiedMessageType==KonotorMessageTypePicture)||(copiedMessageType==KonotorMessageTypePictureV2))
                         [mailComposer addAttachmentData:copiedContent mimeType:copiedMimeType fileName:@"sharedImage.jpg"];
                     else{
                         [mailComposer addAttachmentData:copiedContent mimeType:copiedMimeType fileName:@"sharedAudio.mp4"];

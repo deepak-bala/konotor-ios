@@ -33,7 +33,8 @@ enum KonotorMessageType {
     KonotorMessageTypeText = 1,
     KonotorMessageTypeAudio = 2,
     KonotorMessageTypePicture = 3,
-    KonotorMessageTypeHTML = 4
+    KonotorMessageTypeHTML = 4,
+    KonotorMessageTypePictureV2 = 5
     };
 
 enum KonotorMessageUploadStatus
