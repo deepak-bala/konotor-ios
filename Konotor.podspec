@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.license      = "MIT"
   s.author             = { "Srikrishnan Ganesan" => "sri@konotor.com" }
   s.social_media_url   = "http://twitter.com/konotor"
-  s.platform     = :ios
+  s.platform     = :ios,5.1
   s.source       = { :git => "https://github.com/deepak-bala/konotor-ios.git", :tag => "3.6.0" }
   s.source_files  = "Konotor/*/*.{h,m}","Konotor/*/*/*.h"
   s.preserve_paths = "Konotor/include/Konotor/*.h","Konotor/libKonotorCombined.a", "Konotor/KonotorModels.bundle"
