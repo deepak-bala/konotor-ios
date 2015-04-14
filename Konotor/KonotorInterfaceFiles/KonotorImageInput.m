@@ -26,6 +26,13 @@ static KonotorImageInput* konotorImageInput=nil;
 
 + (void) showInputOptions:(UIViewController*) viewController
 {
+    
+    if([[KonotorUIParameters sharedInstance] noPhotoOption]){
+        konotorImageInput.sourceViewController=viewController;
+        konotorImageInput.sourceView=viewController.view;
+        [[KonotorImageInput sharedInstance] showImagePicker];
+        return;
+    }
  //   if(!SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
     UIActionSheet* inputOptions=[[UIActionSheet alloc] initWithTitle:@"Message Type" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Select Existing Image",@"New Image via Camera",nil];
     inputOptions.delegate=[KonotorImageInput sharedInstance];
@@ -118,6 +125,9 @@ static KonotorImageInput* konotorImageInput=nil;
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
+    
+    [[sourceViewController navigationController] setNavigationBarHidden:YES animated:NO];
+    
     UIImage* selectedImage=(UIImage*)[info valueForKey:UIImagePickerControllerOriginalImage];
     self.imagePicked=selectedImage;
     if((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)&&popover){
@@ -303,6 +313,7 @@ static KonotorImageInput* konotorImageInput=nil;
 
 - (void) dismissImageSelection
 {
+    [[sourceViewController navigationController] setNavigationBarHidden:NO animated:NO];
     UIView* alertOptionsBackground=[alertOptions superview];
     [alertOptionsBackground removeFromSuperview];
     alertOptions=nil;
@@ -313,6 +324,8 @@ static KonotorImageInput* konotorImageInput=nil;
 - (void) cleanUpImageSelection
 {
     [self dismissImageSelection];
+    [[sourceViewController navigationController] setNavigationBarHidden:NO animated:NO];
+
    // [self.sourceViewController dismissViewControllerAnimated:NO completion:NULL];
     self.imagePicked=nil;
 }
@@ -324,6 +337,8 @@ static KonotorImageInput* konotorImageInput=nil;
     UIView* editLabel=(UIView*)[win viewWithTag:5001];
     [sendLabel setHidden:NO];
     [editLabel setHidden:NO];
+    [[sourceViewController navigationController] setNavigationBarHidden:NO animated:NO];
+
 }
 
 - (void) dismissImageSelectionWithSelectedImage:(id) sender

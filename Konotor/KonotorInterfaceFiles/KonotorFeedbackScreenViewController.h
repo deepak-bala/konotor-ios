@@ -28,15 +28,16 @@
 
 @property (weak, nonatomic) IBOutlet UIView *headerContainerView;
 
-@property (weak, nonatomic) IBOutlet UITextView *headerView;
+@property (weak, nonatomic) IBOutlet UILabel *headerView;
 @property (weak, nonatomic) IBOutlet UIButton* closeButton;
 
 @property (weak, nonatomic) IBOutlet UIView *footerView;
 @property (weak, nonatomic) IBOutlet UIButton *voiceInput;
-@property (weak, nonatomic) IBOutlet UIButton *input;
+@property (weak, nonatomic) IBOutlet UITextView *input;
 @property (weak, nonatomic) IBOutlet UIButton *picInput;
 @property (weak, nonatomic) IBOutlet UILabel *poweredByLabel;
 
+- (void) setupNavigationController;
 - (void) refreshView;
 
 @end
@@ -62,8 +63,13 @@ enum KonotorToastStyle{
 @property (strong, nonatomic) UIColor* titleTextColor;
 @property (strong, nonatomic) UIColor* toastBGColor;
 @property (strong, nonatomic) UIColor* toastTextColor;
+@property (strong, nonatomic) UIColor* actionButtonColor;
+@property (strong, nonatomic) UIColor* actionButtonLabelColor;
+
+@property (strong, nonatomic) UIFont* titleTextFont;
 @property (nonatomic) BOOL showInputOptions;
 @property (nonatomic) BOOL messageSharingEnabled;
+@property (nonatomic) BOOL noPhotoOption;
 
 + (KonotorUIParameters*) sharedInstance;
 - (void) setToastStyle:(enum KonotorToastStyle) toastStyle backgroundColor:(UIColor*) bgColor textColor: (UIColor*) textColor;

@@ -37,6 +37,9 @@
 /* END OF DEFAULT SECTION */
 
 #define KONOTOR_MESSAGETEXT_FONT ([UIFont fontWithName:@"HelveticaNeue-Light" size:16.0])
+#define KONOTOR_BUTTON_DEFAULTACTIONLABEL @"View"
+#define KONOTOR_BUTTON_HORIZONTAL_PADDING 16
+#define KONOTOR_BUTTON_FONT ([UIFont fontWithName:@"HelveticaNeue" size:16.0])
 
 #define KONOTOR_IMAGE_SUPPORT 1
 
@@ -56,7 +59,8 @@
 #define KONOTOR_DURATION_TAG 88
 #define KONOTOR_PICTURE_TAG 89
 #define KONOTOR_SHAREBUTTON_TAG 90
-#define KONOTOR_SHARE_ALERT_TAG 90
+#define KONOTOR_SHARE_ALERT_TAG 91
+#define KONOTOR_ACTIONBUTTON_TAG 92
 
 
 #define KONOTOR_AUDIOMESSAGE_HEIGHT 42
@@ -67,6 +71,7 @@
 #define KONOTOR_ENDOFMESSAGE_HORIZONTAL_PADDING 10
 #define KONOTOR_USERNAMEFIELD_HEIGHT 18
 #define KONOTOR_TIMEFIELD_HEIGHT 16
+#define KONOTOR_ACTIONBUTTON_HEIGHT 44
 
 #define KONOTOR_SHOW_TIMESTAMP YES
 #define KONOTOR_SHOW_SENDERNAME NO
@@ -148,5 +153,11 @@
 @interface  KonotorShareButton: UIButton
 
 @property (strong, nonatomic) NSString* messageId;
+
+@end
+
+@interface  KonotorActionButton: UIButton
+
+@property (strong, nonatomic) NSString* actionUrl;
 
 @end

@@ -230,7 +230,7 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
 #if KONOTOR_IOS7_BUTTONSTYLE
     [sendButton setFrame:CGRectMake(transparentView.frame.size.width-45-KONOTOR_FEEDBACKSCREEN_MARGIN-20,transparentView.frame.size.height-42-10+5-3-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN,60,40)];
     [sendButton setTitleColor:KONOTOR_UIBUTTON_COLOR forState:UIControlStateNormal];
-    [sendButton setTitle:@"SEND" forState:UIControlStateNormal];
+    [sendButton setTitle:@"Send" forState:UIControlStateNormal];
 #else
     [sendButton setFrame:CGRectMake(transparentView.frame.size.width-45-KONOTOR_FEEDBACKSCREEN_MARGIN,transparentView.frame.size.height-42-10+5-3-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN,40,40)];
     sendButton.layer.cornerRadius=20;
@@ -316,11 +316,13 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
 
 +(void) dismissVoiceInput
 {
-    [Konotor stopRecording];
-    [konotorVoiceInputOverlay.transparentView removeFromSuperview];
-    konotorVoiceInputOverlay.transparentView=nil;
-    [konotorVoiceInputOverlay.feedbackAnimationTimer invalidate];
-    konotorVoiceInputOverlay=nil;
+    if(konotorVoiceInputOverlay){
+        [Konotor stopRecording];
+        [konotorVoiceInputOverlay.transparentView removeFromSuperview];
+        konotorVoiceInputOverlay.transparentView=nil;
+        [konotorVoiceInputOverlay.feedbackAnimationTimer invalidate];
+        konotorVoiceInputOverlay=nil;
+    }
 }
 
 +(void) dismissVoiceInputOverlay

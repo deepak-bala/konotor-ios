@@ -17,7 +17,7 @@
 #define MAXIMUM_RADIUS 70.0
 #define BUTTON_RADIUS 25.0
 
-#define KONOTOR_BOTTOM_EXTRAPADDING 16
+#define KONOTOR_BOTTOM_EXTRAPADDING 12
 
 
 @interface KonotorVoiceInputOverlay : NSObject
@@ -42,6 +42,7 @@
 +(BOOL) showInputLinearForView:(UIView*) view;
 +(void) rotateToOrientation:(UIInterfaceOrientation) orientation duration:(NSTimeInterval) duration;
 +(void) dismissVoiceInputOverlay;
++(void) dismissVoiceInput;
 
 
 

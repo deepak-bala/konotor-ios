@@ -127,6 +127,7 @@ enum KonotorMessageUploadStatus
 @property (nonatomic, retain) NSData *picData, *picThumbData;
 @property (nonatomic, retain) NSString * picUrl, *picThumbUrl;
 @property (nonatomic, retain) NSString *picCaption;
+@property (nonatomic, retain) NSString *actionLabel, *actionURL;
 
 @property (nonatomic, retain) NSData *audioData;
 

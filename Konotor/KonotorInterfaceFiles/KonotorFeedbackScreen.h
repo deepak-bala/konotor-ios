@@ -23,6 +23,7 @@
 
 @property (strong, nonatomic)KonotorFeedbackScreenViewController* conversationViewController;
 @property (strong, nonatomic) UIWindow* window;
+@property (strong, nonatomic) UINavigationController* konotorFeedbackScreenNavigationController;
 
 + (BOOL) showFeedbackScreen;
 + (void) dismissScreen;
@@ -30,6 +31,8 @@
 + (void) refreshMessages;
 + (BOOL) isShowingFeedbackScreen;
 + (BOOL) showFeedbackScreenWithViewController:(UIViewController*) viewController;
++ (BOOL) forceShowFeedbackScreen;
+
 @end
 
 

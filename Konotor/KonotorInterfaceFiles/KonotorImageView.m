@@ -66,6 +66,9 @@
     
     [KonotorTextInputOverlay dismissInput];
     
+    [[sourceViewController navigationController] setNavigationBarHidden:YES animated:NO];
+
+    
     if(![KonotorUtility KonotorIsInterfaceLandscape:(sourceViewController)]){
         screenHeight=[UIScreen mainScreen].bounds.size.height;
         screenWidth=[UIScreen mainScreen].bounds.size.width;

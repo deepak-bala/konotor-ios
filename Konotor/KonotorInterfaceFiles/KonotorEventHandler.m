@@ -33,21 +33,40 @@ static KonotorEventHandler* eventHandler=nil;
 
 -(BOOL) handleRemoteNotification:(NSDictionary*)userInfo withShowScreen:(BOOL)showScreen
 {
-    if(!([(NSString*)[userInfo valueForKey:@"source"] isEqualToString:@"konotor"]))
-        return NO;
-    [Konotor DownloadAllMessages];
-    
     NSString* marketingId=((NSString*)[userInfo objectForKey:@"kon_message_marketingid"]);
-    if(marketingId&&([marketingId longLongValue]!=0))
+    NSString* url=[userInfo valueForKey:@"kon_m_url"];
+    if(showScreen&&marketingId&&([marketingId longLongValue]!=0))
         [Konotor MarkMarketingMessageAsClicked:[NSNumber numberWithLongLong:[marketingId longLongValue]]];
     
-    if(showScreen){
-        [KonotorFeedbackScreen showFeedbackScreen];
+    if(showScreen&&(url!=nil)){
+        @try{
+            NSURL *clickUrl=[NSURL URLWithString:url];
+            [[UIApplication sharedApplication] openURL:clickUrl];
+        }
+        @catch(NSException *e){
+            NSLog(@"%@",e);
+        }
+        
+        [Konotor DownloadAllMessages];
+
+        return YES;
     }
-    else
-        [KonotorUtility showToastWithString:@"New message received" forMessageID:@"all"];
+    else{
     
-    return YES;
+        if(!([(NSString*)[userInfo valueForKey:@"source"] isEqualToString:@"konotor"])){
+            return NO;
+        }
+        
+        [Konotor DownloadAllMessages];
+        
+        if(showScreen){
+            [KonotorFeedbackScreen showFeedbackScreen];
+        }
+        else
+            [KonotorUtility showToastWithString:@"New message received" forMessageID:@"all"];
+        
+        return YES;
+    }
 }
 
 - (void) didFinishDownloadingMessages

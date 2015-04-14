@@ -12,7 +12,7 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
 
 @implementation KonotorFeedbackScreen
 
-@synthesize conversationViewController,window;
+@synthesize conversationViewController,window,konotorFeedbackScreenNavigationController;
 
 + (KonotorFeedbackScreen*) sharedInstance
 {
@@ -34,12 +34,16 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         return NO;
     else{
         konotorFeedbackScreen.conversationViewController=[[KonotorFeedbackScreenViewController alloc] initWithNibName:@"KonotorFeedbackScreenViewController" bundle:nil];
+        konotorFeedbackScreen.konotorFeedbackScreenNavigationController=[[UINavigationController alloc] initWithRootViewController:konotorFeedbackScreen.conversationViewController];
+
+        [konotorFeedbackScreen.conversationViewController setupNavigationController];
+
         
         [konotorFeedbackScreen.conversationViewController setModalPresentationStyle:UIModalPresentationFullScreen];
         [konotorFeedbackScreen.conversationViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
         
         
-        [viewController presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
+        [viewController presentViewController:konotorFeedbackScreen.konotorFeedbackScreenNavigationController animated:YES completion:^{
             if([[KonotorUIParameters sharedInstance] autoShowTextInput])
                 [konotorFeedbackScreen.conversationViewController performSelector:@selector(showTextInput) withObject:nil afterDelay:0.0];
         }];
@@ -56,26 +60,22 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             konotorFeedbackScreen.conversationViewController=[[KonotorFeedbackScreenViewController alloc] initWithNibName:@"KonotorFeedbackScreenViewController" bundle:nil];
+            
+            konotorFeedbackScreen.konotorFeedbackScreenNavigationController=[[UINavigationController alloc] initWithRootViewController:konotorFeedbackScreen.conversationViewController];
+            
+            [konotorFeedbackScreen.conversationViewController setupNavigationController];
+
             if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
                 if([[[[[UIApplication sharedApplication] delegate] window] rootViewController] isMemberOfClass:[UINavigationController class]]){
-                    [(UINavigationController*)[[[[UIApplication sharedApplication] delegate] window] rootViewController] pushViewController:konotorFeedbackScreen.conversationViewController animated:YES];
+                    [(UINavigationController*)[[[[UIApplication sharedApplication] delegate] window] rootViewController] pushViewController:konotorFeedbackScreen.konotorFeedbackScreenNavigationController animated:YES];
                     
-                    konotorFeedbackScreen.conversationViewController=nil;
+                    konotorFeedbackScreen.konotorFeedbackScreenNavigationController=nil;
                     return;
                 }
             }
             [konotorFeedbackScreen.conversationViewController setModalPresentationStyle:UIModalPresentationFullScreen];
             [konotorFeedbackScreen.conversationViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
             
-            if([KonotorUtility KonotorIsInterfaceLandscape: (konotorFeedbackScreen.conversationViewController)]){
-                konotorFeedbackScreen.window=[[UIWindow alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-            }
-            else{
-                konotorFeedbackScreen.window=[[UIWindow alloc] initWithFrame:[[[UIApplication sharedApplication] delegate] window].bounds];
-            }
-            
-            [konotorFeedbackScreen.window setBackgroundColor:[UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:0.7]];
-            [konotorFeedbackScreen.window setRootViewController:konotorFeedbackScreen.conversationViewController];
             
             UIViewController *rootViewController=[[[[UIApplication sharedApplication] delegate] window] rootViewController];
             if([rootViewController isKindOfClass:[UINavigationController class]])
@@ -86,16 +86,17 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
                 presentedViewController=[rootViewController presentedViewController];
             }
             
-            [rootViewController presentViewController:konotorFeedbackScreen.conversationViewController animated:YES completion:^{
-                //   konotorFeedbackScreen.conversationViewController.view.layer.shouldRasterize = NO;
-                //   [KonotorFeedbackScreen refreshMessages];
+            [rootViewController presentViewController:konotorFeedbackScreen.konotorFeedbackScreenNavigationController animated:YES completion:^{
                 if([[KonotorUIParameters sharedInstance] autoShowTextInput])
                     [konotorFeedbackScreen.conversationViewController performSelector:@selector(showTextInput) withObject:nil afterDelay:0.0];
             }];
         });
     }
+    
     return YES;
 }
+
+
 
 + (void) refreshMessages
 {
@@ -105,14 +106,27 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
 + (void) dismissScreen
 {
     [konotorFeedbackScreen.conversationViewController dismissViewControllerAnimated:YES completion:^{
+        [KonotorVoiceInputOverlay dismissVoiceInput];
+        [KonotorTextInputOverlay dismissInput];
         konotorFeedbackScreen.conversationViewController=nil;
         konotorFeedbackScreen.window=nil;
         konotorFeedbackScreen=nil;
+        konotorFeedbackScreen.konotorFeedbackScreenNavigationController=nil;
         [Konotor setDelegate:[KonotorEventHandler sharedInstance]];
         [Konotor StopPlayback];
 
     }];
  
+}
+
++ (BOOL) forceShowFeedbackScreen
+{
+    if([KonotorFeedbackScreen isShowingFeedbackScreen]){
+        [KonotorFeedbackScreen dismissScreen];
+        [KonotorFeedbackScreen showFeedbackScreen];
+
+    }
+    return YES;
 }
 
 

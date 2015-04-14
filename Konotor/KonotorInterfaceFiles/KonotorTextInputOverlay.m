@@ -45,12 +45,13 @@ static BOOL promptForPush=YES;
 {
     
     textInputBox=[[UIView alloc] initWithFrame:CGRectMake(0, window.frame.size.height-15-20-44,  window.frame.size.width, 44)];
-    [textInputBox setBackgroundColor:[UIColor whiteColor]];
-    textInputBox.layer.borderColor=[[UIColor lightGrayColor] CGColor];
-    textInputBox.layer.borderWidth=1.0;
+    [textInputBox setBackgroundColor:[UIColor colorWithRed:0.97 green:0.97 blue:0.97 alpha:1.0]];
+    textInputBox.layer.shadowColor=[[UIColor lightGrayColor] CGColor];
+    textInputBox.layer.shadowOffset=CGSizeMake(1.0, 1.0);
+    textInputBox.layer.shadowRadius=1.0;
     
    // transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.width, window.frame.size.height-15-20-44)];
-    if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
+  /*  if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
     {
         transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.height, window.frame.size.width)];
     }
@@ -62,24 +63,29 @@ static BOOL promptForPush=YES;
     [transparentView addGestureRecognizer:tapGesture];
     
     if(![[KonotorUIParameters sharedInstance] disableTransparentOverlay])
-    [window addSubview:transparentView];
+    [window addSubview:transparentView];*/
 
     
     KonotorUITextView* input;
 #if    (KONOTOR_BUTTONFORSEND==1)
     if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
-        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.height-30-10-50-35+10+29, 44-5-5)];
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.height-30-10-50-35+10+29, 44-6-6)];
     else
-        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.width-30-10-50-35+10+29, 44-5-5)];
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.width-30-10-50-35+10+29, 44-6-6)];
 
 #else
     if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
-        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.height-30-10-50-35+10, 44-5-5)];
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.height-30-10-50-35+10, 44-6-6)];
     else
-        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 5, window.frame.size.width-30-10-50-35+10, 44-5-5)];
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.width-30-10-50-35+10, 44-6-6)];
 #endif
 
+    input.layer.borderWidth=1.0;
+    input.layer.borderColor=[[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0] CGColor];
+    input.layer.cornerRadius=5.0;
+    
     [input setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14.0]];
+    [input setBackgroundColor:[UIColor whiteColor]];
     input.tag=KONOTOR_TEXTINPUT_TEXTVIEW_TAG;
     [input setReturnKeyType:UIReturnKeyDefault];
     
@@ -104,8 +110,15 @@ static BOOL promptForPush=YES;
         [cancelButton addTarget:self.sourceViewController action:@selector(showImageInput) forControlEvents:UIControlEventTouchUpInside];
     }
     else{
-        [cancelButton setTitle:@"X" forState:UIControlStateNormal];
-        [cancelButton addTarget:[self class] action:@selector(dismissInput) forControlEvents:UIControlEventTouchUpInside];
+        /*[cancelButton setTitle:@"X" forState:UIControlStateNormal];
+        [cancelButton addTarget:[self class] action:@selector(dismissInput) forControlEvents:UIControlEventTouchUpInside];*/
+        [cancelButton setImage:[UIImage imageNamed:@"konotor_cam"] forState:UIControlStateNormal];
+        [cancelButton setAlpha:0.4];
+        [cancelButton setFrame:CGRectMake(4, 2, 40, 40)];
+        [input setFrame:CGRectMake(input.frame.origin.x+10, input.frame.origin.y, input.frame.size.width-10, input.frame.size.height)];
+        
+        //  [cancelButton addTarget:[self class] action:@selector(dismissInput) forControlEvents:UIControlEventTouchUpInside];
+        [cancelButton addTarget:self.sourceViewController action:@selector(showImageInput) forControlEvents:UIControlEventTouchUpInside];
         
     }
     
@@ -124,13 +137,13 @@ static BOOL promptForPush=YES;
 #else
     
     if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
-        [sendButton setFrame:CGRectMake(5+35+window.frame.size.height-30-10-50-35+5+10, 5, 65, 34)];
+        [sendButton setFrame:CGRectMake(5+35+window.frame.size.height-30-10-50-35+5+10+15, 5, 50, 34)];
     else
-        [sendButton setFrame:CGRectMake(5+35+window.frame.size.width-30-10-50-35+5+10, 5, 65, 34)];
+        [sendButton setFrame:CGRectMake(5+35+window.frame.size.width-30-10-50-35+5+10+15, 5, 50, 34)];
 
     
     [sendButton setTitleColor:KONOTOR_UIBUTTON_COLOR forState:UIControlStateNormal];
-    [sendButton setTitle:@"SEND" forState:UIControlStateNormal];
+    [sendButton setTitle:@"Send" forState:UIControlStateNormal];
 #endif
     
     [sendButton setTag:KONOTOR_TEXTINPUT_SENDBUTTON_TAG];
@@ -162,7 +175,7 @@ static BOOL promptForPush=YES;
         float width=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?keyboardEndFrame.size.height:keyboardEndFrame.size.width;
         
         [textInputBox setFrame:CGRectMake(0, y-textInputBox.frame.size.height, width, textInputBox.frame.size.height)];
-        [transparentView setFrame:CGRectMake(0, 0, width, window.frame.size.height)];
+     //   [transparentView setFrame:CGRectMake(0, 0, width, window.frame.size.height)];
         
       
         
@@ -197,22 +210,23 @@ static BOOL promptForPush=YES;
         txtWidth=self.window.frame.size.width-30-10-50-35+10+29;
 #else
     if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
-        [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.height-30-10-50-35+5+10, 5, 65, 34)];
+        [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.height-30-10-50-35+5+10+15, 5, 50, 34)];
     else
-        [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.width-30-10-50-35+5+10, 5, 65, 34)];
+        [sendButton setFrame:CGRectMake(5+35+self.window.frame.size.width-30-10-50-35+5+10+15, 5, 50, 34)];
     
     float txtWidth;
      if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController.messagesView)])
-        txtWidth=self.window.frame.size.height-30-10-50-35+10;
+        txtWidth=self.window.frame.size.height-30-10-50-35+10+15;
     else
-        txtWidth=self.window.frame.size.width-30-10-50-35+10;
+        txtWidth=self.window.frame.size.width-30-10-50-35+10+15;
 #endif
     
     CGSize txtSize;
     
     float cameraAdjustment=0.0;
     if([[KonotorUIParameters sharedInstance] autoShowTextInput]&&[[KonotorUIParameters sharedInstance] imageInputEnabled])
-        cameraAdjustment=5;
+        cameraAdjustment=10;
+    else cameraAdjustment=10.0;
     
     txtSize = [input sizeThatFits:CGSizeMake(txtWidth-cameraAdjustment, 140)];
     
@@ -223,7 +237,7 @@ static BOOL promptForPush=YES;
     
     input.frame=CGRectMake(5+35+cameraAdjustment,5,txtWidth-cameraAdjustment,txtSize.height);
 
-    [transparentView setFrame:CGRectMake(0, 0, width, textInputBox.frame.origin.y)];
+  //  [transparentView setFrame:CGRectMake(0, 0, width, textInputBox.frame.origin.y)];
     
 }
 
@@ -233,6 +247,7 @@ static BOOL promptForPush=YES;
 
 - (void) sendText
 {
+    KonotorUITextView* textInputView=(KonotorUITextView*)[textInputBox viewWithTag:KONOTOR_TEXTINPUT_TEXTVIEW_TAG];
     NSString* toSend=[((KonotorUITextView*)[textInputBox viewWithTag:KONOTOR_TEXTINPUT_TEXTVIEW_TAG]).text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if([toSend isEqualToString:@""]){
         UIAlertView* alertNilString=[[UIAlertView alloc] initWithTitle:@"Empty Message" message:@"You cannot send an empty message. Please type a message to send." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
@@ -284,13 +299,19 @@ static BOOL promptForPush=YES;
                 promptForPush=NO;
             }
         }*/
+        [textInputView setText:@""];
+        [self textViewDidChange:textInputView];
+
     }
-    [KonotorTextInputOverlay performSelector:@selector(dismissInput) withObject:nil afterDelay:0.0];
+    
+    [KonotorFeedbackScreen performSelector:@selector(refreshMessages) withObject:nil afterDelay:0.0];
+
+   // [KonotorTextInputOverlay performSelector:@selector(dismissInput) withObject:nil afterDelay:0.0];
 }
 
 + (void) dismissInput
 {
-    
+    [konotorTextInputBox.textInputBox resignFirstResponder];
     [[NSNotificationCenter defaultCenter] removeObserver:konotorTextInputBox];
     [konotorTextInputBox.transparentView removeFromSuperview];
     [konotorTextInputBox.textInputBox removeFromSuperview];
