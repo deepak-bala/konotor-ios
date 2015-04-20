@@ -11,6 +11,7 @@
 
 static KonotorTextInputOverlay* konotorTextInputBox=nil;
 static BOOL promptForPush=YES;
+static BOOL firstWordOnLine=YES;
 
 @implementation KonotorTextInputOverlay
 
@@ -50,22 +51,6 @@ static BOOL promptForPush=YES;
     textInputBox.layer.shadowOffset=CGSizeMake(1.0, 1.0);
     textInputBox.layer.shadowRadius=1.0;
     
-   // transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.width, window.frame.size.height-15-20-44)];
-  /*  if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
-    {
-        transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.height, window.frame.size.width)];
-    }
-    else{
-        transparentView=[[UIView alloc] initWithFrame:CGRectMake(0,0, window.frame.size.width, window.frame.size.height)];
-    }
-    [transparentView setBackgroundColor:[UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:0.3]];
-    UITapGestureRecognizer* tapGesture=[[UITapGestureRecognizer alloc] initWithTarget:[self class] action:@selector(dismissInput)];
-    [transparentView addGestureRecognizer:tapGesture];
-    
-    if(![[KonotorUIParameters sharedInstance] disableTransparentOverlay])
-    [window addSubview:transparentView];*/
-
-    
     KonotorUITextView* input;
 #if    (KONOTOR_BUTTONFORSEND==1)
     if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
@@ -88,6 +73,7 @@ static BOOL promptForPush=YES;
     [input setBackgroundColor:[UIColor whiteColor]];
     input.tag=KONOTOR_TEXTINPUT_TEXTVIEW_TAG;
     [input setReturnKeyType:UIReturnKeyDefault];
+    input.scrollEnabled=NO;
     
     input.delegate=self;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shiftInput:) name:UIKeyboardWillShowNotification object:nil];
@@ -101,26 +87,13 @@ static BOOL promptForPush=YES;
 
     [cancelButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
     
-    if([[KonotorUIParameters sharedInstance] autoShowTextInput]&&[[KonotorUIParameters sharedInstance] imageInputEnabled]){
-        [cancelButton setImage:[UIImage imageNamed:@"konotor_cam"] forState:UIControlStateNormal];
-        [cancelButton setFrame:CGRectMake(4, 2, 40, 40)];
-        [input setFrame:CGRectMake(input.frame.origin.x+5, input.frame.origin.y, input.frame.size.width-5, input.frame.size.height)];
-
-      //  [cancelButton addTarget:[self class] action:@selector(dismissInput) forControlEvents:UIControlEventTouchUpInside];
-        [cancelButton addTarget:self.sourceViewController action:@selector(showImageInput) forControlEvents:UIControlEventTouchUpInside];
-    }
-    else{
-        /*[cancelButton setTitle:@"X" forState:UIControlStateNormal];
-        [cancelButton addTarget:[self class] action:@selector(dismissInput) forControlEvents:UIControlEventTouchUpInside];*/
-        [cancelButton setImage:[UIImage imageNamed:@"konotor_cam"] forState:UIControlStateNormal];
-        [cancelButton setAlpha:0.4];
-        [cancelButton setFrame:CGRectMake(4, 2, 40, 40)];
-        [input setFrame:CGRectMake(input.frame.origin.x+10, input.frame.origin.y, input.frame.size.width-10, input.frame.size.height)];
+    [cancelButton setImage:[UIImage imageNamed:@"konotor_cam"] forState:UIControlStateNormal];
+    [cancelButton setAlpha:0.4];
+    [cancelButton setFrame:CGRectMake(4, 2, 40, 40)];
+    [input setFrame:CGRectMake(input.frame.origin.x+10, input.frame.origin.y, input.frame.size.width-10, input.frame.size.height)];
         
-        //  [cancelButton addTarget:[self class] action:@selector(dismissInput) forControlEvents:UIControlEventTouchUpInside];
-        [cancelButton addTarget:self.sourceViewController action:@selector(showImageInput) forControlEvents:UIControlEventTouchUpInside];
+    [cancelButton addTarget:self.sourceViewController action:@selector(showImageInput) forControlEvents:UIControlEventTouchUpInside];
         
-    }
     
     [textInputBox addSubview:cancelButton];
 
@@ -143,6 +116,8 @@ static BOOL promptForPush=YES;
 
     
     [sendButton setTitleColor:KONOTOR_UIBUTTON_COLOR forState:UIControlStateNormal];
+    [sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+    sendButton.enabled=NO;
     [sendButton setTitle:@"Send" forState:UIControlStateNormal];
 #endif
     
@@ -223,10 +198,7 @@ static BOOL promptForPush=YES;
     
     CGSize txtSize;
     
-    float cameraAdjustment=0.0;
-    if([[KonotorUIParameters sharedInstance] autoShowTextInput]&&[[KonotorUIParameters sharedInstance] imageInputEnabled])
-        cameraAdjustment=10;
-    else cameraAdjustment=10.0;
+    float cameraAdjustment=10.0;
     
     txtSize = [input sizeThatFits:CGSizeMake(txtWidth-cameraAdjustment, 140)];
     
@@ -237,7 +209,6 @@ static BOOL promptForPush=YES;
     
     input.frame=CGRectMake(5+35+cameraAdjustment,5,txtWidth-cameraAdjustment,txtSize.height);
 
-  //  [transparentView setFrame:CGRectMake(0, 0, width, textInputBox.frame.origin.y)];
     
 }
 
@@ -249,7 +220,7 @@ static BOOL promptForPush=YES;
 {
     KonotorUITextView* textInputView=(KonotorUITextView*)[textInputBox viewWithTag:KONOTOR_TEXTINPUT_TEXTVIEW_TAG];
     NSString* toSend=[((KonotorUITextView*)[textInputBox viewWithTag:KONOTOR_TEXTINPUT_TEXTVIEW_TAG]).text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if([toSend isEqualToString:@""]){
+    if((![KonotorUIParameters sharedInstance].allowSendingEmptyMessage)&&[toSend isEqualToString:@""]){
         UIAlertView* alertNilString=[[UIAlertView alloc] initWithTitle:@"Empty Message" message:@"You cannot send an empty message. Please type a message to send." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
         [alertNilString show];
     }
@@ -331,11 +302,28 @@ static BOOL promptForPush=YES;
 {
     KonotorUITextView* textBox=(KonotorUITextView*)textView;
     NSString *txt=textBox.text;
-    if((txt==nil)||([txt isEqualToString:@""]))
+    UIButton* sendButton = (UIButton*)[self.textInputBox viewWithTag:KONOTOR_TEXTINPUT_SENDBUTTON_TAG];
+
+    if((txt==nil)||([txt isEqualToString:@""])){
+        sendButton.enabled=NO;
         txt=@"1";
+    }
+    else
+        sendButton.enabled=YES;
+        
     CGSize txtSize = [textView sizeThatFits:CGSizeMake(textView.frame.size.width, 140)];
-    if(txtSize.height>100)
-        txtSize.height=100;
+    
+    if((txtSize.height)>=67){
+        txtSize.height=67;
+        if(firstWordOnLine==YES)
+            firstWordOnLine=NO;
+        else
+            textView.scrollEnabled=YES;
+    }
+    else{
+        textView.scrollEnabled=NO;
+    }
+
     
     textInputBox.frame=CGRectMake(textInputBox.frame.origin.x, textInputBox.frame.origin.y-(txtSize.height-textBox.frame.size.height), textInputBox.frame.size.width, textInputBox.frame.size.height+(txtSize.height-textBox.frame.size.height));
     

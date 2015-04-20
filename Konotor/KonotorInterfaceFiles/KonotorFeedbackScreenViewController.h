@@ -70,6 +70,8 @@ enum KonotorToastStyle{
 @property (nonatomic) BOOL showInputOptions;
 @property (nonatomic) BOOL messageSharingEnabled;
 @property (nonatomic) BOOL noPhotoOption;
+@property (nonatomic) BOOL allowSendingEmptyMessage;
+@property (nonatomic) BOOL dontShowLoadingAnimation;
 
 + (KonotorUIParameters*) sharedInstance;
 - (void) setToastStyle:(enum KonotorToastStyle) toastStyle backgroundColor:(UIColor*) bgColor textColor: (UIColor*) textColor;

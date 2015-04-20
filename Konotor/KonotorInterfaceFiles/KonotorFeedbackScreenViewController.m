@@ -368,7 +368,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -388,6 +388,8 @@ static KonotorUIParameters* konotorUIParameters=nil;
         konotorUIParameters.messageSharingEnabled=NO;
         konotorUIParameters.noPhotoOption=NO;
         konotorUIParameters.titleTextFont=nil;
+        konotorUIParameters.allowSendingEmptyMessage=NO;
+        konotorUIParameters.dontShowLoadingAnimation=NO;
 
     }
     return konotorUIParameters;

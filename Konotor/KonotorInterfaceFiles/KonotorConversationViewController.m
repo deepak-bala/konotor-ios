@@ -83,8 +83,11 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     numberOfMessagesShown=KONOTOR_MESSAGESPERPAGE;
     
     messages=[Konotor getAllMessagesForDefaultConversation];
-        
-    loading=YES;
+    
+    if(![KonotorUIParameters sharedInstance].dontShowLoadingAnimation)
+        loading=YES;
+    else
+        loading=NO;
     if(![Konotor areConversationsDownloading])
         [Konotor DownloadAllMessages];
     
@@ -1513,7 +1516,10 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 {
     if(!([(NSString*)[userInfo valueForKey:@"source"] isEqualToString:@"konotor"]))
         return NO;
-    loading=YES;
+    if(![[KonotorUIParameters sharedInstance] dontShowLoadingAnimation])
+        loading=YES;
+    else
+        loading=NO;
     [Konotor DownloadAllMessages];
     
     [self.tableView reloadData];
