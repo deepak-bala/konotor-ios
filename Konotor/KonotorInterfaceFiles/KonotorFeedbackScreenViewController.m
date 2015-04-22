@@ -165,9 +165,11 @@ static KonotorUIParameters* konotorUIParameters=nil;
     else{
     [voiceInput setTitle:@"Send" forState:UIControlStateNormal];
     [voiceInput setImage:nil forState:UIControlStateNormal];
-    [voiceInput setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
-    [voiceInput setFrame:CGRectMake(voiceInput.frame.origin.x-15, voiceInput.frame.origin.y, voiceInput.frame.size.width+20, voiceInput.frame.size.height)];
-    [voiceInput setBackgroundColor:[UIColor whiteColor]];
+    [voiceInput setAlpha:1.0];
+    [voiceInput setBackgroundColor:[UIColor clearColor]];
+    [voiceInput setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+    [voiceInput setFrame:CGRectMake(voiceInput.frame.origin.x-10, voiceInput.frame.origin.y, voiceInput.frame.size.width+10, voiceInput.frame.size.height)];
+    [input setFrame:CGRectMake(input.frame.origin.x, input.frame.origin.y, input.frame.size.width-12, input.frame.size.height)];
     [voiceInput setUserInteractionEnabled:NO];
     }
     

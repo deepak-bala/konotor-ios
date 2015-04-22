@@ -60,9 +60,9 @@ static BOOL firstWordOnLine=YES;
 
 #else
     if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
-        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.height-30-10-50-35+10, 44-6-6)];
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.height-30-10-50-35+10+15, 44-6-6)];
     else
-        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.width-30-10-50-35+10, 44-6-6)];
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.width-30-10-50-35+10+15, 44-6-6)];
 #endif
 
     input.layer.borderWidth=1.0;
