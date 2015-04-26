@@ -74,8 +74,7 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
                 }
             }
             [konotorFeedbackScreen.conversationViewController setModalPresentationStyle:UIModalPresentationFullScreen];
-            [konotorFeedbackScreen.conversationViewController setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
-            
+            [konotorFeedbackScreen.conversationViewController setModalTransitionStyle:[KonotorUIParameters sharedInstance].overlayTransitionStyle];
             
             UIViewController *rootViewController=[[[[UIApplication sharedApplication] delegate] window] rootViewController];
             if([rootViewController isKindOfClass:[UINavigationController class]])

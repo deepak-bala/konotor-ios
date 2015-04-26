@@ -45,7 +45,7 @@ static BOOL firstWordOnLine=YES;
 - (void) showInputView
 {
     
-    textInputBox=[[UIView alloc] initWithFrame:CGRectMake(0, window.frame.size.height-15-20-44,  window.frame.size.width, 44)];
+    textInputBox=[[UIView alloc] initWithFrame:CGRectMake(0, window.frame.size.height-44,  window.frame.size.width, 44)];
     [textInputBox setBackgroundColor:[UIColor colorWithRed:0.97 green:0.97 blue:0.97 alpha:1.0]];
     textInputBox.layer.shadowColor=[[UIColor lightGrayColor] CGColor];
     textInputBox.layer.shadowOffset=CGSizeMake(1.0, 1.0);
@@ -115,7 +115,7 @@ static BOOL firstWordOnLine=YES;
         [sendButton setFrame:CGRectMake(5+35+window.frame.size.width-30-10-50-35+5+10+15, 5, 50, 34)];
 
     
-    [sendButton setTitleColor:KONOTOR_UIBUTTON_COLOR forState:UIControlStateNormal];
+    [sendButton setTitleColor:(([[KonotorUIParameters sharedInstance] sendButtonColor]==nil)?KONOTOR_UIBUTTON_COLOR:[[KonotorUIParameters sharedInstance] sendButtonColor]) forState:UIControlStateNormal];
     [sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
     sendButton.enabled=NO;
     [sendButton setTitle:@"Send" forState:UIControlStateNormal];

@@ -87,9 +87,15 @@ static KonotorUIParameters* konotorUIParameters=nil;
         [headerView setTextColor:[konotorUIParameters titleTextColor]];
     }
     
-    
-    
-    [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
+    if([konotorUIParameters closeButtonImage]==nil)
+        [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
+    else{
+        UIButton *leftButton=[UIButton buttonWithType:UIButtonTypeCustom];
+        [leftButton setFrame:CGRectMake(0, 0, 32, 32)];
+        [leftButton setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
+        [leftButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
+        [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithCustomView:leftButton]];
+    }
     
  
  /*   [headerView setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
@@ -364,13 +370,16 @@ static KonotorUIParameters* konotorUIParameters=nil;
     
     if([konotorUIParameters titleText])
         [self setTitle:[konotorUIParameters titleText]];
+    
+    if([konotorUIParameters doneButtonColor])
+        [self.navigationItem.leftBarButtonItem setTintColor:[konotorUIParameters doneButtonColor]];
 }
 
 @end
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -392,6 +401,16 @@ static KonotorUIParameters* konotorUIParameters=nil;
         konotorUIParameters.titleTextFont=nil;
         konotorUIParameters.allowSendingEmptyMessage=NO;
         konotorUIParameters.dontShowLoadingAnimation=NO;
+        
+        konotorUIParameters.sendButtonColor=nil;
+        konotorUIParameters.doneButtonColor=nil;
+        
+        konotorUIParameters.otherTextColor=nil;
+        konotorUIParameters.otherChatBubble=nil;
+        konotorUIParameters.userTextColor=nil;
+        konotorUIParameters.userChatBubble=nil;
+        
+        konotorUIParameters.overlayTransitionStyle=UIModalTransitionStyleCrossDissolve;
 
     }
     return konotorUIParameters;

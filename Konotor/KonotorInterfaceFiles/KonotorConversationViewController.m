@@ -73,6 +73,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self.tableView setSeparatorColor:[UIColor clearColor]];
 
 #if KONOTOR_MESSAGE_SHARE_SUPPORT
     mailComposer=[[MFMailComposeViewController alloc] init];
@@ -474,26 +475,27 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     
     UIEdgeInsets insets=UIEdgeInsetsMake(KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_LEFT_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_BOTTOM_INSET, KONOTOR_MESSAGE_BACKGROUND_IMAGE_RIGHT_INSET);
     
+    KonotorUIParameters* interfaceOptions=[KonotorUIParameters sharedInstance];
     if(isSenderOther){
         [userNameField setText:@"Support"];
         [uploadStatus setImage:nil];
         [userNameField setBackgroundColor:KONOTOR_SUPPORTMESSAGE_BACKGROUND_COLOR];
         [timeField setBackgroundColor:KONOTOR_SUPPORTMESSAGE_BACKGROUND_COLOR];
         [messageText setBackgroundColor:KONOTOR_SUPPORTMESSAGE_BACKGROUND_COLOR];
-        [messageBackground setImage:[[UIImage imageNamed:@"konotor_chatbubble_ios7_other.png"] resizableImageWithCapInsets:insets]];
-        [userNameField setTextColor:KONOTOR_OTHERNAME_TEXT_COLOR];
-        [messageText setTextColor:KONOTOR_OTHERMESSAGE_TEXT_COLOR];
-        [timeField setTextColor:KONOTOR_OTHERTIMESTAMP_COLOR];
+        [messageBackground setImage:[((interfaceOptions.otherChatBubble==nil)?[UIImage imageNamed:@"konotor_chatbubble_ios7_other.png"]:interfaceOptions.otherChatBubble) resizableImageWithCapInsets:insets]];
+        [userNameField setTextColor:((interfaceOptions.otherTextColor==nil)?KONOTOR_OTHERNAME_TEXT_COLOR:interfaceOptions.otherTextColor)];
+        [messageText setTextColor:((interfaceOptions.otherTextColor==nil)?KONOTOR_OTHERMESSAGE_TEXT_COLOR:interfaceOptions.otherTextColor)];
+        [timeField setTextColor:((interfaceOptions.otherTextColor==nil)?KONOTOR_OTHERTIMESTAMP_COLOR:interfaceOptions.otherTextColor)];
     }
     else{
         [userNameField setText:@"You"];
         [userNameField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [timeField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [messageText setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
-        [messageBackground setImage:[[UIImage imageNamed:@"konotor_chatbubble_ios7_you.png"] resizableImageWithCapInsets:insets]];
-        [userNameField setTextColor:KONOTOR_USERNAME_TEXT_COLOR];
-        [messageText setTextColor:KONOTOR_USERMESSAGE_TEXT_COLOR];
-        [timeField setTextColor:KONOTOR_USERTIMESTAMP_COLOR];
+        [messageBackground setImage:[((interfaceOptions.userChatBubble==nil)?[UIImage imageNamed:@"konotor_chatbubble_ios7_you.png"]:interfaceOptions.userChatBubble) resizableImageWithCapInsets:insets]];
+        [userNameField setTextColor:((interfaceOptions.userTextColor==nil)?KONOTOR_USERNAME_TEXT_COLOR:interfaceOptions.userTextColor)];
+        [messageText setTextColor:((interfaceOptions.userTextColor==nil)?KONOTOR_USERMESSAGE_TEXT_COLOR:interfaceOptions.userTextColor)];
+        [timeField setTextColor:((interfaceOptions.userTextColor==nil)?KONOTOR_USERTIMESTAMP_COLOR:interfaceOptions.userTextColor)];
         [durationField setHidden:NO];
         [durationField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [durationField setTextColor:KONOTOR_USERTIMESTAMP_COLOR];
@@ -548,7 +550,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
         [messageText setText:nil];
         [messageText setDataDetectorTypes:UIDataDetectorTypeNone];
-        [messageText setText:currentMessage.text];
+        [messageText setText:[NSString stringWithFormat:@"\u200b%@",currentMessage.text]];
         [messageText setDataDetectorTypes:UIDataDetectorTypeLink];
         
         CGRect txtMsgFrame=messageText.frame;
@@ -1018,6 +1020,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
  - (void) viewWillAppear:(BOOL)animated
 {
+    [self.tableView setSeparatorColor:[UIColor clearColor]];
 }
 
 - (void) viewDidLayoutSubviews{
@@ -1075,13 +1078,13 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 - (void)keyboardWasShown:(NSNotification*)aNotification
 {
     NSDictionary* info = [aNotification userInfo];
-    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
     
     UIEdgeInsets contentInsets;
     if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-        contentInsets = UIEdgeInsetsMake(0.0, 0.0, (keyboardSize.height-10), 0.0);
+        contentInsets = UIEdgeInsetsMake(10.0, 0.0, (keyboardSize.height-10), 0.0);
     } else {
-        contentInsets = UIEdgeInsetsMake(0.0, 0.0, (keyboardSize.height-10), 0.0);
+        contentInsets = UIEdgeInsetsMake(10.0, 0.0, (keyboardSize.height-10), 0.0);
     }
     
     self.tableView.contentInset = contentInsets;
