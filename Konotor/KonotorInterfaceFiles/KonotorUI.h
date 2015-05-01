@@ -28,13 +28,6 @@
 
 #define KONOTOR_IMESSAGE_LAYOUT 1
 
-#define KONOTOR_BUTTONFORSEND 0
-
-#if KONOTOR_IMESSAGE_LAYOUT
-#define KONOTOR_IOS7_BUTTONSTYLE 1
-#else
-#define KONOTOR_IOS7_BUTTONSTYLE 0
-#endif
 
 
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)

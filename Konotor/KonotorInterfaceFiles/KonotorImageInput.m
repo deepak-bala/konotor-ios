@@ -198,7 +198,6 @@ static KonotorImageInput* konotorImageInput=nil;
     
     
     UIButton* send=[[UIButton alloc] initWithFrame:CGRectMake(screenWidth-16-80, screenHeight-45-(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")?0:20), 80, 45)];
-    //[send setImage:[UIImage imageNamed:@"konotor_send.png"] forState:UIControlStateNormal];
     [send setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [send setTitle:@"Send" forState:UIControlStateNormal];
     [send addTarget:self action:@selector(dismissImageSelectionWithSelectedImage:) forControlEvents:UIControlEventTouchUpInside];

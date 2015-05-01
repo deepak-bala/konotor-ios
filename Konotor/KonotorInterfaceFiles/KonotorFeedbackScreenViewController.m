@@ -26,10 +26,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
-        if([konotorUIParameters backgroundViewColor])
-            [self.view setBackgroundColor:[konotorUIParameters backgroundViewColor]];
-        else
-            [self.view setBackgroundColor:[UIColor clearColor]];
+        [self.view setBackgroundColor:KONOTOR_MESSAGELAYOUT_BACKGROUND_COLOR];
     }
     return self;
 }
@@ -98,51 +95,18 @@ static KonotorUIParameters* konotorUIParameters=nil;
     }
     
  
- /*   [headerView setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
-    [headerView setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:26.0]];
-    [headerView setText:@"Feedback"];
-    [headerView setEditable:NO];
-    
-#if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
-    if([headerView respondsToSelector:@selector(setSelectable:)])
-        [headerView setSelectable:NO];
-#endif
-    [headerView setScrollEnabled:NO];
-    [headerView setTextColor:[UIColor whiteColor]];
-    [headerView setTextAlignment:NSTextAlignmentCenter]; */
     
     if(!KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
-    /*    CGRect headerRect=headerView.frame;
-        headerRect.origin.y=headerRect.origin.y+topPaddingIOS7;
-        [headerView setFrame:headerRect];
-        CGRect closeButtonRect=closeButton.frame;
-        closeButtonRect.origin.y=closeButtonRect.origin.y+topPaddingIOS7;
-        [closeButton setFrame:closeButtonRect];*/
         CGRect headerRect=headerContainerView.frame;
         headerRect.origin.y=headerRect.origin.y+topPaddingIOS7;
         [headerContainerView setFrame:headerRect];
     }
     
-    /*
-    headerContainerView.layer.shadowOffset=CGSizeMake(1,1);
-    headerContainerView.layer.shadowColor=[[UIColor grayColor] CGColor];
-    headerContainerView.layer.shadowRadius=-1.0;
-    headerContainerView.layer.shadowOpacity=1.0;*/
-    
-    
-    //UIButton* closeButton=[UIButton buttonWithType:UIButtonTypeCustom];
-  /*  [closeButton setBackgroundColor:[UIColor clearColor]];
-    [closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [closeButton setImage:[UIImage imageNamed:@"konotor_cross.png"] forState:UIControlStateNormal];
-    [closeButton setFrame:CGRectMake(8,8,28,28)];*/
     
     if([konotorUIParameters closeButtonImage])
        [closeButton setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
     [closeButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
     
-  //  [headerView addSubview:closeButton];
-    
-  //  [footerView setBackgroundColor:[UIColor whiteColor]];
     footerView.layer.shadowOffset=CGSizeMake(1,1);
     footerView.layer.shadowColor=[[UIColor colorWithRed:0.3 green:0.3 blue:0.3 alpha:1.0] CGColor];
     footerView.layer.shadowRadius=1.0;
@@ -150,17 +114,19 @@ static KonotorUIParameters* konotorUIParameters=nil;
     
     UITapGestureRecognizer* tap=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTextInput)];
     [input addGestureRecognizer:tap];
-    //[input addTarget:self action:@selector(showTextInput) forControlEvents:UIControlEventTouchDown];
     input.layer.borderColor=[[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0] CGColor];
     input.layer.borderWidth=1.0;
     input.layer.cornerRadius=5.0;
+    
+    if(konotorUIParameters.inputHintText){
+        [input setText:konotorUIParameters.inputHintText];
+    }
     
     [voiceInput setFrame:CGRectMake(footerView.frame.size.width-5-40, 2, 40, 40)];
 
     if([[KonotorUIParameters sharedInstance] voiceInputEnabled]){
     
     [voiceInput setFrame:CGRectMake(footerView.frame.size.width-5-40, 2, 40, 40)];
-   // [voiceInput setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
     voiceInput.layer.cornerRadius=20.0;
     [voiceInput setImage:[UIImage imageNamed:@"konotor_mic.png"] forState:UIControlStateNormal];
     
@@ -219,24 +185,18 @@ static KonotorUIParameters* konotorUIParameters=nil;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showRecordingFailed) name:@"KonotorRecordingFailed" object:nil];
 
     self.navigationItem.backBarButtonItem=[[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:nil action:nil];;
-    // Do any additional setup after loading the view from its nib.
 
 }
 
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    //
     if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
         if([konotorUIParameters titleText])
             [self.navigationItem setTitle:[konotorUIParameters titleText]];
         else
             [self.navigationItem setTitle:@"Feedback"];
 
-
-      //  self.navigationController.navigationBar.titleTextAttributes=[NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor], UITextAttributeTextColor, [UIColor clearColor], UITextAttributeTextShadowColor,[NSValue valueWithUIOffset:UIOffsetMake(1, 1)], UITextAttributeTextShadowOffset,[UIFont fontWithName:@"HelveticaNeue-UltraLight" size:28.0],UITextAttributeFont,nil];
-        
-        
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
         if([konotorUIParameters closeButtonImage])
@@ -379,7 +339,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -392,6 +352,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
         konotorUIParameters.toastTextColor=[UIColor whiteColor];
         konotorUIParameters.actionButtonLabelColor=[UIColor whiteColor];
         konotorUIParameters.actionButtonColor=[UIColor colorWithRed:0 green:0.5 blue:0 alpha:1];
+        konotorUIParameters.backgroundViewColor=nil;
 
         konotorUIParameters.titleTextColor=nil;
         konotorUIParameters.showInputOptions=YES;
@@ -411,6 +372,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
         konotorUIParameters.userChatBubble=nil;
         
         konotorUIParameters.overlayTransitionStyle=UIModalTransitionStyleCrossDissolve;
+        konotorUIParameters.inputHintText=nil;
 
     }
     return konotorUIParameters;

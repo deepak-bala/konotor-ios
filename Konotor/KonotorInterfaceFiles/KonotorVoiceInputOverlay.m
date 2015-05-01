@@ -21,16 +21,7 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
     return konotorVoiceInputOverlay;
 }
 
-+(BOOL) showInputForView:(UIView*) view
-{
-    if(konotorVoiceInputOverlay!=nil)
-        return NO;
-    konotorVoiceInputOverlay=[KonotorVoiceInputOverlay sharedInstance];
-    konotorVoiceInputOverlay.window=view;
-    konotorVoiceInputOverlay.isLinearInput=NO;
-    [konotorVoiceInputOverlay showInputView];
-    return YES;
-}
+
 
 +(BOOL) showInputLinearForView:(UIView*) view
 {
@@ -79,93 +70,10 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
         [voiceFeedbackAnimatorView2 setFrame:CGRectMake(KONOTOR_FEEDBACKSCREEN_MARGIN+50, transparentView.frame.size.height-20-10+5-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN, 120, 4)];
         [timerLabel setFrame:CGRectMake(KONOTOR_FEEDBACKSCREEN_MARGIN+50, transparentView.frame.size.height-40-10+5-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN, transparentView.frame.size.width-KONOTOR_FEEDBACKSCREEN_MARGIN*2-100, 20)];
         [cancelButton setFrame:CGRectMake(5+KONOTOR_FEEDBACKSCREEN_MARGIN,transparentView.frame.size.height-42-10+5-3-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN,40,40)];
-#if KONOTOR_IOS7_BUTTONSTYLE
         [sendButton setFrame:CGRectMake(transparentView.frame.size.width-45-KONOTOR_FEEDBACKSCREEN_MARGIN-20,transparentView.frame.size.height-42-10+5-3-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN,60,40)];
-#else
-        [sendButton setFrame:CGRectMake(transparentView.frame.size.width-45-KONOTOR_FEEDBACKSCREEN_MARGIN,transparentView.frame.size.height-42-10+5-3-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN,40,40)];
-#endif
     }
 }
 
-
-- (void) showInputView
-{
-    //Add a transparent Overlay on top of the current view
-    transparentView=[[UIView alloc] initWithFrame:CGRectMake(0, 0, window.frame.size.width, window.frame.size.height)];
-
-    [transparentView setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:0.7]];
-    
-    UIColor *bgcolor=[UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
-    UIColor *recordingColor=[UIColor colorWithRed:0.3 green:0.1 blue:0.1 alpha:0.8];
-    
-    //Add a central container and the voice controls around it
-    containerWidget=[[UIView alloc] initWithFrame:CGRectMake(transparentView.frame.size.width/2-CONTAINER_RADIUS, transparentView.frame.size.height/2-CONTAINER_RADIUS, CONTAINER_RADIUS*2, CONTAINER_RADIUS*2)];
-    containerWidget.layer.cornerRadius=CONTAINER_RADIUS;
-    [containerWidget setBackgroundColor:bgcolor];
-    [transparentView addSubview:containerWidget];
-    
-    
-    //Add animated view
-    voiceFeedbackAnimatorView1=[[UIView alloc] initWithFrame:CGRectMake(transparentView.frame.size.width/2-MINIMUM_RADIUS, transparentView.frame.size.height/2-MINIMUM_RADIUS, MINIMUM_RADIUS*2, MINIMUM_RADIUS*2)];
-    voiceFeedbackAnimatorView1.layer.cornerRadius=MINIMUM_RADIUS;
-    [voiceFeedbackAnimatorView1 setBackgroundColor:recordingColor];
-    [transparentView addSubview:voiceFeedbackAnimatorView1];
-    
-    voiceFeedbackAnimatorView2=[[UIView alloc] initWithFrame:CGRectMake(transparentView.frame.size.width/2-MINIMUM_RADIUS, transparentView.frame.size.height/2-MINIMUM_RADIUS, MINIMUM_RADIUS*2, MINIMUM_RADIUS*2)];
-    voiceFeedbackAnimatorView2.layer.cornerRadius=MINIMUM_RADIUS;
-    [voiceFeedbackAnimatorView2 setBackgroundColor:recordingColor];
-    [voiceFeedbackAnimatorView2 setHidden:YES];
-    [transparentView addSubview:voiceFeedbackAnimatorView2];
-    
-    
-    
-    
-    //Add center view that shows time
-    timerLabel=[[UILabel alloc] initWithFrame:CGRectMake(transparentView.frame.size.width/2-MINIMUM_RADIUS, transparentView.frame.size.height/2-MINIMUM_RADIUS, MINIMUM_RADIUS*2, MINIMUM_RADIUS*2)];
-    timerLabel.layer.cornerRadius=MINIMUM_RADIUS;
-    [timerLabel setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0]];
-    timerLabel.layer.borderColor=[[UIColor colorWithRed:0.7 green:0.3 blue:0.3 alpha:0.7] CGColor];
-    [timerLabel setFont:[UIFont fontWithName:@"HelveticaNeue-UltraLight" size:20.0]];
-    [timerLabel setTextAlignment:NSTextAlignmentCenter];
-    [timerLabel setText:@"0:00"];
-    [transparentView addSubview:timerLabel];
-    
-    //Add a cancel button
-    cancelButton=[UIButton buttonWithType:UIButtonTypeCustom];
-    [cancelButton setFrame:CGRectMake(containerWidget.frame.origin.x+CONTAINER_RADIUS-(CONTAINER_RADIUS)*cos(M_PI/3.0)-BUTTON_RADIUS, containerWidget.frame.origin.y+CONTAINER_RADIUS-BUTTON_RADIUS-CONTAINER_RADIUS*sin(M_PI/3.0), BUTTON_RADIUS*2, BUTTON_RADIUS*2)];
-    cancelButton.layer.cornerRadius=BUTTON_RADIUS;
-    [cancelButton setTitle:@"X" forState:UIControlStateNormal];
-    [cancelButton setBackgroundColor:[UIColor colorWithRed:0.3 green:0.3 blue:0.3 alpha:1.0]];
-    [cancelButton addTarget:[KonotorVoiceInputOverlay class] action:@selector(dismissVoiceInput) forControlEvents:UIControlEventTouchUpInside];
-    [transparentView addSubview:cancelButton];
-    
-    //Add a send button
-    sendButton=[UIButton buttonWithType:UIButtonTypeCustom];
-    [sendButton setFrame:CGRectMake(containerWidget.frame.origin.x+2*CONTAINER_RADIUS-BUTTON_RADIUS, containerWidget.frame.origin.y+CONTAINER_RADIUS-BUTTON_RADIUS, BUTTON_RADIUS*2, BUTTON_RADIUS*2)];
-    sendButton.layer.cornerRadius=BUTTON_RADIUS;
-  //  [sendButton setTitle:@"Go" forState:UIControlStateNormal];
-    [sendButton setImage:[UIImage imageNamed:@"konotor_send.png"] forState:UIControlStateNormal];
-    [sendButton setBackgroundColor:[UIColor colorWithRed:0.3 green:0.5 blue:0.3 alpha:1.0]];
-    [sendButton addTarget:[KonotorVoiceInputOverlay class] action:@selector(sendRecording) forControlEvents:UIControlEventTouchUpInside];
-    [transparentView addSubview:sendButton];
-    
-    //Add a stop button
-    stopButton=[UIButton buttonWithType:UIButtonTypeCustom];
-    [stopButton setFrame:CGRectMake(containerWidget.frame.origin.x+CONTAINER_RADIUS-(CONTAINER_RADIUS)*cos(M_PI/3.0)-BUTTON_RADIUS, containerWidget.frame.origin.y+CONTAINER_RADIUS-BUTTON_RADIUS+CONTAINER_RADIUS*sin(M_PI/3.0), BUTTON_RADIUS*2, BUTTON_RADIUS*2)];
-    stopButton.layer.cornerRadius=BUTTON_RADIUS;
-  //  [stopButton setTitle:@"[ ]" forState:UIControlStateNormal];
-    [stopButton setImage:[UIImage imageNamed:@"konotor_stop.png"] forState:UIControlStateNormal];
-    [stopButton setBackgroundColor:[UIColor colorWithRed:0.25 green:0.2 blue:0.3 alpha:1.0]];
-    [stopButton addTarget:[KonotorVoiceInputOverlay class] action:@selector(stopVoiceRecording) forControlEvents:UIControlEventTouchUpInside];
-    [transparentView addSubview:stopButton];
-   
-    
-    //render it all - add to screen
-    [window addSubview:transparentView];
-    feedbackAnimationTimer=[NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(animateVoiceFeedback) userInfo:nil repeats:YES];
-    [feedbackAnimationTimer fire];
-  //  [Konotor startRecording];
-}
 
 - (void) showInputViewLinear
 {
@@ -215,29 +123,17 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
     cancelButton=[UIButton buttonWithType:UIButtonTypeCustom];
     [cancelButton setFrame:CGRectMake(5+KONOTOR_FEEDBACKSCREEN_MARGIN,transparentView.frame.size.height-42-10+5-3-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN,40,40)];
     [cancelButton setTitle:@"X" forState:UIControlStateNormal];
-#if KONOTOR_IOS7_BUTTONSTYLE
     [cancelButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
-#else
-    cancelButton.layer.cornerRadius=20;
-    [cancelButton setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
-#endif
     [cancelButton addTarget:[KonotorVoiceInputOverlay class] action:@selector(dismissVoiceInput) forControlEvents:UIControlEventTouchUpInside];
     [transparentView addSubview:cancelButton];
     
     //Add a send button
     sendButton=[UIButton buttonWithType:UIButtonTypeCustom];
     
-#if KONOTOR_IOS7_BUTTONSTYLE
     [sendButton setFrame:CGRectMake(transparentView.frame.size.width-45-KONOTOR_FEEDBACKSCREEN_MARGIN-20,transparentView.frame.size.height-42-10+5-3-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN,60,40)];
     [sendButton setTitleColor:KONOTOR_UIBUTTON_COLOR forState:UIControlStateNormal];
     [sendButton setTitle:@"Send" forState:UIControlStateNormal];
-#else
-    [sendButton setFrame:CGRectMake(transparentView.frame.size.width-45-KONOTOR_FEEDBACKSCREEN_MARGIN,transparentView.frame.size.height-42-10+5-3-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN,40,40)];
-    sendButton.layer.cornerRadius=20;
-    [sendButton setImage:[UIImage imageNamed:@"konotor_send.png"] forState:UIControlStateNormal];
-    [sendButton setBackgroundColor:KONOTOR_UIBUTTON_COLOR];
 
-#endif
     [sendButton addTarget:[KonotorVoiceInputOverlay class] action:@selector(sendRecording) forControlEvents:UIControlEventTouchUpInside];
     [transparentView addSubview:sendButton];
     

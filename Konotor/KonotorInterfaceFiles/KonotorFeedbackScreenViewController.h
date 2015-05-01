@@ -83,6 +83,8 @@ enum KonotorToastStyle{
 
 @property (nonatomic) enum UIModalTransitionStyle overlayTransitionStyle;
 
+@property (strong, nonatomic) NSString* inputHintText;
+
 + (KonotorUIParameters*) sharedInstance;
 - (void) setToastStyle:(enum KonotorToastStyle) toastStyle backgroundColor:(UIColor*) bgColor textColor: (UIColor*) textColor;
 //- (void) disableMessageSharing;

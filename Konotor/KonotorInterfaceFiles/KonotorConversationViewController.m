@@ -64,7 +64,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     self = [super initWithStyle:style];
     if (self) {
         // Custom initialization
-        [self.tableView setSeparatorColor:[UIColor clearColor]];
+        [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
         [self.tableView setBackgroundColor:KONOTOR_MESSAGELAYOUT_BACKGROUND_COLOR];
     }
     return self;
@@ -1020,7 +1020,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
  - (void) viewWillAppear:(BOOL)animated
 {
-    [self.tableView setSeparatorColor:[UIColor clearColor]];
+    [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
 }
 
 - (void) viewDidLayoutSubviews{
