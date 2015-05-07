@@ -88,12 +88,13 @@ enum KonotorMessageUploadStatus
 +(void) uploadImage:(UIImage *) image withCaption:(NSString*) caption;
 
 +(void) DownloadAllMessages;
++(void) sendAllUnsentMessages;
 
 +(void)MarkMessageAsRead:(NSString *) messageID;
 +(void) MarkAllMessagesAsRead;
 +(void) MarkMarketingMessageAsClicked:(NSNumber *) marketingId;
 
-
++(void) shareEventWithMessageID: (NSString *)messageID shareType:(NSString*)shareType;
 +(NSArray *) getAllMessagesForConversation:(NSString *)conversationID;
 +(NSArray *) getAllMessagesForDefaultConversation;
 +(NSArray *) getAllConversations;
@@ -102,6 +103,7 @@ enum KonotorMessageUploadStatus
 
 +(void) newSession;
 +(BOOL) isPushEnabled;
+
 
 @end
 
@@ -133,6 +135,7 @@ enum KonotorMessageUploadStatus
 
 
 @property (nonatomic) BOOL  messageRead;
+@property (nonatomic) BOOL isMarketingMessage;
 
 
 @end

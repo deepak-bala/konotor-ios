@@ -46,6 +46,8 @@ static KonotorUIParameters* konotorUIParameters=nil;
     [super viewDidLoad];
  
     [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait];
+    //Modified for removing table view separators
+    self.messageTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 
     float topPaddingIOS7=0;
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)

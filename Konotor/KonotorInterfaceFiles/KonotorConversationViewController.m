@@ -74,6 +74,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 {
     [super viewDidLoad];
     [self.tableView setSeparatorColor:[UIColor clearColor]];
+    [Konotor sendAllUnsentMessages];
 
 #if KONOTOR_MESSAGE_SHARE_SUPPORT
     mailComposer=[[MFMailComposeViewController alloc] init];
@@ -234,8 +235,8 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     
     messageContentViewWidth = KONOTOR_TEXTMESSAGE_MAXWIDTH;
     if([currentMessage messageType].integerValue==KonotorMessageTypeText){
-        CGSize sizer = [self getSizeOfTextViewWidth:KONOTOR_TEXTMESSAGE_MAXWIDTH text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT];
-        int numLines = sizer.height / ([self getTextViewLineHeight:KONOTOR_TEXTMESSAGE_MAXWIDTH text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT]);
+        CGSize sizer = [self getSizeOfTextViewWidth:(KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING) text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT];
+        int numLines = sizer.height / ([self getTextViewLineHeight:(KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING) text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT]);
         if (numLines == 1)
         {
             UITextView* tempView=[[UITextView alloc] initWithFrame:CGRectMake(0,0,messageContentViewWidth,1000)];
@@ -694,7 +695,8 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         float txtheight=0.0;
         
 #if KONOTOR_ENABLECAPTIONS
-        
+        currentMessage.picCaption=(currentMessage.isMarketingMessage?currentMessage.text:@"");
+
         if((currentMessage.picCaption)&&(![currentMessage.picCaption isEqualToString:@""])){
             NSString *htmlString = currentMessage.picCaption;
             NSDictionary* fontDict=[[NSDictionary alloc] initWithObjectsAndKeys:messageText.font,NSFontAttributeName,nil];
@@ -1196,11 +1198,13 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         
 #if KONOTOR_ENABLECAPTIONS
         
+        currentMessage.picCaption=(currentMessage.isMarketingMessage?currentMessage.text:@"");
+        
         if((currentMessage.picCaption)&&(![currentMessage.picCaption isEqualToString:@""])){
             NSString *htmlString = currentMessage.picCaption;
             NSDictionary* fontDict=[[NSDictionary alloc] initWithObjectsAndKeys:KONOTOR_MESSAGETEXT_FONT,NSFontAttributeName,nil];
             NSMutableAttributedString* attributedString=nil;
-            if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")){
+            if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")){
                 attributedString=[[NSMutableAttributedString alloc] initWithData:[htmlString dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType } documentAttributes:nil error:nil];
             }
             else{
