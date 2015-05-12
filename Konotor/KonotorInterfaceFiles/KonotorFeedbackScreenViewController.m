@@ -154,11 +154,14 @@ static KonotorUIParameters* konotorUIParameters=nil;
     [input setFrame:CGRectMake(input.frame.origin.x-40, input.frame.origin.y, input.frame.size.width+40, input.frame.size.height)];
     }
 
-#if (KONOTOR_DONTSHOWPOWEREDBY==1)
-    [messageTableView setFrame:CGRectMake(messageTableView.frame.origin.x, messageTableView.frame.origin.y, messageTableView.frame.size.width, messageTableView.frame.size.height+18)];
-    [footerView setFrame:CGRectMake(footerView.frame.origin.x, footerView.frame.origin.y+18, footerView.frame.size.width, footerView.frame.size.height)];
-    [poweredByLabel setHidden:YES];
-#endif
+//#if (KONOTOR_DONTSHOWPOWEREDBY==1)
+    if([Konotor isPoweredByHidden])
+    {
+        [messageTableView setFrame:CGRectMake(messageTableView.frame.origin.x, messageTableView.frame.origin.y, messageTableView.frame.size.width, messageTableView.frame.size.height+14)];
+        [footerView setFrame:CGRectMake(footerView.frame.origin.x, footerView.frame.origin.y+14, footerView.frame.size.width, footerView.frame.size.height)];
+        [poweredByLabel setHidden:YES];
+    }
+//#endif
     
     if((!konotorUIParameters.showInputOptions)&&(!footerView.hidden)){
         [messageTableView setFrame:CGRectMake(messageTableView.frame.origin.x, messageTableView.frame.origin.y, messageTableView.frame.size.width, messageTableView.frame.size.height+footerView.frame.size.height)];

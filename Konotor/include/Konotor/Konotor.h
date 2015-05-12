@@ -103,7 +103,8 @@ enum KonotorMessageUploadStatus
 
 +(void) newSession;
 +(BOOL) isPushEnabled;
-
++(BOOL) isPoweredByHidden;
++(void) setSecretKey:(NSString*)key;
 
 @end
 

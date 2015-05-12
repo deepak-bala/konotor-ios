@@ -1083,10 +1083,11 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
     
     UIEdgeInsets contentInsets;
+    float verticalInset=10-([Konotor isPoweredByHidden]?14:0);
     if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-        contentInsets = UIEdgeInsetsMake(10.0, 0.0, (keyboardSize.height-10), 0.0);
+        contentInsets = UIEdgeInsetsMake(10.0, 0.0, (keyboardSize.height-verticalInset), 0.0);
     } else {
-        contentInsets = UIEdgeInsetsMake(10.0, 0.0, (keyboardSize.height-10), 0.0);
+        contentInsets = UIEdgeInsetsMake(10.0, 0.0, (keyboardSize.height-verticalInset), 0.0);
     }
     
     self.tableView.contentInset = contentInsets;
