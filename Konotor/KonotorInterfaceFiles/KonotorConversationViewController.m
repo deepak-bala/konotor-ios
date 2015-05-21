@@ -38,6 +38,8 @@ MFMailComposeViewController* mailComposer=nil;
 
 UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
 
+NSString* otherName=nil,*userName=nil;
+
 @implementation TapOnPictureRecognizer
 
 @synthesize height,width,image,imageURL;
@@ -94,12 +96,18 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [Konotor DownloadAllMessages];
     
     if(YES){
-        meImage=[UIImage imageNamed:@"konotor_profile.png"];
-        otherImage=[UIImage imageNamed:@"konotor_supportprofile.png"];
+        meImage=[[KonotorUIParameters sharedInstance] userProfileImage];
+        if(meImage==nil) meImage=[UIImage imageNamed:@"konotor_profile.png"];
+        otherImage=[[KonotorUIParameters sharedInstance] otherProfileImage];
+        if(otherImage==nil) otherImage=[UIImage imageNamed:@"konotor_supportprofile.png"];
     }
     sendingImage=[UIImage imageNamed:@"konotor_uploading.png"];
     sentImage=[UIImage imageNamed:@"konotor_sent.png"];
     
+    otherName=[[KonotorUIParameters sharedInstance] otherName];
+    if(!otherName) otherName=@"Support";
+    userName=[[KonotorUIParameters sharedInstance] userName];
+    if(!userName) userName=@"You";
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -228,7 +236,9 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     KonotorMessageData* currentMessage=(KonotorMessageData*)[messages objectAtIndex:(messageCount-numberOfMessagesShown+indexPath.row)];
     
     BOOL isSenderOther=([Konotor isUserMe:currentMessage.messageUserId])?NO:YES;
+    BOOL KONOTOR_SHOWPROFILEIMAGE=((!isSenderOther)?([[KonotorUIParameters sharedInstance] userProfileImage]!=nil):([[KonotorUIParameters sharedInstance] otherProfileImage]!=nil));
     BOOL showsProfile=KONOTOR_SHOWPROFILEIMAGE;
+    BOOL KONOTOR_SHOW_SENDERNAME=((!isSenderOther)?([[KonotorUIParameters sharedInstance] showUserName]):([[KonotorUIParameters sharedInstance] showOtherName]));
     float profileX=0.0, profileY=0.0, messageContentViewX=0.0, messageContentViewY=0.0, messageTextBoxX=0.0, messageTextBoxY=0.0,messageContentViewWidth=0.0,messageTextBoxWidth=0.0;
     
     
@@ -276,7 +286,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         profileX=isSenderOther?KONOTOR_HORIZONTAL_PADDING:(messageDisplayWidth-KONOTOR_HORIZONTAL_PADDING-KONOTOR_PROFILEIMAGE_DIMENSION);
         profileY=KONOTOR_VERTICAL_PADDING;
         messageContentViewY=KONOTOR_VERTICAL_PADDING;
-        messageContentViewWidth=MIN(messageDisplayWidth-KONOTOR_PROFILEIMAGE_DIMENSION-3*KONOTOR_HORIZONTAL_PADDING,KONOTOR_TEXTMESSAGE_MAXWIDTH);
+        messageContentViewWidth=MIN(messageDisplayWidth-KONOTOR_PROFILEIMAGE_DIMENSION-3*KONOTOR_HORIZONTAL_PADDING,messageContentViewWidth);
         messageContentViewX=isSenderOther?(profileX+KONOTOR_PROFILEIMAGE_DIMENSION+KONOTOR_HORIZONTAL_PADDING):(messageDisplayWidth-KONOTOR_HORIZONTAL_PADDING-KONOTOR_PROFILEIMAGE_DIMENSION-KONOTOR_HORIZONTAL_PADDING-messageContentViewWidth);
         
         messageTextBoxWidth=messageContentViewWidth-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING;
@@ -336,8 +346,8 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         //   [userNameField setContentOffset:CGPointMake(0,-4)];
         // [userNameField setContentSize:CGSizeMake(messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
         userNameField.tag=KONOTOR_USERNAMEFIELD_TAG;
-        if(KONOTOR_SHOW_SENDERNAME)
-            [cell.contentView addSubview:userNameField];
+        //if(KONOTOR_SHOW_SENDERNAME)
+        [cell.contentView addSubview:userNameField];
         
         UITextView *timeField=[[UITextView alloc] initWithFrame:CGRectMake(messageTextBoxX, messageTextBoxY+((KONOTOR_SHOW_SENDERNAME)?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
         [timeField setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
@@ -463,6 +473,10 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     KonotorActionButton* actionButton = (KonotorActionButton*)[cell.contentView viewWithTag:KONOTOR_ACTIONBUTTON_TAG];
     
     [userNameField setFrame:CGRectMake(messageTextBoxX, messageTextBoxY, messageTextBoxWidth, KONOTOR_USERNAMEFIELD_HEIGHT)];
+    if(KONOTOR_SHOW_SENDERNAME)
+       [userNameField setHidden:NO];
+    else
+        [userNameField setHidden:YES];
     
     UIImageView* uploadStatus=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_UPLOADSTATUS_TAG];
     [uploadStatus setFrame:CGRectMake(messageTextBoxX+messageTextBoxWidth-15-6, KONOTOR_VERTICAL_PADDING+6+(isSenderOther?((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_OTHER?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0)):((KONOTOR_MESSAGE_BACKGROUND_TOP_PADDING_ME?KONOTOR_MESSAGE_BACKGROUND_IMAGE_TOP_PADDING:0))), 15, 15)];
@@ -478,7 +492,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     
     KonotorUIParameters* interfaceOptions=[KonotorUIParameters sharedInstance];
     if(isSenderOther){
-        [userNameField setText:@"Support"];
+        userNameField.text=otherName;
         [uploadStatus setImage:nil];
         [userNameField setBackgroundColor:KONOTOR_SUPPORTMESSAGE_BACKGROUND_COLOR];
         [timeField setBackgroundColor:KONOTOR_SUPPORTMESSAGE_BACKGROUND_COLOR];
@@ -489,7 +503,7 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
         [timeField setTextColor:((interfaceOptions.otherTextColor==nil)?KONOTOR_OTHERTIMESTAMP_COLOR:interfaceOptions.otherTextColor)];
     }
     else{
-        [userNameField setText:@"You"];
+        userNameField.text=userName;
         [userNameField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [timeField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [messageText setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
@@ -517,15 +531,6 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     else
         [shareButton setHidden:(![[KonotorUIParameters sharedInstance] messageSharingEnabled])];
 #endif
-    
-    if(showsProfile){
-        UIImageView* profileImage=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_PROFILEIMAGE_TAG];
-        if(isSenderOther)
-            [profileImage setImage:otherImage];
-        else
-            [profileImage setImage:meImage];
-        [profileImage setFrame:CGRectMake(profileX, profileY, KONOTOR_PROFILEIMAGE_DIMENSION, KONOTOR_PROFILEIMAGE_DIMENSION)];
-    }
     
     if([messageText respondsToSelector:@selector(setTextContainerInset:)])
         [messageText setTextContainerInset:UIEdgeInsetsMake(6, 0, 8, 0)];
@@ -979,6 +984,16 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
             messageBackground.frame=txtMsgFrame;
         
     }
+    
+    if(showsProfile){
+        UIImageView* profileImage=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_PROFILEIMAGE_TAG];
+        if(isSenderOther)
+            [profileImage setImage:otherImage];
+        else
+            [profileImage setImage:meImage];
+        [profileImage setFrame:CGRectMake(profileX,messageBackground.frame.origin.y+messageBackground.frame.size.height-KONOTOR_PROFILEIMAGE_DIMENSION, KONOTOR_PROFILEIMAGE_DIMENSION, KONOTOR_PROFILEIMAGE_DIMENSION)];
+    }
+
     [cell setBackgroundColor:[UIColor clearColor]];
     [cell.contentView setClipsToBounds:YES];
     cell.tag=[currentMessage.messageId hash];
@@ -1150,7 +1165,9 @@ UIImage* meImage=nil,*otherImage=nil,*sendingImage=nil,*sentImage=nil;
     }
 
     BOOL isSenderOther;
-    isSenderOther=[Konotor isUserMe:[currentMessage messageUserId]];
+    isSenderOther=([Konotor isUserMe:[currentMessage messageUserId]])?NO:YES;
+    BOOL KONOTOR_SHOWPROFILEIMAGE=((!isSenderOther)?([[KonotorUIParameters sharedInstance] userProfileImage]!=nil):([[KonotorUIParameters sharedInstance] otherProfileImage]!=nil));
+    BOOL KONOTOR_SHOW_SENDERNAME=((!isSenderOther)?([[KonotorUIParameters sharedInstance] showUserName]):([[KonotorUIParameters sharedInstance] showOtherName]));
     
     float maxTextWidth=KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING;
     float widthBufferIfNoProfileImage=5*KONOTOR_HORIZONTAL_PADDING;

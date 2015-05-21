@@ -73,13 +73,21 @@ enum KonotorToastStyle{
 @property (nonatomic) BOOL allowSendingEmptyMessage;
 @property (nonatomic) BOOL dontShowLoadingAnimation;
 
-@property (nonatomic) UIColor* sendButtonColor;
+@property (strong,nonatomic) UIColor* sendButtonColor;
 @property (nonatomic) UIColor* doneButtonColor;
 
-@property (nonatomic) UIColor* userTextColor;
-@property (nonatomic) UIColor* otherTextColor;
-@property (nonatomic) UIImage* userChatBubble;
-@property (nonatomic) UIImage* otherChatBubble;
+@property (strong,nonatomic) UIColor* userTextColor;
+@property (strong,nonatomic) UIColor* otherTextColor;
+@property (strong,nonatomic) UIImage* userChatBubble;
+@property (strong,nonatomic) UIImage* otherChatBubble;
+@property (strong,nonatomic) UIImage* userProfileImage;
+@property (strong,nonatomic) UIImage* otherProfileImage;
+@property (strong,nonatomic) NSString* otherName;
+@property (strong,nonatomic) NSString* userName;
+
+@property (nonatomic) BOOL showOtherName;
+@property (nonatomic) BOOL showUserName;
+
 
 @property (nonatomic) enum UIModalTransitionStyle overlayTransitionStyle;
 

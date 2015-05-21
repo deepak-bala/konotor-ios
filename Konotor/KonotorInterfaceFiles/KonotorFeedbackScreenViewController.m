@@ -344,7 +344,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -375,9 +375,18 @@ static KonotorUIParameters* konotorUIParameters=nil;
         konotorUIParameters.otherChatBubble=nil;
         konotorUIParameters.userTextColor=nil;
         konotorUIParameters.userChatBubble=nil;
+        konotorUIParameters.userProfileImage=nil;
+        konotorUIParameters.otherProfileImage=nil;
         
         konotorUIParameters.overlayTransitionStyle=UIModalTransitionStyleCrossDissolve;
         konotorUIParameters.inputHintText=nil;
+        
+        konotorUIParameters.showUserName=NO;
+        konotorUIParameters.showOtherName=NO;
+        
+        konotorUIParameters.otherName=nil;
+        konotorUIParameters.userName=nil;
+
 
     }
     return konotorUIParameters;
