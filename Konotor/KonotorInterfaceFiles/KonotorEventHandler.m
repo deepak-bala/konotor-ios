@@ -72,6 +72,7 @@ static KonotorEventHandler* eventHandler=nil;
 - (void) didFinishDownloadingMessages
 {
     [KonotorUtility updateBadgeLabel:badgeLabel];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"Konotor_FinishedMessagePull" object:nil];
 }
 
 
