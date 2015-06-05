@@ -557,7 +557,7 @@ NSString* otherName=nil,*userName=nil;
         [messageText setText:nil];
         [messageText setDataDetectorTypes:UIDataDetectorTypeNone];
         [messageText setText:[NSString stringWithFormat:@"\u200b%@",currentMessage.text]];
-        [messageText setDataDetectorTypes:UIDataDetectorTypeLink];
+        [messageText setDataDetectorTypes:(UIDataDetectorTypeLink|UIDataDetectorTypePhoneNumber)];
         
         CGRect txtMsgFrame=messageText.frame;
         
@@ -987,11 +987,18 @@ NSString* otherName=nil,*userName=nil;
     
     if(showsProfile){
         UIImageView* profileImage=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_PROFILEIMAGE_TAG];
+        if(profileImage)
+            [profileImage setHidden:NO];
         if(isSenderOther)
             [profileImage setImage:otherImage];
         else
             [profileImage setImage:meImage];
         [profileImage setFrame:CGRectMake(profileX,messageBackground.frame.origin.y+messageBackground.frame.size.height-KONOTOR_PROFILEIMAGE_DIMENSION, KONOTOR_PROFILEIMAGE_DIMENSION, KONOTOR_PROFILEIMAGE_DIMENSION)];
+    }
+    else{
+        UIImageView* profileImage=(UIImageView*)[cell.contentView viewWithTag:KONOTOR_PROFILEIMAGE_TAG];
+        if(profileImage)
+            [profileImage setHidden:YES];
     }
 
     [cell setBackgroundColor:[UIColor clearColor]];
