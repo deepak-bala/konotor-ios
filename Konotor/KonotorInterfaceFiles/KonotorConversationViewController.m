@@ -21,6 +21,7 @@ static NSString* copiedText=@"";
 static NSData* copiedContent=nil;
 static NSString* copiedMessageId=@"";
 static int messageCount_prev=0;
+static UIFont* KONOTOR_MESSAGETEXT_FONT=nil;
 #if KONOTOR_MESSAGE_SHARE_SUPPORT
 static enum KonotorMessageType copiedMessageType=KonotorMessageTypeText;
 #endif
@@ -103,6 +104,10 @@ NSString* otherName=nil,*userName=nil;
     }
     sendingImage=[UIImage imageNamed:@"konotor_uploading.png"];
     sentImage=[UIImage imageNamed:@"konotor_sent.png"];
+    
+    KONOTOR_MESSAGETEXT_FONT=[[KonotorUIParameters sharedInstance] messageTextFont];
+    if(KONOTOR_MESSAGETEXT_FONT==nil)
+        KONOTOR_MESSAGETEXT_FONT=KONOTOR_MESSAGETEXT_FONT_DEFAULT;
     
     otherName=[[KonotorUIParameters sharedInstance] otherName];
     if(!otherName) otherName=@"Support";
@@ -246,7 +251,7 @@ NSString* otherName=nil,*userName=nil;
     messageContentViewWidth = KONOTOR_TEXTMESSAGE_MAXWIDTH;
     if([currentMessage messageType].integerValue==KonotorMessageTypeText){
         CGSize sizer = [self getSizeOfTextViewWidth:(KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING) text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT];
-        int numLines = sizer.height / ([self getTextViewLineHeight:(KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING) text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT]);
+        int numLines = (sizer.height-10) / ([self getTextViewLineHeight:(KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING) text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT]);
         if (numLines == 1)
         {
             UITextView* tempView=[[UITextView alloc] initWithFrame:CGRectMake(0,0,messageContentViewWidth,1000)];

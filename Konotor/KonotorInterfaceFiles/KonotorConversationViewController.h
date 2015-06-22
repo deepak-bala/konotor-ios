@@ -36,7 +36,7 @@
 #define KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING_IMESSAGE 10
 /* END OF DEFAULT SECTION */
 
-#define KONOTOR_MESSAGETEXT_FONT ([UIFont fontWithName:@"HelveticaNeue-Light" size:16.0])
+#define KONOTOR_MESSAGETEXT_FONT_DEFAULT ([UIFont fontWithName:@"HelveticaNeue-Light" size:16.0])
 #define KONOTOR_BUTTON_DEFAULTACTIONLABEL @"View"
 #define KONOTOR_BUTTON_HORIZONTAL_PADDING 16
 #define KONOTOR_BUTTON_FONT ([UIFont fontWithName:@"HelveticaNeue" size:16.0])

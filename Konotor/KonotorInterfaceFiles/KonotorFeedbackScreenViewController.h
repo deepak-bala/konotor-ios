@@ -39,6 +39,8 @@
 
 - (void) setupNavigationController;
 - (void) refreshView;
+- (void) showImageInput;
+- (void) showTextInput;
 
 @end
 
@@ -67,6 +69,7 @@ enum KonotorToastStyle{
 @property (strong, nonatomic) UIColor* actionButtonLabelColor;
 
 @property (strong, nonatomic) UIFont* titleTextFont;
+@property (strong, nonatomic) UIFont* messageTextFont;
 @property (nonatomic) BOOL showInputOptions;
 @property (nonatomic) BOOL messageSharingEnabled;
 @property (nonatomic) BOOL noPhotoOption;
