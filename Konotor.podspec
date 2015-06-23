@@ -2,7 +2,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "Konotor"
-  s.version      = "3.6.10"
+  s.version      = "3.6.11"
   s.summary      = "Konotor - iOS SDK - Rich 2 way messaging inbox for apps"
   s.description  = <<-DESC
                    Konotor enables businesses and app owners to engage, retain and sell more to their mobile app users by powering a rich 2-way messaging inbox for apps.
@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.author             = { "Srikrishnan Ganesan" => "sri@konotor.com" }
   s.social_media_url   = "http://twitter.com/konotor"
   s.platform     = :ios, "5.1"
-  s.source       = { :git => "https://github.com/deepak-bala/konotor-ios.git", :tag => "3.6.10" }
+  s.source       = { :git => "https://github.com/deepak-bala/konotor-ios.git", :tag => "3.6.11" }
   s.source_files  = "Konotor/*/*.{h,m}","Konotor/*/*/*.h"
   s.preserve_paths = "Konotor/include/Konotor/*.h","Konotor/libKonotorCombined.a", "Konotor/KonotorModels.bundle"
   s.resources = "Konotor/*/*/*.png", "Konotor/KonotorModels.bundle", "Konotor/*/*.xib"

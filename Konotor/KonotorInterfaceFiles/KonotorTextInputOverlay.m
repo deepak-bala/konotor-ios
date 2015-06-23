@@ -62,7 +62,10 @@ static BOOL firstWordOnLine=YES;
     input.layer.borderColor=[[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0] CGColor];
     input.layer.cornerRadius=5.0;
     
-    [input setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14.0]];
+    UIFont* inputTextFont =[[KonotorUIParameters sharedInstance] inputTextFont];
+    if(inputTextFont==nil)
+        inputTextFont=[UIFont fontWithName:@"HelveticaNeue-Light" size:14.0];
+    [input setFont:inputTextFont];
     [input setBackgroundColor:[UIColor whiteColor]];
     input.tag=KONOTOR_TEXTINPUT_TEXTVIEW_TAG;
     [input setReturnKeyType:UIReturnKeyDefault];

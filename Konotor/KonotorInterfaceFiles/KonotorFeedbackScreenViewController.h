@@ -70,6 +70,7 @@ enum KonotorToastStyle{
 
 @property (strong, nonatomic) UIFont* titleTextFont;
 @property (strong, nonatomic) UIFont* messageTextFont;
+@property (strong, nonatomic) UIFont* inputTextFont;
 @property (nonatomic) BOOL showInputOptions;
 @property (nonatomic) BOOL messageSharingEnabled;
 @property (nonatomic) BOOL noPhotoOption;
