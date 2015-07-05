@@ -41,8 +41,11 @@ static KonotorEventHandler* eventHandler=nil;
     if(showScreen&&(url!=nil)){
         @try{
             NSURL *clickUrl=[NSURL URLWithString:url];
-            [[UIApplication sharedApplication] openURL:clickUrl];
-        }
+            if([[UIApplication sharedApplication] canOpenURL:clickUrl]){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] openURL:clickUrl];
+                });
+            }        }
         @catch(NSException *e){
             NSLog(@"%@",e);
         }

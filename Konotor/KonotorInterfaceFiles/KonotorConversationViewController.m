@@ -1549,25 +1549,51 @@ NSString* otherName=nil,*userName=nil;
     
 }
 
--(BOOL) handleRemoteNotification:(NSDictionary*)userInfo
+-(BOOL) handleRemoteNotification:(NSDictionary*)userInfo withShowScreen:(BOOL) showScreen
 {
-    if(!([(NSString*)[userInfo valueForKey:@"source"] isEqualToString:@"konotor"]))
-        return NO;
-    if(![[KonotorUIParameters sharedInstance] dontShowLoadingAnimation])
-        loading=YES;
-    else
-        loading=NO;
-    [Konotor DownloadAllMessages];
+    NSString* marketingId=((NSString*)[userInfo objectForKey:@"kon_message_marketingid"]);
+    NSString* url=[userInfo valueForKey:@"kon_m_url"];
+    if(showScreen&&marketingId&&([marketingId longLongValue]!=0))
+        [Konotor MarkMarketingMessageAsClicked:[NSNumber numberWithLongLong:[marketingId longLongValue]]];
     
-    [self.tableView reloadData];
-    
+    if(showScreen&&(url!=nil)){
+        @try{
+            NSURL *clickUrl=[NSURL URLWithString:url];
+            if([[UIApplication sharedApplication] canOpenURL:clickUrl]){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] openURL:clickUrl];
+                });
+            }
+        }
+        @catch(NSException *e){
+            NSLog(@"%@",e);
+        }
+        
+        [Konotor DownloadAllMessages];
+        
+        return YES;
+    }
+    else{
+        
+        if(!([(NSString*)[userInfo valueForKey:@"source"] isEqualToString:@"konotor"])){
+            return NO;
+        }
+        
+        if(![[KonotorUIParameters sharedInstance] dontShowLoadingAnimation])
+            loading=YES;
+        else
+            loading=NO;
+        [Konotor DownloadAllMessages];
+        
+        [self.tableView reloadData];
+        
+        return YES;
+
+    }
     return YES;
+    
 }
 
--(BOOL) handleRemoteNotification:(NSDictionary*)userInfo withShowScreen:(BOOL)showScreen
-{
-    return [self handleRemoteNotification:userInfo];
-}
 
 - (void) playMedia:(id) sender
 {
@@ -1681,7 +1707,11 @@ NSString* otherName=nil,*userName=nil;
     if(button.actionUrl!=nil){
         @try{
             NSURL * actionUrl=[NSURL URLWithString:button.actionUrl];
-            [[UIApplication sharedApplication] openURL:actionUrl];
+            if([[UIApplication sharedApplication] canOpenURL:actionUrl]){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] openURL:actionUrl];
+                });
+            }
         }
         @catch(NSException* e){
             NSLog(@"%@",e);
