@@ -31,6 +31,8 @@ static NSTimer* refreshMessagesTimer=nil;
 static int numberOfMessagesShown=KONOTOR_MESSAGESPERPAGE;
 static int loadMore=KONOTOR_MESSAGESPERPAGE;
 
+static BOOL notificationCenterMode=NO;
+
 NSMutableDictionary *messageHeights=nil;
 
 #if KONOTOR_MESSAGE_SHARE_SUPPORT
@@ -78,6 +80,11 @@ NSString* otherName=nil,*userName=nil;
     [super viewDidLoad];
     [self.tableView setSeparatorColor:[UIColor clearColor]];
     [Konotor sendAllUnsentMessages];
+    
+    KonotorUIParameters *konotorUIOptions=[KonotorUIParameters sharedInstance];
+    
+    notificationCenterMode=[KonotorUIParameters sharedInstance].notificationCenterMode;
+
 
 #if KONOTOR_MESSAGE_SHARE_SUPPORT
     mailComposer=[[MFMailComposeViewController alloc] init];
@@ -89,7 +96,7 @@ NSString* otherName=nil,*userName=nil;
     
     messages=[Konotor getAllMessagesForDefaultConversation];
     
-    if(![KonotorUIParameters sharedInstance].dontShowLoadingAnimation)
+    if(!(konotorUIOptions.dontShowLoadingAnimation))
         loading=YES;
     else
         loading=NO;
@@ -97,21 +104,21 @@ NSString* otherName=nil,*userName=nil;
         [Konotor DownloadAllMessages];
     
     if(YES){
-        meImage=[[KonotorUIParameters sharedInstance] userProfileImage];
+        meImage=[konotorUIOptions userProfileImage];
         if(meImage==nil) meImage=[UIImage imageNamed:@"konotor_profile.png"];
-        otherImage=[[KonotorUIParameters sharedInstance] otherProfileImage];
+        otherImage=[konotorUIOptions otherProfileImage];
         if(otherImage==nil) otherImage=[UIImage imageNamed:@"konotor_supportprofile.png"];
     }
     sendingImage=[UIImage imageNamed:@"konotor_uploading.png"];
     sentImage=[UIImage imageNamed:@"konotor_sent.png"];
     
-    KONOTOR_MESSAGETEXT_FONT=[[KonotorUIParameters sharedInstance] messageTextFont];
+    KONOTOR_MESSAGETEXT_FONT=[konotorUIOptions messageTextFont];
     if(KONOTOR_MESSAGETEXT_FONT==nil)
         KONOTOR_MESSAGETEXT_FONT=KONOTOR_MESSAGETEXT_FONT_DEFAULT;
     
-    otherName=[[KonotorUIParameters sharedInstance] otherName];
+    otherName=[konotorUIOptions otherName];
     if(!otherName) otherName=@"Support";
-    userName=[[KonotorUIParameters sharedInstance] userName];
+    userName=[konotorUIOptions userName];
     if(!userName) userName=@"You";
     
     // Uncomment the following line to preserve selection between presentations.
@@ -169,7 +176,9 @@ NSString* otherName=nil,*userName=nil;
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    NSSortDescriptor* desc=[[NSSortDescriptor alloc] initWithKey:@"createdMillis" ascending:YES];
+    KonotorUIParameters *konotorUIOptions=[KonotorUIParameters sharedInstance];
+
+    NSSortDescriptor* desc=[[NSSortDescriptor alloc] initWithKey:@"createdMillis" ascending:!(konotorUIOptions.notificationCenterMode)];
     messages=[[Konotor getAllMessagesForDefaultConversation] sortedArrayUsingDescriptors:[NSArray arrayWithObject:desc]];
     messageCount=(int)[messages count];
     if((numberOfMessagesShown>messageCount)||(messageCount<=KONOTOR_MESSAGESPERPAGE)||((messageCount-numberOfMessagesShown)<3))
@@ -182,7 +191,7 @@ NSString* otherName=nil,*userName=nil;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if((loading)&&(indexPath.row==numberOfMessagesShown))
+    if(((!notificationCenterMode)&&(loading)&&(indexPath.row==numberOfMessagesShown))||((notificationCenterMode)&&(loading)&&(indexPath.row==0)))
     {
         static NSString *CellIdentifier = @"KonotorRefreshCell";
         
@@ -215,7 +224,7 @@ NSString* otherName=nil,*userName=nil;
         [cell setBackgroundColor:[UIColor clearColor]];
         return cell;
     }
-    else if((indexPath.row==0)&&(numberOfMessagesShown<messageCount)){
+    else if((indexPath.row==(notificationCenterMode?(numberOfMessagesShown-1):0))&&(numberOfMessagesShown<messageCount)){
         static NSString *CellIdentifier = @"KonotorRefreshCell";
         
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -238,7 +247,7 @@ NSString* otherName=nil,*userName=nil;
         [self performSelector:@selector(refreshView:) withObject:[NSNumber numberWithInt:oldnumber] afterDelay:0];
         return cell;
     }
-    KonotorMessageData* currentMessage=(KonotorMessageData*)[messages objectAtIndex:(messageCount-numberOfMessagesShown+indexPath.row)];
+    KonotorMessageData* currentMessage=(KonotorMessageData*)[messages objectAtIndex:((notificationCenterMode?(loading?-1:0):(messageCount-numberOfMessagesShown))+indexPath.row)];
     
     BOOL isSenderOther=([Konotor isUserMe:currentMessage.messageUserId])?NO:YES;
     BOOL KONOTOR_SHOWPROFILEIMAGE=((!isSenderOther)?([[KonotorUIParameters sharedInstance] userProfileImage]!=nil):([[KonotorUIParameters sharedInstance] otherProfileImage]!=nil));
@@ -246,7 +255,16 @@ NSString* otherName=nil,*userName=nil;
     BOOL KONOTOR_SHOW_SENDERNAME=((!isSenderOther)?([[KonotorUIParameters sharedInstance] showUserName]):([[KonotorUIParameters sharedInstance] showOtherName]));
     float profileX=0.0, profileY=0.0, messageContentViewX=0.0, messageContentViewY=0.0, messageTextBoxX=0.0, messageTextBoxY=0.0,messageContentViewWidth=0.0,messageTextBoxWidth=0.0;
     
-    
+    if([KonotorUIParameters sharedInstance].notificationCenterMode&&!(isSenderOther)){
+        static NSString *CellIdentifier = @"KonotorBlankCell";
+        
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        if(cell==nil){
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        }
+        [cell setBackgroundColor:[UIColor clearColor]];
+        return cell;
+    }
     
     messageContentViewWidth = KONOTOR_TEXTMESSAGE_MAXWIDTH;
     if([currentMessage messageType].integerValue==KonotorMessageTypeText){
@@ -1121,6 +1139,9 @@ NSString* otherName=nil,*userName=nil;
     self.tableView.scrollIndicatorInsets = contentInsets;
     
     int lastSpot=loading?numberOfMessagesShown:(numberOfMessagesShown-1);
+    
+    if([KonotorUIParameters sharedInstance].notificationCenterMode) lastSpot=0;
+
     if(lastSpot<0) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
     
@@ -1145,6 +1166,9 @@ NSString* otherName=nil,*userName=nil;
     self.tableView.contentInset = contentInsets;
     self.tableView.scrollIndicatorInsets = contentInsets;
     int lastSpot=loading?numberOfMessagesShown:(numberOfMessagesShown-1);
+    
+    if([KonotorUIParameters sharedInstance].notificationCenterMode) lastSpot=0;
+    
     if(lastSpot<0) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
     @try {
@@ -1164,12 +1188,15 @@ NSString* otherName=nil,*userName=nil;
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if(indexPath.row==numberOfMessagesShown)
-        return 40;
-    else if((indexPath.row==0)&&(numberOfMessagesShown<messageCount))
-        return 40;
+    notificationCenterMode=[KonotorUIParameters sharedInstance].notificationCenterMode;
 
-    KonotorMessageData* currentMessage=(KonotorMessageData*)[messages objectAtIndex:(messageCount-numberOfMessagesShown+indexPath.row)];
+    if(((!notificationCenterMode)&&(indexPath.row==numberOfMessagesShown))||((notificationCenterMode)&&(indexPath.row==0)&&loading))
+        return 40;
+    else if((indexPath.row==(notificationCenterMode?numberOfMessagesShown:0))&&(numberOfMessagesShown<messageCount))
+        return 40;
+    
+    
+    KonotorMessageData* currentMessage=(KonotorMessageData*)[messages objectAtIndex:((notificationCenterMode?(loading?-1:0):(messageCount-numberOfMessagesShown))+indexPath.row)];
 
     if([messageHeights valueForKey:currentMessage.messageId]!=nil)
     {
@@ -1180,6 +1207,8 @@ NSString* otherName=nil,*userName=nil;
     isSenderOther=([Konotor isUserMe:[currentMessage messageUserId]])?NO:YES;
     BOOL KONOTOR_SHOWPROFILEIMAGE=((!isSenderOther)?([[KonotorUIParameters sharedInstance] userProfileImage]!=nil):([[KonotorUIParameters sharedInstance] otherProfileImage]!=nil));
     BOOL KONOTOR_SHOW_SENDERNAME=((!isSenderOther)?([[KonotorUIParameters sharedInstance] showUserName]):([[KonotorUIParameters sharedInstance] showOtherName]));
+    
+    if([KonotorUIParameters sharedInstance].notificationCenterMode&&(!isSenderOther)) return 0;
     
     float maxTextWidth=KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING;
     float widthBufferIfNoProfileImage=5*KONOTOR_HORIZONTAL_PADDING;
@@ -1394,6 +1423,9 @@ NSString* otherName=nil,*userName=nil;
     [Konotor MarkAllMessagesAsRead];
     
     int lastSpot=loading?numberOfMessagesShown:(numberOfMessagesShown-1);
+    
+    if([KonotorUIParameters sharedInstance].notificationCenterMode) lastSpot=0;
+    
     if(lastSpot<0) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
     @try {
@@ -1417,16 +1449,19 @@ NSString* otherName=nil,*userName=nil;
     [self.tableView reloadData];
     [Konotor MarkAllMessagesAsRead];
     
+    notificationCenterMode=[KonotorUIParameters sharedInstance].notificationCenterMode;
+    
     int lastSpot=loading?(numberOfMessagesShown-((NSNumber*)spot).intValue):((numberOfMessagesShown-((NSNumber*)spot).intValue));
+    if(notificationCenterMode) lastSpot=numberOfMessagesShown-lastSpot-1;
     if(lastSpot<0) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
     @try {
-        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:NO];
+        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:(notificationCenterMode?UITableViewScrollPositionBottom:UITableViewScrollPositionTop) animated:NO];
     }
     @catch (NSException *exception ) {
         indexPath=[NSIndexPath indexPathForRow:(indexPath.row-1) inSection:0];
         @try{
-            [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:NO];
+            [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:(notificationCenterMode?UITableViewScrollPositionBottom:UITableViewScrollPositionTop) animated:NO];
         }
         @catch(NSException *exception){
             

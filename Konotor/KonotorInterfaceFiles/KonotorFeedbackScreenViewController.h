@@ -92,6 +92,8 @@ enum KonotorToastStyle{
 @property (nonatomic) BOOL showOtherName;
 @property (nonatomic) BOOL showUserName;
 
+@property (nonatomic) BOOL notificationCenterMode;
+
 
 @property (nonatomic) enum UIModalTransitionStyle overlayTransitionStyle;
 
