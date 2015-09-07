@@ -64,7 +64,7 @@ static BOOL firstWordOnLine=YES;
     
     UIFont* inputTextFont =[[KonotorUIParameters sharedInstance] inputTextFont];
     if(inputTextFont==nil)
-        inputTextFont=[UIFont systemFontOfSize:14.0 weight:UIFontWeightLight];
+        inputTextFont=[UIFont systemFontOfSize:14.0];
     [input setFont:inputTextFont];
     [input setBackgroundColor:[UIColor whiteColor]];
     input.tag=KONOTOR_TEXTINPUT_TEXTVIEW_TAG;
