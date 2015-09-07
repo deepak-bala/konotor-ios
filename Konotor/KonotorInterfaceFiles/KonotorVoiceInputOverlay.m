@@ -114,7 +114,7 @@ KonotorVoiceInputOverlay* konotorVoiceInputOverlay=nil;
     //Add center view that shows time
     timerLabel=[[UILabel alloc] initWithFrame:CGRectMake(KONOTOR_FEEDBACKSCREEN_MARGIN+50, transparentView.frame.size.height-40-10+5-KONOTOR_BOTTOM_EXTRAPADDING+6-KONOTOR_FEEDBACKSCREEN_MARGIN, transparentView.frame.size.width-KONOTOR_FEEDBACKSCREEN_MARGIN*2-100, 20)];
     [timerLabel setBackgroundColor:[UIColor clearColor]];
-    [timerLabel setFont:[UIFont fontWithName:@"HelveticaNeue-UltraLight" size:18.0]];
+    [timerLabel setFont:[UIFont systemFontOfSize:18.0 weight:UIFontWeightUltraLight]];
     [timerLabel setTextAlignment:NSTextAlignmentCenter];
     [timerLabel setText:@"0:00"];
     [transparentView addSubview:timerLabel];

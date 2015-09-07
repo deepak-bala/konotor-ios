@@ -18,7 +18,7 @@
         // Initialization code
         [self setBackgroundColor:[UIColor colorWithRed:0.97 green:0.97 blue:0.97 alpha:1.0]];
         [self setText:@""];
-        [self setFont:[UIFont fontWithName:@"Helvetica" size:14.0]];
+        [self setFont:[UIFont systemFontOfSize:14.0]];
         [self setTextColor:[UIColor blackColor]];
         [self setReturnKeyType:UIReturnKeySend];
         [self setEnablesReturnKeyAutomatically:YES];

@@ -291,7 +291,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 {
     [KonotorUtility showToastWithString:@"Change Mic Permissions in Settings" forMessageID:nil];
     [voiceInput setImage:nil forState:UIControlStateNormal];
-    [voiceInput setTitle:@"SEND" forState:UIControlStateNormal];
+    [voiceInput setTitle:@"Send" forState:UIControlStateNormal];
     [voiceInput setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     [voiceInput setFrame:CGRectMake(voiceInput.frame.origin.x-15, voiceInput.frame.origin.y, voiceInput.frame.size.width+20, voiceInput.frame.size.height)];
     [voiceInput setBackgroundColor:[UIColor whiteColor]];
