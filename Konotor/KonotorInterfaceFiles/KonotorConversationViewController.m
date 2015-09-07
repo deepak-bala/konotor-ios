@@ -281,7 +281,7 @@ NSString* otherName=nil,*userName=nil;
             NSString *strDate = [KonotorConversationViewController stringRepresentationForDate:date];
 
             UITextView* tempView2=[[UITextView alloc] initWithFrame:CGRectMake(0,0,messageContentViewWidth,1000)];
-            [tempView2 setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
+            [tempView2 setFont:[UIFont systemFontOfSize:11.0]];
             [tempView2 setText:strDate];
             CGSize txtTimeSize = [tempView2 sizeThatFits:CGSizeMake(messageContentViewWidth, 50)];
             CGFloat msgWidth = txtSize.width + 16 + 3 * KONOTOR_HORIZONTAL_PADDING;
@@ -352,7 +352,7 @@ NSString* otherName=nil,*userName=nil;
         else
 #endif
             userNameField.contentInset=UIEdgeInsetsMake(-4, 0,-4,0);
-        [userNameField setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+        [userNameField setFont:[UIFont systemFontOfSize:12.0]];
         [userNameField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         
         [userNameField setTextAlignment:NSTextAlignmentLeft];
@@ -373,7 +373,7 @@ NSString* otherName=nil,*userName=nil;
         [cell.contentView addSubview:userNameField];
         
         UITextView *timeField=[[UITextView alloc] initWithFrame:CGRectMake(messageTextBoxX, messageTextBoxY+((KONOTOR_SHOW_SENDERNAME)?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
-        [timeField setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
+        [timeField setFont:[UIFont systemFontOfSize:11.0]];
         [timeField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [timeField setTextAlignment:NSTextAlignmentLeft];
         [timeField setTextColor:[UIColor darkGrayColor]];
@@ -390,7 +390,7 @@ NSString* otherName=nil,*userName=nil;
         if(KONOTOR_SHOW_DURATION&&KONOTOR_SHOW_SENDERNAME&&KONOTOR_SHOW_TIMESTAMP)
         {
             UITextView *durationField=[[UITextView alloc] initWithFrame:CGRectMake(messageTextBoxX, messageTextBoxY+((KONOTOR_SHOW_SENDERNAME)?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
-            [durationField setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
+            [durationField setFont:[UIFont systemFontOfSize:11.0]];
             [durationField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
             [durationField setTextAlignment:NSTextAlignmentRight];
             [durationField setTextColor:[UIColor darkGrayColor]];
