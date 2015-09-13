@@ -36,6 +36,8 @@
 @property (weak, nonatomic) IBOutlet UITextView *input;
 @property (weak, nonatomic) IBOutlet UIButton *picInput;
 @property (weak, nonatomic) IBOutlet UILabel *poweredByLabel;
+@property (nonatomic) BOOL showingInTab;
+@property (nonatomic) float tabBarHeight;
 
 - (void) setupNavigationController;
 - (void) refreshView;
@@ -71,6 +73,8 @@ enum KonotorToastStyle{
 @property (strong, nonatomic) UIFont* titleTextFont;
 @property (strong, nonatomic) UIFont* messageTextFont;
 @property (strong, nonatomic) UIFont* inputTextFont;
+@property (strong, nonatomic) NSString* customFontName;
+@property (strong, nonatomic) UIFont* doneButtonFont;
 @property (nonatomic) BOOL showInputOptions;
 @property (nonatomic) BOOL messageSharingEnabled;
 @property (nonatomic) BOOL noPhotoOption;

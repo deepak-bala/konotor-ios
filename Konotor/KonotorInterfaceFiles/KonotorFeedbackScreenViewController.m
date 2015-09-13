@@ -12,6 +12,7 @@ static NSString *microphoneAccessDenied=@"KonotorMicrophoneAccessDenied";
 
 static KonotorUIParameters* konotorUIParameters=nil;
 
+
 @interface KonotorFeedbackScreenViewController ()
 
 @end
@@ -20,6 +21,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @synthesize textInputBox,transparentView,messagesView;
 @synthesize headerContainerView,headerView,closeButton,footerView,messageTableView,voiceInput,input,picInput,poweredByLabel;
+@synthesize showingInTab,tabBarHeight;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -44,11 +46,15 @@ static KonotorUIParameters* konotorUIParameters=nil;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+ //   self.view.autoresizesSubviews = YES;
+ //   self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+
  
     [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait];
     //Modified for removing table view separators
     self.messageTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-
+    
     float topPaddingIOS7=0;
 #if(__IPHONE_OS_VERSION_MAX_ALLOWED>=70000)
     if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")){
@@ -86,8 +92,12 @@ static KonotorUIParameters* konotorUIParameters=nil;
         [headerView setTextColor:[konotorUIParameters titleTextColor]];
     }
     
-    if([konotorUIParameters closeButtonImage]==nil)
+    if([konotorUIParameters closeButtonImage]==nil){
         [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
+        if(konotorUIParameters.doneButtonFont){
+            [self.navigationItem.leftBarButtonItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:konotorUIParameters.doneButtonFont,NSFontAttributeName, nil] forState:UIControlStateNormal];
+        }
+    }
     else{
         UIButton *leftButton=[UIButton buttonWithType:UIButtonTypeCustom];
         [leftButton setFrame:CGRectMake(0, 0, 32, 32)];
@@ -138,6 +148,9 @@ static KonotorUIParameters* konotorUIParameters=nil;
     }
     else{
     [voiceInput setTitle:@"Send" forState:UIControlStateNormal];
+    if([[KonotorUIParameters sharedInstance] customFontName]){
+        [voiceInput setAttributedTitle:[[NSAttributedString alloc] initWithString:@"Send" attributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont fontWithName:[[KonotorUIParameters sharedInstance] customFontName] size:14.0],NSFontAttributeName, nil]] forState:UIControlStateNormal];
+    }
     [voiceInput setImage:nil forState:UIControlStateNormal];
     [voiceInput setAlpha:1.0];
     [voiceInput setBackgroundColor:[UIColor clearColor]];
@@ -193,9 +206,22 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 }
 
+- (void) viewWillAppear:(BOOL)animated{
+    UIViewController* currentTab=self.tabBarController.selectedViewController;
+    //   UIViewController* navController=[KonotorFeedbackScreen sharedInstance].konotorFeedbackScreenNavigationController;
+    if(currentTab){
+        showingInTab=YES;
+        tabBarHeight=self.tabBarController.tabBar.frame.size.height;
+    }
+    else{
+        showingInTab=NO;
+    }
+
+}
 
 - (void) viewDidAppear:(BOOL)animated
 {
+ 
     if(KONOTOR_PUSH_ON_NAVIGATIONCONTROLLER){
         if([konotorUIParameters titleText])
             [self.navigationItem setTitle:[konotorUIParameters titleText]];
@@ -230,10 +256,20 @@ static KonotorUIParameters* konotorUIParameters=nil;
   
 }
 
+- (void) viewWillLayoutSubviews{
+    if(showingInTab){
+        self.view.frame=CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.parentViewController.view.frame.size.height-tabBarHeight);
+    }
+}
+
 
 - (void) viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
+   
+  //  self.navigationController.view.frame=self.navigationController.view.bounds;
+  //  self.view.frame=self.view.bounds;
+
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
         CGFloat topBarOffset = self.topLayoutGuide.length;
         [headerContainerView setFrame:CGRectMake(headerContainerView.frame.origin.x, headerContainerView.frame.origin.y, headerContainerView.frame.size.width, topBarOffset)];
@@ -336,6 +372,9 @@ static KonotorUIParameters* konotorUIParameters=nil;
     if([konotorUIParameters titleText])
         [self setTitle:[konotorUIParameters titleText]];
     
+    if([konotorUIParameters titleTextFont])
+        self.navigationController.navigationBar.titleTextAttributes=[NSDictionary dictionaryWithObjectsAndKeys:[konotorUIParameters titleTextFont],NSFontAttributeName, nil];
+    
     if([konotorUIParameters doneButtonColor])
         [self.navigationItem.leftBarButtonItem setTintColor:[konotorUIParameters doneButtonColor]];
 }
@@ -344,7 +383,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -390,6 +429,9 @@ static KonotorUIParameters* konotorUIParameters=nil;
         konotorUIParameters.userName=nil;
         
         konotorUIParameters.notificationCenterMode=NO;
+        
+        konotorUIParameters.customFontName=nil;
+        konotorUIParameters.doneButtonFont=nil;
 
 
     }

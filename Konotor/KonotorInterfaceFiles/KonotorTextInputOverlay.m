@@ -73,6 +73,7 @@ static BOOL firstWordOnLine=YES;
     
     input.delegate=self;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shiftInput:) name:UIKeyboardWillShowNotification object:nil];
+    //  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shiftInput:) name:UIKeyboard object:nil];
     
     [textInputBox addSubview:input];
     [window addSubview:textInputBox];
@@ -105,7 +106,13 @@ static BOOL firstWordOnLine=YES;
     [sendButton setTitleColor:(([[KonotorUIParameters sharedInstance] sendButtonColor]==nil)?KONOTOR_UIBUTTON_COLOR:[[KonotorUIParameters sharedInstance] sendButtonColor]) forState:UIControlStateNormal];
     [sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
     sendButton.enabled=NO;
+    
     [sendButton setTitle:@"Send" forState:UIControlStateNormal];
+    
+    NSString* customFontName=[[KonotorUIParameters sharedInstance] customFontName];
+    if(customFontName){
+        [sendButton setAttributedTitle:[[NSAttributedString alloc] initWithString:@"Send" attributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont fontWithName:([KonotorUIParameters sharedInstance].customFontName) size:15.0],NSFontAttributeName,nil]] forState:UIControlStateNormal];
+    }
     
     [sendButton setTag:KONOTOR_TEXTINPUT_SENDBUTTON_TAG];
 
@@ -127,6 +134,7 @@ static BOOL firstWordOnLine=YES;
     CGRect keyboardEndFrame;
     [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardEndFrame];
     CGRect keyboardFrame = [window convertRect:keyboardEndFrame fromView:nil];
+
     
     if (CGRectIntersectsRect(keyboardFrame, window.frame)) {
         
@@ -135,7 +143,8 @@ static BOOL firstWordOnLine=YES;
         y=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?keyboardFrame.origin.y:keyboardFrame.origin.y;
         float width=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?keyboardEndFrame.size.height:keyboardEndFrame.size.width;
         
-        [textInputBox setFrame:CGRectMake(0, y-textInputBox.frame.size.height, width, textInputBox.frame.size.height)];
+      //  if(y<textInputBox.frame.origin.y)
+     //   [textInputBox setFrame:CGRectMake(0, y-textInputBox.frame.size.height-10, width, textInputBox.frame.size.height)];
      //   [transparentView setFrame:CGRectMake(0, 0, width, window.frame.size.height)];
         
       
@@ -148,8 +157,16 @@ static BOOL firstWordOnLine=YES;
 }
 
 - (void) shiftInput:(NSNotification*)note{
-    CGRect newFrame;
+    CGRect newFrame, oldFrame;
     [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] getValue:&newFrame];
+    [[note.userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey] getValue:&oldFrame];
+    
+  //  float adjustHeight=[UIScreen mainScreen].bounds.size.height-  [KonotorFeedbackScreen sharedInstance].conversationViewController.view.frame.origin.y-[KonotorFeedbackScreen sharedInstance].conversationViewController.view.frame.size.height;
+    
+    float adjustHeight=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab?([KonotorFeedbackScreen sharedInstance].conversationViewController.tabBarHeight):0;
+
+    
+    newFrame.size.height=(newFrame.size.height-adjustHeight);
     
     float y=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?(window.frame.size.width-newFrame.size.width):(window.frame.size.height-newFrame.size.height);
     float width=([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])?newFrame.size.height:newFrame.size.width;
@@ -178,7 +195,20 @@ static BOOL firstWordOnLine=YES;
     if(txtSize.height>100)
         txtSize.height=100;
     
-    [textInputBox setFrame:CGRectMake(0, y-txtSize.height-10, width, txtSize.height+10)];
+    float totalTime=0.25;
+    float delay=(adjustHeight/(newFrame.size.height+adjustHeight))*totalTime/2;
+    
+    [UIView animateWithDuration:(totalTime-delay) delay:delay options:(UIViewAnimationOptionBeginFromCurrentState) animations:^{
+        [textInputBox setFrame:CGRectMake(0, y-txtSize.height-10, width, txtSize.height+10)];
+    } completion:^(BOOL finished) {
+        
+    }];
+//    [UIView beginAnimations:nil context:NULL];
+//    [UIView setAnimationDuration:0.25];
+
+//    [UIView commitAnimations];
+
+    
     
     input.frame=CGRectMake(5+35+cameraAdjustment,5,txtWidth-cameraAdjustment,txtSize.height);
 
@@ -262,8 +292,10 @@ static BOOL firstWordOnLine=YES;
     konotorTextInputBox.textInputBox=nil;
     konotorTextInputBox.transparentView=nil;
     ((KonotorFeedbackScreenViewController*)konotorTextInputBox.sourceViewController).footerView.hidden=NO;
+    if(konotorTextInputBox) {
     konotorTextInputBox=nil;
     [KonotorFeedbackScreen refreshMessages];
+    }
 }
 
 - (void) textViewDidEndEditing:(UITextView *)textView

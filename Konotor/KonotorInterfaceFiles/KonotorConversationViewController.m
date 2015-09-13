@@ -254,6 +254,7 @@ NSString* otherName=nil,*userName=nil;
     BOOL showsProfile=KONOTOR_SHOWPROFILEIMAGE;
     BOOL KONOTOR_SHOW_SENDERNAME=((!isSenderOther)?([[KonotorUIParameters sharedInstance] showUserName]):([[KonotorUIParameters sharedInstance] showOtherName]));
     float profileX=0.0, profileY=0.0, messageContentViewX=0.0, messageContentViewY=0.0, messageTextBoxX=0.0, messageTextBoxY=0.0,messageContentViewWidth=0.0,messageTextBoxWidth=0.0;
+    NSString* customFontName=[[KonotorUIParameters sharedInstance] customFontName];
     
     if([KonotorUIParameters sharedInstance].notificationCenterMode&&!(isSenderOther)){
         static NSString *CellIdentifier = @"KonotorBlankCell";
@@ -281,7 +282,7 @@ NSString* otherName=nil,*userName=nil;
             NSString *strDate = [KonotorConversationViewController stringRepresentationForDate:date];
 
             UITextView* tempView2=[[UITextView alloc] initWithFrame:CGRectMake(0,0,messageContentViewWidth,1000)];
-            [tempView2 setFont:[UIFont systemFontOfSize:11.0]];
+            [tempView2 setFont:(customFontName?[UIFont fontWithName:customFontName size:11.0]:[UIFont systemFontOfSize:11.0])];
             [tempView2 setText:strDate];
             CGSize txtTimeSize = [tempView2 sizeThatFits:CGSizeMake(messageContentViewWidth, 50)];
             CGFloat msgWidth = txtSize.width + 16 + 3 * KONOTOR_HORIZONTAL_PADDING;
@@ -352,7 +353,7 @@ NSString* otherName=nil,*userName=nil;
         else
 #endif
             userNameField.contentInset=UIEdgeInsetsMake(-4, 0,-4,0);
-        [userNameField setFont:[UIFont systemFontOfSize:12.0]];
+        [userNameField setFont:(customFontName?[UIFont fontWithName:customFontName size:12.0]:[UIFont systemFontOfSize:12.0])];
         [userNameField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         
         [userNameField setTextAlignment:NSTextAlignmentLeft];
@@ -373,7 +374,7 @@ NSString* otherName=nil,*userName=nil;
         [cell.contentView addSubview:userNameField];
         
         UITextView *timeField=[[UITextView alloc] initWithFrame:CGRectMake(messageTextBoxX, messageTextBoxY+((KONOTOR_SHOW_SENDERNAME)?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
-        [timeField setFont:[UIFont systemFontOfSize:11.0]];
+        [timeField setFont:(customFontName?[UIFont fontWithName:customFontName size:11.0]:[UIFont systemFontOfSize:11.0])];
         [timeField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
         [timeField setTextAlignment:NSTextAlignmentLeft];
         [timeField setTextColor:[UIColor darkGrayColor]];
@@ -390,7 +391,7 @@ NSString* otherName=nil,*userName=nil;
         if(KONOTOR_SHOW_DURATION&&KONOTOR_SHOW_SENDERNAME&&KONOTOR_SHOW_TIMESTAMP)
         {
             UITextView *durationField=[[UITextView alloc] initWithFrame:CGRectMake(messageTextBoxX, messageTextBoxY+((KONOTOR_SHOW_SENDERNAME)?KONOTOR_USERNAMEFIELD_HEIGHT:KONOTOR_VERTICAL_PADDING), messageTextBoxWidth, KONOTOR_TIMEFIELD_HEIGHT)];
-            [durationField setFont:[UIFont systemFontOfSize:11.0]];
+            [durationField setFont:(customFontName?[UIFont fontWithName:customFontName size:11.0]:[UIFont systemFontOfSize:11.0])];
             [durationField setBackgroundColor:KONOTOR_MESSAGE_BACKGROUND_COLOR];
             [durationField setTextAlignment:NSTextAlignmentRight];
             [durationField setTextColor:[UIColor darkGrayColor]];
@@ -1126,6 +1127,10 @@ NSString* otherName=nil,*userName=nil;
 {
     NSDictionary* info = [aNotification userInfo];
     CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+    
+    float adjustHeight=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab?([KonotorFeedbackScreen sharedInstance].conversationViewController.tabBarHeight):0;
+   // if([[self navigationController].tabBarController.viewControllers containsObject:[self navigationController]])
+    keyboardSize.height-=adjustHeight;
     
     UIEdgeInsets contentInsets;
     float verticalInset=10-([Konotor isPoweredByHidden]?14:0);
