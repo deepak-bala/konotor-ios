@@ -106,7 +106,7 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
 {
     [KonotorTextInputOverlay dismissInput];
     [KonotorVoiceInputOverlay dismissVoiceInput];
-    [konotorFeedbackScreen.conversationViewController dismissViewControllerAnimated:YES completion:^{
+    [konotorFeedbackScreen.konotorFeedbackScreenNavigationController dismissViewControllerAnimated:YES completion:^{
      /*   konotorFeedbackScreen.conversationViewController=nil;
         konotorFeedbackScreen.window=nil;
         konotorFeedbackScreen=nil;

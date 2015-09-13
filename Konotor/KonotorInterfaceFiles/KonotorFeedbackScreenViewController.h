@@ -75,6 +75,7 @@ enum KonotorToastStyle{
 @property (strong, nonatomic) UIFont* inputTextFont;
 @property (strong, nonatomic) NSString* customFontName;
 @property (strong, nonatomic) UIFont* doneButtonFont;
+@property (strong, nonatomic) NSString* doneButtonText;
 @property (nonatomic) BOOL showInputOptions;
 @property (nonatomic) BOOL messageSharingEnabled;
 @property (nonatomic) BOOL noPhotoOption;

@@ -161,9 +161,11 @@ static BOOL firstWordOnLine=YES;
     [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] getValue:&newFrame];
     [[note.userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey] getValue:&oldFrame];
     
-  //  float adjustHeight=[UIScreen mainScreen].bounds.size.height-  [KonotorFeedbackScreen sharedInstance].conversationViewController.view.frame.origin.y-[KonotorFeedbackScreen sharedInstance].conversationViewController.view.frame.size.height;
+
+    KonotorFeedbackScreenViewController* conversationView=[KonotorFeedbackScreen sharedInstance].conversationViewController;
+    BOOL tabBarDisplay=conversationView.showingInTab;
     
-    float adjustHeight=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab?([KonotorFeedbackScreen sharedInstance].conversationViewController.tabBarHeight):0;
+    float adjustHeight=tabBarDisplay?([KonotorFeedbackScreen sharedInstance].conversationViewController.tabBarHeight):0;
 
     
     newFrame.size.height=(newFrame.size.height-adjustHeight);

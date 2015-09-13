@@ -207,16 +207,51 @@ static KonotorUIParameters* konotorUIParameters=nil;
 }
 
 - (void) viewWillAppear:(BOOL)animated{
+    [KonotorFeedbackScreen sharedInstance].konotorFeedbackScreenNavigationController=self.navigationController;
+    [KonotorFeedbackScreen sharedInstance].conversationViewController=self;
     UIViewController* currentTab=self.tabBarController.selectedViewController;
     //   UIViewController* navController=[KonotorFeedbackScreen sharedInstance].konotorFeedbackScreenNavigationController;
-    if(currentTab){
+    if(currentTab&&(!showingInTab)){
         showingInTab=YES;
         tabBarHeight=self.tabBarController.tabBar.frame.size.height;
     }
-    else{
+    else if(!currentTab){
         showingInTab=NO;
     }
 
+    if(showingInTab){
+        [self.navigationItem setLeftBarButtonItem:nil];
+    }
+    else{
+        if([konotorUIParameters closeButtonImage]==nil){
+            if(konotorUIParameters.doneButtonText){
+                [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithTitle:konotorUIParameters.doneButtonText style:UIBarButtonItemStyleDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
+            }
+            else{
+                [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonItemStyleDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
+            }
+            if(konotorUIParameters.doneButtonFont||konotorUIParameters.doneButtonColor){
+                NSMutableDictionary* fontAttributes=[[NSMutableDictionary alloc] init];
+                if(konotorUIParameters.doneButtonColor){
+                    [fontAttributes setObject:konotorUIParameters.doneButtonColor forKey:NSForegroundColorAttributeName];
+                }
+                if(konotorUIParameters.doneButtonFont){
+                    [fontAttributes setObject:konotorUIParameters.doneButtonFont forKey:NSFontAttributeName];
+                }
+                [self.navigationItem.leftBarButtonItem setTitleTextAttributes:fontAttributes forState:UIControlStateNormal];
+            }
+
+        }
+        
+        else{
+            UIButton *leftButton=[UIButton buttonWithType:UIButtonTypeCustom];
+            [leftButton setFrame:CGRectMake(0, 0, 32, 32)];
+            [leftButton setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
+            [leftButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
+            [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithCustomView:leftButton]];
+        }
+
+    }
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -260,6 +295,18 @@ static KonotorUIParameters* konotorUIParameters=nil;
     if(showingInTab){
         self.view.frame=CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.parentViewController.view.frame.size.height-tabBarHeight);
     }
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
+        CGFloat topBarOffset = self.topLayoutGuide.length;
+        [headerContainerView setFrame:CGRectMake(headerContainerView.frame.origin.x, headerContainerView.frame.origin.y, headerContainerView.frame.size.width, topBarOffset)];
+        [messageTableView setFrame:CGRectMake(messageTableView.frame.origin.x, topBarOffset, messageTableView.frame.size.width, messageTableView.frame.size.height-topBarOffset+messageTableView.frame.origin.y)];
+    }
+    else{
+        [messageTableView setFrame:CGRectMake(messageTableView.frame.origin.x,
+                                              headerContainerView.frame.origin.y, messageTableView.frame.size.width,
+                                              messageTableView.frame.size.height+headerContainerView.frame.size.height)];
+        [headerContainerView setFrame:CGRectMake(headerContainerView.frame.origin.x, headerContainerView.frame.origin.y, headerContainerView.frame.size.width, 0)];
+        
+    }
 }
 
 
@@ -270,7 +317,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
   //  self.navigationController.view.frame=self.navigationController.view.bounds;
   //  self.view.frame=self.view.bounds;
 
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
+ /*   if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
         CGFloat topBarOffset = self.topLayoutGuide.length;
         [headerContainerView setFrame:CGRectMake(headerContainerView.frame.origin.x, headerContainerView.frame.origin.y, headerContainerView.frame.size.width, topBarOffset)];
         [messageTableView setFrame:CGRectMake(messageTableView.frame.origin.x, topBarOffset, messageTableView.frame.size.width, messageTableView.frame.size.height-topBarOffset+messageTableView.frame.origin.y)];
@@ -282,7 +329,9 @@ static KonotorUIParameters* konotorUIParameters=nil;
         [headerContainerView setFrame:CGRectMake(headerContainerView.frame.origin.x, headerContainerView.frame.origin.y, headerContainerView.frame.size.width, 0)];
 
     }
+    [messagesView refreshView];*/
     [messagesView refreshView];
+
 }
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
@@ -383,7 +432,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont,doneButtonText;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -432,6 +481,8 @@ static KonotorUIParameters* konotorUIParameters=nil;
         
         konotorUIParameters.customFontName=nil;
         konotorUIParameters.doneButtonFont=nil;
+        
+        konotorUIParameters.doneButtonText=nil;
 
 
     }

@@ -78,6 +78,7 @@ NSString* otherName=nil,*userName=nil;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
     [self.tableView setSeparatorColor:[UIColor clearColor]];
     [Konotor sendAllUnsentMessages];
     
@@ -1069,6 +1070,7 @@ NSString* otherName=nil,*userName=nil;
  - (void) viewWillAppear:(BOOL)animated
 {
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    [Konotor setDelegate:self];
 }
 
 - (void) viewDidLayoutSubviews{
@@ -1106,6 +1108,7 @@ NSString* otherName=nil,*userName=nil;
 {
     [refreshMessagesTimer invalidate];
     refreshMessagesTimer=nil;
+    [Konotor setDelegate:[KonotorEventHandler sharedInstance]];
     [super viewWillDisappear:animated];
 }
 
