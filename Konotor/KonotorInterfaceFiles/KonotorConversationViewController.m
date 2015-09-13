@@ -1789,10 +1789,14 @@ NSString* otherName=nil,*userName=nil;
     float padding = KONOTOR_BUTTON_HORIZONTAL_PADDING*2;
     float maxButtonWidth =messageFrameWidth-horizontalPadding*2;
     
+    UIFont *actionLabelFont=([KonotorUIParameters sharedInstance].customFontName?[UIFont fontWithName:[KonotorUIParameters sharedInstance].customFontName size:16.0]:KONOTOR_BUTTON_FONT);
+
+    
     UITextView* txtView=[[UITextView alloc] init];
-    [txtView setFont:KONOTOR_BUTTON_FONT];
+    [txtView setFont:actionLabelFont];
     [txtView setText:actionLabel];
     CGSize labelSize=[txtView sizeThatFits:CGSizeMake(messageFrameWidth, KONOTOR_ACTIONBUTTON_HEIGHT)];
+    
     
     float labelWidth=padding + 20+labelSize.width;
     float buttonWidth=MAX(MIN(labelWidth, maxButtonWidth), maxButtonWidth*percentWidth);
@@ -1807,7 +1811,10 @@ NSString* otherName=nil,*userName=nil;
                                           buttonWidth,
                                           KONOTOR_ACTIONBUTTON_HEIGHT)];
         [actionButton setHidden:NO];
-        [actionButton setTitle:((actionLabel!=nil)?actionLabel:KONOTOR_BUTTON_DEFAULTACTIONLABEL) forState:UIControlStateNormal];
+        if([actionLabel isEqualToString:@""]||(actionLabel==nil))
+            actionLabel=KONOTOR_BUTTON_DEFAULTACTIONLABEL;
+        [actionButton setAttributedTitle:
+         [[NSAttributedString alloc] initWithString:actionLabel attributes:[NSDictionary dictionaryWithObjectsAndKeys:actionLabelFont,NSFontAttributeName,[UIColor whiteColor],NSForegroundColorAttributeName,nil]] forState:UIControlStateNormal];
     }
     else{
         [actionButton setHidden:YES];
