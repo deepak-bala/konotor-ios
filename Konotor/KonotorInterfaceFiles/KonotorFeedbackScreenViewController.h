@@ -43,6 +43,9 @@
 - (void) refreshView;
 - (void) showImageInput;
 - (void) showTextInput;
+- (void) showCancelButton;
+- (void) hideCancelButton;
+
 
 @end
 
@@ -76,6 +79,8 @@ enum KonotorToastStyle{
 @property (strong, nonatomic) NSString* customFontName;
 @property (strong, nonatomic) UIFont* doneButtonFont;
 @property (strong, nonatomic) NSString* doneButtonText;
+@property (strong, nonatomic) UIFont* cancelButtonFont;
+@property (strong, nonatomic) NSString* cancelButtonText;
 @property (nonatomic) BOOL showInputOptions;
 @property (nonatomic) BOOL messageSharingEnabled;
 @property (nonatomic) BOOL noPhotoOption;
@@ -84,6 +89,7 @@ enum KonotorToastStyle{
 
 @property (strong,nonatomic) UIColor* sendButtonColor;
 @property (nonatomic) UIColor* doneButtonColor;
+@property (nonatomic) UIColor* cancelButtonColor;
 
 @property (strong,nonatomic) UIColor* userTextColor;
 @property (strong,nonatomic) UIColor* otherTextColor;

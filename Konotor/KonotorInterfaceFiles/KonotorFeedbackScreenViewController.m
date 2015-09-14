@@ -92,19 +92,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
         [headerView setTextColor:[konotorUIParameters titleTextColor]];
     }
     
-    if([konotorUIParameters closeButtonImage]==nil){
-        [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
-        if(konotorUIParameters.doneButtonFont){
-            [self.navigationItem.leftBarButtonItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:konotorUIParameters.doneButtonFont,NSFontAttributeName, nil] forState:UIControlStateNormal];
-        }
-    }
-    else{
-        UIButton *leftButton=[UIButton buttonWithType:UIButtonTypeCustom];
-        [leftButton setFrame:CGRectMake(0, 0, 32, 32)];
-        [leftButton setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
-        [leftButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
-        [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithCustomView:leftButton]];
-    }
+    [self setUpDoneButton];
     
  
     
@@ -206,6 +194,70 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 }
 
+- (void) setUpDoneButton
+{
+    if([konotorUIParameters closeButtonImage]==nil){
+        if(konotorUIParameters.doneButtonText){
+            [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithTitle:konotorUIParameters.doneButtonText style:UIBarButtonItemStyleDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
+        }
+        else{
+            [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonItemStyleDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
+        }
+        if(konotorUIParameters.doneButtonFont||konotorUIParameters.doneButtonColor){
+            NSMutableDictionary* fontAttributes=[[NSMutableDictionary alloc] init];
+            if(konotorUIParameters.doneButtonColor){
+                [fontAttributes setObject:konotorUIParameters.doneButtonColor forKey:NSForegroundColorAttributeName];
+            }
+            if(konotorUIParameters.doneButtonFont){
+                [fontAttributes setObject:konotorUIParameters.doneButtonFont forKey:NSFontAttributeName];
+            }
+            [self.navigationItem.leftBarButtonItem setTitleTextAttributes:fontAttributes forState:UIControlStateNormal];
+        }
+        
+    }
+    
+    else{
+        UIButton *leftButton=[UIButton buttonWithType:UIButtonTypeCustom];
+        [leftButton setFrame:CGRectMake(0, 0, 32, 32)];
+        [leftButton setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
+        [leftButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
+        [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithCustomView:leftButton]];
+    }
+
+
+}
+
+- (void) showCancelButton
+{
+    if(konotorUIParameters.cancelButtonColor){
+        [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithTitle:konotorUIParameters.cancelButtonText style:UIBarButtonItemStyleDone target:[KonotorTextInputOverlay class] action:@selector(dismissInput)]];
+    }
+    else{
+        [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:[KonotorTextInputOverlay class] action:@selector(dismissInput)]];
+    }
+    if(konotorUIParameters.cancelButtonFont||konotorUIParameters.cancelButtonColor){
+        NSMutableDictionary* fontAttributes=[[NSMutableDictionary alloc] init];
+        if(konotorUIParameters.cancelButtonColor){
+            [fontAttributes setObject:konotorUIParameters.cancelButtonColor forKey:NSForegroundColorAttributeName];
+        }
+        if(konotorUIParameters.cancelButtonFont){
+            [fontAttributes setObject:konotorUIParameters.cancelButtonFont forKey:NSFontAttributeName];
+        }
+        [self.navigationItem.rightBarButtonItem setTitleTextAttributes:fontAttributes forState:UIControlStateNormal];
+    }
+}
+
+- (void) hideCancelButton
+{
+    [self.navigationItem setRightBarButtonItem:nil];
+}
+
+- (void) hideDoneButton
+{
+    [self.navigationItem setLeftBarButtonItem:nil];
+}
+
+
 - (void) viewWillAppear:(BOOL)animated{
     [KonotorFeedbackScreen sharedInstance].konotorFeedbackScreenNavigationController=self.navigationController;
     [KonotorFeedbackScreen sharedInstance].conversationViewController=self;
@@ -218,39 +270,12 @@ static KonotorUIParameters* konotorUIParameters=nil;
     else if(!currentTab){
         showingInTab=NO;
     }
-
+    
     if(showingInTab){
-        [self.navigationItem setLeftBarButtonItem:nil];
+        [self hideDoneButton];
     }
     else{
-        if([konotorUIParameters closeButtonImage]==nil){
-            if(konotorUIParameters.doneButtonText){
-                [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithTitle:konotorUIParameters.doneButtonText style:UIBarButtonItemStyleDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
-            }
-            else{
-                [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonItemStyleDone target:[KonotorFeedbackScreen class] action:@selector(dismissScreen)]];
-            }
-            if(konotorUIParameters.doneButtonFont||konotorUIParameters.doneButtonColor){
-                NSMutableDictionary* fontAttributes=[[NSMutableDictionary alloc] init];
-                if(konotorUIParameters.doneButtonColor){
-                    [fontAttributes setObject:konotorUIParameters.doneButtonColor forKey:NSForegroundColorAttributeName];
-                }
-                if(konotorUIParameters.doneButtonFont){
-                    [fontAttributes setObject:konotorUIParameters.doneButtonFont forKey:NSFontAttributeName];
-                }
-                [self.navigationItem.leftBarButtonItem setTitleTextAttributes:fontAttributes forState:UIControlStateNormal];
-            }
-
-        }
-        
-        else{
-            UIButton *leftButton=[UIButton buttonWithType:UIButtonTypeCustom];
-            [leftButton setFrame:CGRectMake(0, 0, 32, 32)];
-            [leftButton setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
-            [leftButton addTarget:[KonotorFeedbackScreen class] action:@selector(dismissScreen) forControlEvents:UIControlEventTouchUpInside];
-            [self.navigationItem setLeftBarButtonItem:[[UIBarButtonItem alloc] initWithCustomView:leftButton]];
-        }
-
+        [self setUpDoneButton];
     }
 }
 
@@ -263,7 +288,6 @@ static KonotorUIParameters* konotorUIParameters=nil;
         else
             [self.navigationItem setTitle:@"Feedback"];
 
-        
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
         if([konotorUIParameters closeButtonImage])
             [button setImage:[konotorUIParameters closeButtonImage] forState:UIControlStateNormal];
@@ -278,7 +302,6 @@ static KonotorUIParameters* konotorUIParameters=nil;
     }
 
 }
-
 
 
 -(IBAction)cancel:(id)sender{
@@ -432,7 +455,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont,doneButtonText;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont,doneButtonText,cancelButtonText,cancelButtonFont,cancelButtonColor;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -483,6 +506,10 @@ static KonotorUIParameters* konotorUIParameters=nil;
         konotorUIParameters.doneButtonFont=nil;
         
         konotorUIParameters.doneButtonText=nil;
+
+        konotorUIParameters.cancelButtonColor=nil;
+        konotorUIParameters.cancelButtonFont=nil;
+        konotorUIParameters.cancelButtonText=nil;
 
 
     }

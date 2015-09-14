@@ -125,13 +125,17 @@ static BOOL firstWordOnLine=YES;
                                                object:nil];
   
     [input performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:0.0];
-
+    
+    BOOL showsInTab=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab;
+    if(showsInTab){
+       [[KonotorFeedbackScreen sharedInstance].conversationViewController showCancelButton];
+    }
     
 }
 
 - (void)keyboardDidChangeFrame:(NSNotification *)notification
 {
-    CGRect keyboardEndFrame;
+  /*  CGRect keyboardEndFrame;
     [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardEndFrame];
     CGRect keyboardFrame = [window convertRect:keyboardEndFrame fromView:nil];
 
@@ -153,7 +157,7 @@ static BOOL firstWordOnLine=YES;
         // Keyboard is hidden
   //      [KonotorTextInputOverlay performSelector:@selector(dismissInput) withObject:nil afterDelay:0.0];
 
-    }
+    }*/
 }
 
 - (void) shiftInput:(NSNotification*)note{
@@ -298,6 +302,7 @@ static BOOL firstWordOnLine=YES;
     konotorTextInputBox=nil;
     [KonotorFeedbackScreen refreshMessages];
     }
+    [[KonotorFeedbackScreen sharedInstance].conversationViewController hideCancelButton];
 }
 
 - (void) textViewDidEndEditing:(UITextView *)textView

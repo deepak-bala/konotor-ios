@@ -1070,7 +1070,6 @@ NSString* otherName=nil,*userName=nil;
  - (void) viewWillAppear:(BOOL)animated
 {
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
-    [Konotor setDelegate:self];
 }
 
 - (void) viewDidLayoutSubviews{
@@ -1101,6 +1100,7 @@ NSString* otherName=nil,*userName=nil;
         }
 
     }
+    [Konotor setDelegate:self];
 }
 
 
