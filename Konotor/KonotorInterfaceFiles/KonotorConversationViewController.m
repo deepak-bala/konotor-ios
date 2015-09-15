@@ -129,30 +129,9 @@ NSString* otherName=nil,*userName=nil;
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     // [self.tableView scrollRectToVisible:CGRectMake(0,self.tableView.contentSize.height-50, 2, 50) animated:YES];
     [Konotor MarkAllMessagesAsRead];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"Konotor_FinishedMessagePull" object:nil];
     [self registerForKeyboardNotifications];
-    
-    BOOL notificationEnabled=NO;
-    
-#if(__IPHONE_OS_VERSION_MAX_ALLOWED >=80000)
-    if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
-        notificationEnabled=[[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
-    }
-    else
-#endif
-    {
-#if (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
-        UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-        if(types != UIRemoteNotificationTypeNone) notificationEnabled=YES;
-#endif
-    }
-    
-    
-    
-    if (!notificationEnabled) {
-        refreshMessagesTimer=[NSTimer scheduledTimerWithTimeInterval:10 target:[Konotor class] selector:@selector(DownloadAllMessages) userInfo:nil repeats:YES];
-        [refreshMessagesTimer fire];
-    }
-
+  
 }
 
 - (void) animateAndDisplayView
@@ -1490,6 +1469,7 @@ NSString* otherName=nil,*userName=nil;
      */
     if((loading)||([[Konotor getAllMessagesForDefaultConversation] count]>messageCount_prev)){
         loading=NO;
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"Konotor_FinishedMessagePull" object:nil];
         [self refreshView];
     }
     
