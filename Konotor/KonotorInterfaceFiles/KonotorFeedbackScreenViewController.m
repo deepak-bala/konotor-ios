@@ -227,6 +227,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 }
 
+/*
 - (void) showCancelButton
 {
     if(konotorUIParameters.cancelButtonColor){
@@ -251,6 +252,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 {
     [self.navigationItem setRightBarButtonItem:nil];
 }
+ */
 
 - (void) hideDoneButton
 {
