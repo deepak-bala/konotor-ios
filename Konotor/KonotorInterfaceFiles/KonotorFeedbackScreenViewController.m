@@ -455,7 +455,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont,doneButtonText,cancelButtonText,cancelButtonFont,cancelButtonColor;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont,doneButtonText/*,cancelButtonText,cancelButtonFont,cancelButtonColor*/;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -507,9 +507,9 @@ static KonotorUIParameters* konotorUIParameters=nil;
         
         konotorUIParameters.doneButtonText=nil;
 
-        konotorUIParameters.cancelButtonColor=nil;
+    /*    konotorUIParameters.cancelButtonColor=nil;
         konotorUIParameters.cancelButtonFont=nil;
-        konotorUIParameters.cancelButtonText=nil;
+        konotorUIParameters.cancelButtonText=nil;*/
 
 
     }

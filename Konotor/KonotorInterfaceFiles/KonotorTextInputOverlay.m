@@ -83,13 +83,23 @@ static BOOL firstWordOnLine=YES;
     [cancelButton setFrame:CGRectMake(5, 7, 30, 30)];
 
     [cancelButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
-    
-    [cancelButton setImage:[UIImage imageNamed:@"konotor_cam"] forState:UIControlStateNormal];
-    [cancelButton setAlpha:0.4];
+    if([[KonotorUIParameters sharedInstance] imageInputEnabled]){
+        [cancelButton setImage:[UIImage imageNamed:@"konotor_cam"] forState:UIControlStateNormal];
+    }
+    else{
+        [cancelButton setTitle:@"X" forState:UIControlStateNormal];
+    }
+    [cancelButton setAlpha:1.0];
+
     [cancelButton setFrame:CGRectMake(4, 2, 40, 40)];
     [input setFrame:CGRectMake(input.frame.origin.x+10, input.frame.origin.y, input.frame.size.width-10, input.frame.size.height)];
-        
-    [cancelButton addTarget:self.sourceViewController action:@selector(showImageInput) forControlEvents:UIControlEventTouchUpInside];
+
+    if([[KonotorUIParameters sharedInstance] imageInputEnabled]){
+        [cancelButton addTarget:self.sourceViewController action:@selector(showImageInput) forControlEvents:UIControlEventTouchUpInside];
+    }
+    else{
+        [cancelButton addTarget:[KonotorTextInputOverlay class] action:@selector(dismissInput) forControlEvents:UIControlEventTouchUpInside];
+    }
         
     
     [textInputBox addSubview:cancelButton];
@@ -126,10 +136,10 @@ static BOOL firstWordOnLine=YES;
   
     [input performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:0.0];
     
-    BOOL showsInTab=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab;
+  /*  BOOL showsInTab=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab;
     if(showsInTab){
        [[KonotorFeedbackScreen sharedInstance].conversationViewController showCancelButton];
-    }
+    }*/
     
 }
 
@@ -302,7 +312,7 @@ static BOOL firstWordOnLine=YES;
     konotorTextInputBox=nil;
     [KonotorFeedbackScreen refreshMessages];
     }
-    [[KonotorFeedbackScreen sharedInstance].conversationViewController hideCancelButton];
+    //[[KonotorFeedbackScreen sharedInstance].conversationViewController hideCancelButton];
 }
 
 - (void) textViewDidEndEditing:(UITextView *)textView
