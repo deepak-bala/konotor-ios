@@ -1051,6 +1051,12 @@ NSString* otherName=nil,*userName=nil;
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    if(![Konotor areConversationsDownloading])
+        [Konotor DownloadAllMessages];
+}
+
 - (void) viewDidLayoutSubviews{
     [super viewDidLayoutSubviews];
     

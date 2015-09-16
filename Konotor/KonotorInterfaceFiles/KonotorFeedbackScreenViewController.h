@@ -43,9 +43,10 @@
 - (void) refreshView;
 - (void) showImageInput;
 - (void) showTextInput;
+/*
 - (void) showCancelButton;
 - (void) hideCancelButton;
-
+*/
 
 @end
 

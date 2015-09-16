@@ -46,8 +46,6 @@ static KonotorUIParameters* konotorUIParameters=nil;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
- //   self.view.autoresizesSubviews = YES;
- //   self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
 
  
@@ -281,6 +279,11 @@ static KonotorUIParameters* konotorUIParameters=nil;
     }
 }
 
+- (UIRectEdge)edgesForExtendedLayout
+{
+    return UIRectEdgeNone;
+}
+
 - (void) viewDidAppear:(BOOL)animated
 {
  
@@ -302,6 +305,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
         self.navigationItem.leftBarButtonItem=backButton;
 
     }
+    [messagesView refreshView];
 
 }
 
@@ -317,9 +321,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 }
 
 - (void) viewWillLayoutSubviews{
-    if(showingInTab){
-        self.view.frame=CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, self.parentViewController.view.frame.size.height-tabBarHeight);
-    }
+
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
         CGFloat topBarOffset = self.topLayoutGuide.length;
         [headerContainerView setFrame:CGRectMake(headerContainerView.frame.origin.x, headerContainerView.frame.origin.y, headerContainerView.frame.size.width, topBarOffset)];
@@ -355,7 +357,6 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
     }
     [messagesView refreshView];*/
-    [messagesView refreshView];
 
 }
 
