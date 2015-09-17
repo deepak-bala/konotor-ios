@@ -80,6 +80,7 @@ enum KonotorToastStyle{
 @property (strong, nonatomic) NSString* customFontName;
 @property (strong, nonatomic) UIFont* doneButtonFont;
 @property (strong, nonatomic) NSString* doneButtonText;
+@property (nonatomic) BOOL dismissesInputOnScroll;
 /*
  @property (strong, nonatomic) UIFont* cancelButtonFont;
 @property (strong, nonatomic) NSString* cancelButtonText;

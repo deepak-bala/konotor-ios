@@ -75,9 +75,18 @@ NSString* otherName=nil,*userName=nil;
     return self;
 }
 
+- (void) scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    KonotorUIParameters *konotorUIOptions=[KonotorUIParameters sharedInstance];
+    if(konotorUIOptions.dismissesInputOnScroll)
+        [KonotorTextInputOverlay dismissInput];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    [self.tableView setDelegate:self];
     
     [self.tableView setSeparatorColor:[UIColor clearColor]];
     [Konotor sendAllUnsentMessages];
@@ -1673,7 +1682,7 @@ NSString* otherName=nil,*userName=nil;
         timeString=[NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:NSDateFormatterShortStyle];
     }
     else{
-        if(days>7){
+        if((days>7)||(days<0)){
 #endif
             timeString=[NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
 #if KONOTOR_SMART_TIMESTAMP

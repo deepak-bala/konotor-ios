@@ -85,11 +85,12 @@ static BOOL firstWordOnLine=YES;
     [cancelButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
     if([[KonotorUIParameters sharedInstance] imageInputEnabled]){
         [cancelButton setImage:[UIImage imageNamed:@"konotor_cam"] forState:UIControlStateNormal];
+        [cancelButton setAlpha:0.4];
     }
     else{
-        [cancelButton setTitle:@"X" forState:UIControlStateNormal];
+        [cancelButton setImage:[UIImage imageNamed:@"konotor_cancel"] forState:UIControlStateNormal];
+        [cancelButton setAlpha:1.0];
     }
-    [cancelButton setAlpha:1.0];
 
     [cancelButton setFrame:CGRectMake(4, 2, 40, 40)];
     [input setFrame:CGRectMake(input.frame.origin.x+10, input.frame.origin.y, input.frame.size.width-10, input.frame.size.height)];
