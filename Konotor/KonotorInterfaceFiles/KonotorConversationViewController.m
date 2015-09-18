@@ -140,6 +140,17 @@ NSString* otherName=nil,*userName=nil;
     [Konotor MarkAllMessagesAsRead];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"Konotor_FinishedMessagePull" object:nil];
     [self registerForKeyboardNotifications];
+    
+    if(refreshMessagesTimer){
+        [refreshMessagesTimer invalidate];
+        refreshMessagesTimer=nil;
+    }
+    
+    
+    if(konotorUIOptions.pollingTimeNotOnChatWindow>0){
+        refreshMessagesTimer=[NSTimer scheduledTimerWithTimeInterval:((konotorUIOptions.pollingTimeNotOnChatWindow)>=5?konotorUIOptions.pollingTimeNotOnChatWindow:5)  target:[Konotor class] selector:@selector(DownloadAllMessages) userInfo:nil repeats:YES];
+        [refreshMessagesTimer fire];
+    }
   
 }
 
@@ -1058,16 +1069,32 @@ NSString* otherName=nil,*userName=nil;
  - (void) viewWillAppear:(BOOL)animated
 {
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    
+    [super viewWillAppear:animated];
+    
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if(![Konotor areConversationsDownloading])
-        [Konotor DownloadAllMessages];
+    [super viewDidAppear:animated];
 }
 
 - (void) viewDidLayoutSubviews{
     [super viewDidLayoutSubviews];
+    
+    if(![Konotor areConversationsDownloading])
+        [Konotor DownloadAllMessages];
+    
+    KonotorUIParameters *konotorUIOptions=[KonotorUIParameters sharedInstance];
+
+    
+    if(refreshMessagesTimer){
+        if(([refreshMessagesTimer isValid])&&([refreshMessagesTimer timeInterval]!=konotorUIOptions.pollingTimeOnChatWindow))
+        {
+            [refreshMessagesTimer invalidate];
+            refreshMessagesTimer=nil;
+        }
+    }
     
     if((refreshMessagesTimer==nil)||(![refreshMessagesTimer isValid])){
         BOOL notificationEnabled=NO;
@@ -1086,15 +1113,17 @@ NSString* otherName=nil,*userName=nil;
         }
         
         
-        if (!notificationEnabled) {
+        
+        if ((!notificationEnabled)||konotorUIOptions.alwaysPollForMessages) {
             if(refreshMessagesTimer)
                 [refreshMessagesTimer invalidate];
-            refreshMessagesTimer=[NSTimer scheduledTimerWithTimeInterval:10 target:[Konotor class] selector:@selector(DownloadAllMessages) userInfo:nil repeats:YES];
+            refreshMessagesTimer=[NSTimer scheduledTimerWithTimeInterval:((konotorUIOptions.pollingTimeOnChatWindow)>=5?konotorUIOptions.pollingTimeOnChatWindow:5)  target:[Konotor class] selector:@selector(DownloadAllMessages) userInfo:nil repeats:YES];
             [refreshMessagesTimer fire];
         }
-
+        
     }
     [Konotor setDelegate:self];
+    
 }
 
 
@@ -1103,6 +1132,13 @@ NSString* otherName=nil,*userName=nil;
     [refreshMessagesTimer invalidate];
     refreshMessagesTimer=nil;
     [Konotor setDelegate:[KonotorEventHandler sharedInstance]];
+
+    KonotorUIParameters *konotorUIOptions=[KonotorUIParameters sharedInstance];
+
+    if(konotorUIOptions.pollingTimeNotOnChatWindow>0){
+        refreshMessagesTimer=[NSTimer scheduledTimerWithTimeInterval:((konotorUIOptions.pollingTimeNotOnChatWindow)>=5?konotorUIOptions.pollingTimeNotOnChatWindow:5)  target:[Konotor class] selector:@selector(DownloadAllMessages) userInfo:nil repeats:YES];
+        [refreshMessagesTimer fire];
+    }
     [super viewWillDisappear:animated];
 }
 

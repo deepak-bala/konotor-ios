@@ -109,6 +109,10 @@ enum KonotorToastStyle{
 
 @property (nonatomic) BOOL notificationCenterMode;
 
+@property (nonatomic) int pollingTimeOnChatWindow;
+@property (nonatomic) int pollingTimeNotOnChatWindow;
+@property (nonatomic) BOOL alwaysPollForMessages;
+
 
 @property (nonatomic) enum UIModalTransitionStyle overlayTransitionStyle;
 

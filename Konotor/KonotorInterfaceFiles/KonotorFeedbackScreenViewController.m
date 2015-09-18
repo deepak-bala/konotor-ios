@@ -277,6 +277,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
     else{
         [self setUpDoneButton];
     }
+    [messagesView refreshView];
 }
 
 - (UIRectEdge)edgesForExtendedLayout
@@ -305,7 +306,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
         self.navigationItem.leftBarButtonItem=backButton;
 
     }
-    [messagesView refreshView];
+//    [messagesView refreshView];
 
 }
 
@@ -458,7 +459,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 @implementation KonotorUIParameters
 
-@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont,doneButtonText,dismissesInputOnScroll/*,cancelButtonText,cancelButtonFont,cancelButtonColor*/;
+@synthesize disableTransparentOverlay,headerViewColor,backgroundViewColor,voiceInputEnabled,imageInputEnabled,closeButtonImage,toastStyle,autoShowTextInput,titleText,toastBGColor,toastTextColor,textInputButtonImage,titleTextColor,showInputOptions,noPhotoOption,titleTextFont,allowSendingEmptyMessage,dontShowLoadingAnimation,sendButtonColor,doneButtonColor,userChatBubble,userTextColor,otherChatBubble,otherTextColor,overlayTransitionStyle,inputHintText,userProfileImage,otherProfileImage,showOtherName,showUserName,otherName,userName,messageTextFont,inputTextFont,notificationCenterMode,customFontName,doneButtonFont,doneButtonText,dismissesInputOnScroll,alwaysPollForMessages,pollingTimeNotOnChatWindow,pollingTimeOnChatWindow/*,cancelButtonText,cancelButtonFont,cancelButtonColor*/;
 
 + (KonotorUIParameters*) sharedInstance
 {
@@ -514,7 +515,10 @@ static KonotorUIParameters* konotorUIParameters=nil;
     /*    konotorUIParameters.cancelButtonColor=nil;
         konotorUIParameters.cancelButtonFont=nil;
         konotorUIParameters.cancelButtonText=nil;*/
-
+        
+        konotorUIParameters.pollingTimeOnChatWindow=10;
+        konotorUIParameters.pollingTimeNotOnChatWindow=-1;
+        konotorUIParameters.alwaysPollForMessages=NO;
 
     }
     return konotorUIParameters;
