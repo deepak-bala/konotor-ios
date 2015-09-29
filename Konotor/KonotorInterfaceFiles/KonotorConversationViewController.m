@@ -1155,22 +1155,14 @@ NSString* otherName=nil,*userName=nil;
     
 }
 
-// Called when the UIKeyboardDidShowNotification is sent.
-- (void)keyboardWasShown:(NSNotification*)aNotification
+- (void) adjustTableViewWithInset:(float)verticalInset
 {
-    NSDictionary* info = [aNotification userInfo];
-    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
-    
-    float adjustHeight=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab?([KonotorFeedbackScreen sharedInstance].conversationViewController.tabBarHeight):0;
-   // if([[self navigationController].tabBarController.viewControllers containsObject:[self navigationController]])
-    keyboardSize.height-=adjustHeight;
-    
     UIEdgeInsets contentInsets;
-    float verticalInset=10-([Konotor isPoweredByHidden]?14:0);
+    
     if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-        contentInsets = UIEdgeInsetsMake(10.0, 0.0, (keyboardSize.height-verticalInset), 0.0);
+        contentInsets = UIEdgeInsetsMake(10.0, 0.0,verticalInset , 0.0);
     } else {
-        contentInsets = UIEdgeInsetsMake(10.0, 0.0, (keyboardSize.height-verticalInset), 0.0);
+        contentInsets = UIEdgeInsetsMake(10.0, 0.0, verticalInset, 0.0);
     }
     
     self.tableView.contentInset = contentInsets;
@@ -1179,12 +1171,12 @@ NSString* otherName=nil,*userName=nil;
     int lastSpot=loading?numberOfMessagesShown:(numberOfMessagesShown-1);
     
     if([KonotorUIParameters sharedInstance].notificationCenterMode) lastSpot=0;
-
+    
     if(lastSpot<0) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:lastSpot inSection:0];
     
     @try {
-    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:NO];
     }
     @catch (NSException *exception ) {
         indexPath=[NSIndexPath indexPathForRow:(indexPath.row-1) inSection:0];
@@ -1195,6 +1187,23 @@ NSString* otherName=nil,*userName=nil;
             
         }
     }
+
+}
+
+
+// Called when the UIKeyboardDidShowNotification is sent.
+- (void)keyboardWasShown:(NSNotification*)aNotification
+{
+    NSDictionary* info = [aNotification userInfo];
+    CGSize keyboardSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+    
+    float adjustHeight=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab?([KonotorFeedbackScreen sharedInstance].conversationViewController.tabBarHeight):0;
+   // if([[self navigationController].tabBarController.viewControllers containsObject:[self navigationController]])
+    keyboardSize.height-=adjustHeight;
+    
+    float verticalInsetAdjustment=10-([Konotor isPoweredByHidden]?14:0);
+    
+    [self adjustTableViewWithInset:(keyboardSize.height-verticalInsetAdjustment)];
 }
 
 // Called when the UIKeyboardWillHideNotification is sent

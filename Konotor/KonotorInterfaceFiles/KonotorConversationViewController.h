@@ -139,6 +139,8 @@
 
 - (void) refreshView;
 - (void) dismissImageView;
+- (void) adjustTableViewWithInset:(float)verticalInset;
+
 @property (strong,nonatomic) KonotorImageView* fullImageView;
 
 @end

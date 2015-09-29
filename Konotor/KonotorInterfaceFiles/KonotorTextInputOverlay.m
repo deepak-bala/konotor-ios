@@ -54,9 +54,9 @@ static BOOL firstWordOnLine=YES;
     KonotorUITextView* input;
 
     if([KonotorUtility KonotorIsInterfaceLandscape:(((KonotorFeedbackScreen*)[KonotorFeedbackScreen sharedInstance]).conversationViewController)])
-        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.height-30-10-50-35+10+15, 44-6-6)];
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35+10, 6, window.frame.size.height-30-10-50-35+10+15-10, 44-6-6)];
     else
-        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35, 6, window.frame.size.width-30-10-50-35+10+15, 44-6-6)];
+        input=[[KonotorUITextView alloc] initWithFrame:CGRectMake(5+35+10, 6, window.frame.size.width-30-10-50-35+10+15-10, 44-6-6)];
 
     input.layer.borderWidth=1.0;
     input.layer.borderColor=[[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0] CGColor];
@@ -81,6 +81,7 @@ static BOOL firstWordOnLine=YES;
     
     UIButton *cancelButton=[UIButton buttonWithType:UIButtonTypeCustom];
     [cancelButton setFrame:CGRectMake(5, 7, 30, 30)];
+    [cancelButton setTag:KONOTOR_TEXTINPUT_CANCELBUTTON_TAG];
 
     [cancelButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
     if([[KonotorUIParameters sharedInstance] imageInputEnabled]){
@@ -93,12 +94,14 @@ static BOOL firstWordOnLine=YES;
     }
 
     [cancelButton setFrame:CGRectMake(4, 2, 40, 40)];
-    [input setFrame:CGRectMake(input.frame.origin.x+10, input.frame.origin.y, input.frame.size.width-10, input.frame.size.height)];
+  //  [input setFrame:CGRectMake(input.frame.origin.x+10, input.frame.origin.y, input.frame.size.width-10, input.frame.size.height)];
 
     if([[KonotorUIParameters sharedInstance] imageInputEnabled]){
         [cancelButton addTarget:self.sourceViewController action:@selector(showImageInput) forControlEvents:UIControlEventTouchUpInside];
     }
     else{
+        [input setFrame:CGRectMake(input.frame.origin.x-10-35, input.frame.origin.y, input.frame.size.width+10+35, input.frame.size.height)];
+        [cancelButton setHidden:YES];
         [cancelButton addTarget:[KonotorTextInputOverlay class] action:@selector(dismissInput) forControlEvents:UIControlEventTouchUpInside];
     }
         
@@ -203,6 +206,10 @@ static BOOL firstWordOnLine=YES;
     else
         txtWidth=self.window.frame.size.width-30-10-50-35+10+15;
     
+    if(![[KonotorUIParameters sharedInstance] imageInputEnabled]){
+        txtWidth+=35+10;
+    }
+    
     CGSize txtSize;
     
     float cameraAdjustment=10.0;
@@ -225,9 +232,9 @@ static BOOL firstWordOnLine=YES;
 
 //    [UIView commitAnimations];
 
+    float inputX=5+(([[KonotorUIParameters sharedInstance] imageInputEnabled])?(35+cameraAdjustment):0);
     
-    
-    input.frame=CGRectMake(5+35+cameraAdjustment,5,txtWidth-cameraAdjustment,txtSize.height);
+    input.frame=CGRectMake(inputX,5,txtWidth-cameraAdjustment,txtSize.height);
 
     
 }
@@ -326,6 +333,7 @@ static BOOL firstWordOnLine=YES;
     KonotorUITextView* textBox=(KonotorUITextView*)textView;
     NSString *txt=textBox.text;
     UIButton* sendButton = (UIButton*)[self.textInputBox viewWithTag:KONOTOR_TEXTINPUT_SENDBUTTON_TAG];
+    UIButton* cancelButton = (UIButton*)[self.textInputBox viewWithTag:KONOTOR_TEXTINPUT_CANCELBUTTON_TAG];
 
     if((txt==nil)||([txt isEqualToString:@""])){
         sendButton.enabled=NO;
@@ -346,9 +354,15 @@ static BOOL firstWordOnLine=YES;
     else{
         textView.scrollEnabled=NO;
     }
-
     
-    textInputBox.frame=CGRectMake(textInputBox.frame.origin.x, textInputBox.frame.origin.y-(txtSize.height-textBox.frame.size.height), textInputBox.frame.size.width, textInputBox.frame.size.height+(txtSize.height-textBox.frame.size.height));
+    float adjustment=txtSize.height-textBox.frame.size.height;
+
+    if(adjustment!=0){
+        textInputBox.frame=CGRectMake(textInputBox.frame.origin.x, textInputBox.frame.origin.y-(txtSize.height-textBox.frame.size.height), textInputBox.frame.size.width, textInputBox.frame.size.height+(txtSize.height-textBox.frame.size.height));
+        sendButton.frame=CGRectMake(sendButton.frame.origin.x, sendButton.frame.origin.y+txtSize.height-textBox.frame.size.height, sendButton.frame.size.width, sendButton.frame.size.height);
+        cancelButton.frame=CGRectMake(cancelButton.frame.origin.x, cancelButton.frame.origin.y+txtSize.height-textBox.frame.size.height, cancelButton.frame.size.width, cancelButton.frame.size.height);
+        [[KonotorFeedbackScreen sharedInstance].conversationViewController.messagesView adjustTableViewWithInset:([KonotorFeedbackScreen sharedInstance].conversationViewController.messagesView.tableView.contentInset.bottom+adjustment)];
+    }
     
     textBox.frame=CGRectMake(textView.frame.origin.x,textView.frame.origin.y,textView.frame.size.width,txtSize.height);
     
