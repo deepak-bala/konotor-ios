@@ -1157,12 +1157,12 @@ NSString* otherName=nil,*userName=nil;
 
 - (void) adjustTableViewWithInset:(float)verticalInset
 {
-    UIEdgeInsets contentInsets;
+    UIEdgeInsets contentInsets=self.tableView.contentInset;
     
     if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
-        contentInsets = UIEdgeInsetsMake(10.0, 0.0,verticalInset , 0.0);
+        contentInsets = UIEdgeInsetsMake(contentInsets.top, contentInsets.left,verticalInset , contentInsets.right);
     } else {
-        contentInsets = UIEdgeInsetsMake(10.0, 0.0, verticalInset, 0.0);
+        contentInsets = UIEdgeInsetsMake(contentInsets.top, contentInsets.left,verticalInset , contentInsets.right);
     }
     
     self.tableView.contentInset = contentInsets;
@@ -1209,7 +1209,8 @@ NSString* otherName=nil,*userName=nil;
 // Called when the UIKeyboardWillHideNotification is sent
 - (void)keyboardWillBeHidden:(NSNotification*)aNotification
 {
-    UIEdgeInsets contentInsets = UIEdgeInsetsMake(6, 0, 6, 0);
+    UIEdgeInsets contentInsets = self.tableView.contentInset;
+    contentInsets=UIEdgeInsetsMake(contentInsets.top, contentInsets.left,6 , contentInsets.right);
     self.tableView.contentInset = contentInsets;
     self.tableView.scrollIndicatorInsets = contentInsets;
     int lastSpot=loading?numberOfMessagesShown:(numberOfMessagesShown-1);
