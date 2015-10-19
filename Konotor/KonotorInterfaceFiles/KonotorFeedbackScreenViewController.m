@@ -114,6 +114,8 @@ static KonotorUIParameters* konotorUIParameters=nil;
     UILongPressGestureRecognizer* longPress=[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(showTextInput)];
     [input addGestureRecognizer:tap];
     [input addGestureRecognizer:longPress];
+    if([input respondsToSelector:@selector(setSelectable:)])
+        [input setSelectable:NO];
     input.layer.borderColor=[[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0] CGColor];
     input.layer.borderWidth=1.0;
     input.layer.cornerRadius=5.0;
