@@ -30,7 +30,7 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
 + (BOOL) showFeedbackScreenWithViewController:(UIViewController*) viewController
 {
     KonotorFeedbackScreen* fbScreen=[KonotorFeedbackScreen sharedInstance];
-    if(fbScreen.conversationViewController!=nil)
+    if(fbScreen.conversationViewController.isViewLoaded&&fbScreen.conversationViewController.view.window)
         return NO;
     else{
         konotorFeedbackScreen.conversationViewController=[[KonotorFeedbackScreenViewController alloc] initWithNibName:@"KonotorFeedbackScreenViewController" bundle:nil];
@@ -54,7 +54,7 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
 + (BOOL) showFeedbackScreen
 {
     KonotorFeedbackScreen* fbScreen=[KonotorFeedbackScreen sharedInstance];
-    if(fbScreen.conversationViewController!=nil)
+    if(fbScreen.conversationViewController.isViewLoaded&&fbScreen.conversationViewController.view.window)
         return NO;
     else{
         
@@ -106,11 +106,7 @@ static KonotorFeedbackScreen* konotorFeedbackScreen=nil;
 {
     [KonotorTextInputOverlay dismissInput];
     [KonotorVoiceInputOverlay dismissVoiceInput];
-    [konotorFeedbackScreen.conversationViewController dismissViewControllerAnimated:YES completion:^{
-        konotorFeedbackScreen.conversationViewController=nil;
-        konotorFeedbackScreen.window=nil;
-        konotorFeedbackScreen=nil;
-        konotorFeedbackScreen.konotorFeedbackScreenNavigationController=nil;
+    [konotorFeedbackScreen.konotorFeedbackScreenNavigationController dismissViewControllerAnimated:YES completion:^{
         [Konotor setDelegate:[KonotorEventHandler sharedInstance]];
         [Konotor StopPlayback];
 

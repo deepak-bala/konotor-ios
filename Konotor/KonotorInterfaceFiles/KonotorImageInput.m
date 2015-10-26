@@ -125,6 +125,7 @@ static KonotorImageInput* konotorImageInput=nil;
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
+    float adjustHeight=[KonotorFeedbackScreen sharedInstance].conversationViewController.showingInTab?([KonotorFeedbackScreen sharedInstance].conversationViewController.tabBarHeight):0;
     
     [[sourceViewController navigationController] setNavigationBarHidden:YES animated:NO];
     
@@ -146,13 +147,13 @@ static KonotorImageInput* konotorImageInput=nil;
     {
         height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.width-100-50)*2);
         width=MIN(520,selectedImage.size.width*height/selectedImage.size.height);
-        screenHeight=[[UIScreen mainScreen] bounds].size.width;
+        screenHeight=[[UIScreen mainScreen] bounds].size.width-adjustHeight;
         screenWidth=[[UIScreen mainScreen] bounds].size.height;
     }
     else{
         height=MIN(selectedImage.size.height,([[UIScreen mainScreen] bounds].size.height-100-50)*2);
         width=MIN(520,selectedImage.size.width*height/selectedImage.size.height);
-        screenHeight=[[UIScreen mainScreen] bounds].size.height;
+        screenHeight=[[UIScreen mainScreen] bounds].size.height-adjustHeight;
         screenWidth=[[UIScreen mainScreen] bounds].size.width;
     }
     
@@ -223,7 +224,7 @@ static KonotorImageInput* konotorImageInput=nil;
     
     [self registerForKeyboardNotifications];
     
-#if KONOTOR_ENABLECAPTIONS
+#if KONOTOR_ENABLEINPUTCAPTIONS
     [alertOptions addSubview:caption];
 #endif
     
