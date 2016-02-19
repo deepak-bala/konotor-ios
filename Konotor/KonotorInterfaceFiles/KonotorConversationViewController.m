@@ -268,7 +268,7 @@ NSString* otherName=nil,*userName=nil;
     }
     
     messageContentViewWidth = KONOTOR_TEXTMESSAGE_MAXWIDTH;
-    if([currentMessage messageType].integerValue==KonotorMessageTypeText){
+    if(([currentMessage messageType].integerValue==KonotorMessageTypeText)&&(([[currentMessage actionURL] isEqualToString:@""])||currentMessage.actionURL==nil)){
         CGSize sizer = [self getSizeOfTextViewWidth:(KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING) text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT];
         int numLines = (sizer.height-10) / ([self getTextViewLineHeight:(KONOTOR_TEXTMESSAGE_MAXWIDTH-KONOTOR_MESSAGE_BACKGROUND_IMAGE_SIDE_PADDING) text:currentMessage.text withFont:KONOTOR_MESSAGETEXT_FONT]);
         if (numLines == 1)
@@ -1826,7 +1826,7 @@ NSString* otherName=nil,*userName=nil;
     float padding = KONOTOR_BUTTON_HORIZONTAL_PADDING*2;
     float maxButtonWidth =messageFrameWidth-horizontalPadding*2;
     
-    UIFont *actionLabelFont=([KonotorUIParameters sharedInstance].customFontName?[UIFont fontWithName:[KonotorUIParameters sharedInstance].customFontName size:16.0]:KONOTOR_BUTTON_FONT);
+    UIFont *actionLabelFont=([KonotorUIParameters sharedInstance].customFontName?[UIFont fontWithName:[KonotorUIParameters sharedInstance].customFontName size:14.0]:KONOTOR_BUTTON_FONT);
 
     
     UITextView* txtView=[[UITextView alloc] init];

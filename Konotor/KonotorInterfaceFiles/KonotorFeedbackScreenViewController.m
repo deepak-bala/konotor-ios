@@ -330,6 +330,7 @@ static KonotorUIParameters* konotorUIParameters=nil;
 
 - (void) showImageInput
 {
+    [KonotorTextInputOverlay dismissInput];
     [KonotorImageInput showInputOptions:self];
 
 }
